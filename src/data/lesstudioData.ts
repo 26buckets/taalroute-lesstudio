@@ -25,11 +25,12 @@ export const didactischeTipFallback = "Kies een korte aanpak die past bij doel, 
 export const veldUitlegBank: Record<string, string> = {
   lesonderwerp: "Beschrijf kort waar de les over gaat. Bijvoorbeeld het thema, de taak of de vaardigheid die centraal staat.",
   groepsniveau: "Kies het niveau van de groep. Dit helpt om taal, taak en ondersteuning passend te maken.",
-  standaard: "Kies het profiel waarmee je naar de les kijkt. Het profiel bepaalt welke kwaliteitspunten en suggesties belangrijk zijn.",
-  didactischModel: "Kies hoe de les wordt opgebouwd. Het profiel bepaalt de kwaliteitsbril. Het didactisch model bepaalt de lesroute.",
+  standaard: "Kies de lesroute. BOW staat altijd aan als auditlijn; de lesroute bepaalt welke extra velden en suggesties je gebruikt.",
+  didactischModel: "Kies hoe de les wordt opgebouwd. BOW bewaakt de kwaliteit. De lesroute geeft extra accenten. Het didactisch model bepaalt de lesopbouw.",
   lesduur: "Kies hoeveel minuten de les duurt. De app gebruikt dit om de tijdsindeling logisch te verdelen.",
   aangepasteInstructies: "Gebruik dit veld voor extra afspraken, schoolregels, wensen of context die in deze les belangrijk is.",
   boekPaginas: "Beschrijf welk boek, thema, tekst, taak of welke pagina's centraal staan.",
+  profielFocus: "Beschrijf welk accent de gekozen lesroute krijgt. Bijvoorbeeld methodeopbouw, niveau, examen, praktijk of werkcontext.",
   lesdoel: "Beschrijf concreet wat de cursist in deze les leert of oefent.",
   leeropbrengst: "Beschrijf wat de cursist aan het einde van de les kan laten zien, zeggen, schrijven of toepassen.",
   hoofdvaardigheid: "Kies de vaardigheid die in deze les centraal staat.",
@@ -75,7 +76,7 @@ export const veldUitlegBank: Record<string, string> = {
 export const didactischeTipBank: Record<string, string[]> = {
   lesonderwerp: ["Maak het onderwerp herkenbaar voor cursisten.", "Kies liever een concrete taak dan een breed thema.", "Verbind het onderwerp aan boek, praktijk of examen."],
   groepsniveau: ["Controleer of taal, tempo en steun passen bij de groep.", "Plan extra taalhulp bij niveauverschillen.", "Laat de taak makkelijker of moeilijker worden zonder het doel te veranderen."],
-  standaard: ["Gebruik het profiel als kwaliteitsbril, niet als extra formulier.", "Laat het profiel bepalen waar je scherper op let.", "Kies het profiel dat het best past bij het doel van deze les."],
+  standaard: ["Gebruik BOW als vaste auditlijn en kies alleen een extra lesroute als die nodig is.", "Laat de lesroute bepalen welke extra accenten je wilt zien.", "Kies Geen extra profiel als je snel met de auditlijn wilt werken."],
   didactischModel: ["Kies het model voordat je de tijd verdeelt.", "Gebruik VUT als basis en kies ABCD, EDI of taakgericht als de les daarom vraagt.", "Laat het model zichtbaar terugkomen in de volgorde van activiteiten."],
   lesduur: ["Reserveer altijd tijd voor terugblik.", "Bij korte lessen hoort minder uitleg en meer focus.", "Bij lange lessen helpt een pauze of duidelijke overgang."],
   aangepasteInstructies: ["Zet hier alleen context die de les echt stuurt.", "Gebruik dit veld voor afspraken die anders vergeten worden.", "Maak extra instructies kort en uitvoerbaar."],
@@ -123,7 +124,7 @@ export const didactischeTipBank: Record<string, string[]> = {
 };
 
 Object.assign(veldUitlegBank, {
-  profielFocus: "Noteer welk profielaccent naast de BOW auditlijn extra belangrijk is.",
+  profielFocus: "Noteer welk lesroute-accent naast de BOW auditlijn extra belangrijk is.",
   themafase: "Kies waar de les zit in de methodeopbouw: orientatie, input, oefenen, toepassen, herhalen of toetsen.",
   praktijkkern: "Beschrijf de herkenbare praktijkkern van het thema.",
   werkbrug: "Beschrijf hoe de les een brug maakt naar werk, school, thuis of samenleving.",
@@ -184,7 +185,7 @@ export const lesVeldKeys = Object.keys(veldUitlegBank);
 const veldBasis: Record<string, string> = {
   lesonderwerp: "De docent kiest een herkenbaar onderwerp dat past bij de groep.",
   groepsniveau: "De docent stemt taal, taak en steun af op het groepsniveau.",
-  standaard: "De docent gebruikt het gekozen profiel als kwaliteitsbril voor de les.",
+  standaard: "De docent gebruikt BOW als vaste auditlijn en kiest eventueel een extra lesroute.",
   didactischModel: "De docent bouwt de les op volgens het gekozen didactische model.",
   lesduur: "De docent verdeelt de lestijd over start, kern, toepassing, feedback en terugblik.",
   aangepasteInstructies: "De docent verwerkt extra afspraken of context in de voorbereiding.",

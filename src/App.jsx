@@ -36,19 +36,19 @@ const helpSecties = [
   },
   {
     titel: "Werk in drie stappen",
-    tekst: ["Stap 1 Invullen: vul de basisgegevens in, kies een profiel, kies een didactisch model en plak of schrijf de lesinformatie.", "Stap 2 Aanpassen: controleer het lesplan, pas teksten aan en vul ontbrekende onderdelen aan.", "Stap 3 Downloaden en printen: bekijk de printversie, kies Volledig plan of Samenvatting, print de pagina of download een HTML bestand dat je los in de browser kunt openen."]
+    tekst: ["Stap 1 Invullen: vul de basisgegevens in, kies een lesroute, kies een didactisch model en plak of schrijf de lesinformatie.", "Stap 2 Aanpassen: controleer het lesplan, pas teksten aan en vul ontbrekende onderdelen aan.", "Stap 3 Downloaden en printen: bekijk de printversie, kies Volledig plan of Samenvatting, print de pagina of download een HTML bestand dat je los in de browser kunt openen."]
   },
   {
-    titel: "Wat is een profiel?",
-    tekst: ["Het profiel bepaalt vanuit welke kwaliteitsbril de les wordt opgebouwd. BOW blijft altijd actief als auditlijn. Elk profiel geeft andere velden en andere suggesties bij de plusknop.", "BOW Kwaliteitsprofiel: voor lessen waarin leskwaliteit, doelgerichtheid, VUT, actieve deelname, praktijkleren, feedback en voortgang zichtbaar moeten zijn.", "Taalroute Profiel: voor lessen die sterk moeten aansluiten op de Taalroute methode, het boek, de werkbrug, de ELO, kernwoorden en de praktijktaak.", "ERK Niveauprofiel: voor lessen waarin het taalniveau, de can do doelen, de hoofdvaardigheid, de mate van steun en de leeropbrengst centraal staan.", "NT2-examenprofiel: voor lessen die voorbereiden op examenvaardigheid, taaktype, strategie, tijdsbewaking en beoordelingscriteria.", "Z-route Alfabeta+ profiel: voor lessen met eenvoudige taal, herhaling, beeldsteun, voordoen, nadoen, mondelinge interactie en haalbare praktijkopdrachten.", "Beroepsgericht profiel: voor lessen waarin werktaal, vaktaal, beroepshandeling, veiligheid, samenwerken en werknemersvaardigheden centraal staan."]
+    titel: "Wat is een lesroute?",
+    tekst: ["De BOW auditlijn staat altijd aan als vaste kwaliteitscontrole. De lesroute bepaalt welke extra inhoudelijke bril, velden en suggesties je naast BOW gebruikt.", "Geen extra profiel: je werkt alleen met de vaste BOW auditlijn.", "Taalroute Profiel: voor lessen die sterk moeten aansluiten op de Taalroute methode, het boek, de werkbrug, de ELO, kernwoorden en de praktijktaak.", "ERK Niveauprofiel: voor lessen waarin het taalniveau, de can do doelen, de hoofdvaardigheid, de mate van steun en de leeropbrengst centraal staan.", "NT2-examenprofiel: voor lessen die voorbereiden op examenvaardigheid, taaktype, strategie, tijdsbewaking en beoordelingscriteria.", "Z-route Alfabeta+ profiel: voor lessen met eenvoudige taal, herhaling, beeldsteun, voordoen, nadoen, mondelinge interactie en haalbare praktijkopdrachten.", "Beroepsgericht profiel: voor lessen waarin werktaal, vaktaal, beroepshandeling, veiligheid, samenwerken en werknemersvaardigheden centraal staan."]
   },
   {
     titel: "Wat is een didactisch model?",
-    tekst: ["Het didactisch model bepaalt hoe de les wordt opgebouwd. Het profiel bepaalt waar je op let. Het didactisch model bepaalt de route van de les.", "VUT-model: de les wordt opgebouwd met vooruitkijken, uitvoeren en terugkijken.", "ABCD-model: de les wordt opgebouwd van input naar reproductie, gestuurde productie en vrije productie.", "EDI-model: de les wordt opgebouwd met expliciete instructie, voordoen, begripcheck, begeleide oefening en zelfstandige verwerking.", "Taakgericht model: de les wordt opgebouwd rond een herkenbare taak, met taalsteun, uitvoering, feedback en verbetering.", "Terugplannen vanuit de eindtaak: de les start bij de eindtaak. Daarna wordt teruggebouwd naar de woorden, zinnen, input en oefeningen die nodig zijn."]
+    tekst: ["Het didactisch model bepaalt hoe de les wordt opgebouwd. BOW bepaalt de vaste kwaliteitscontrole. De lesroute bepaalt de extra inhoudelijke bril. Het didactisch model bepaalt de route van de les.", "VUT-model: de les wordt opgebouwd met vooruitkijken, uitvoeren en terugkijken.", "ABCD-model: de les wordt opgebouwd van input naar reproductie, gestuurde productie en vrije productie.", "EDI-model: de les wordt opgebouwd met expliciete instructie, voordoen, begripcheck, begeleide oefening en zelfstandige verwerking.", "Taakgericht model: de les wordt opgebouwd rond een herkenbare taak, met taalsteun, uitvoering, feedback en verbetering.", "Terugplannen vanuit de eindtaak: de les start bij de eindtaak. Daarna wordt teruggebouwd naar de woorden, zinnen, input en oefeningen die nodig zijn."]
   },
   {
     titel: "Knoppen en editor",
-    tekst: ["? Vraagtekenknop: geeft korte uitleg over het veld waarin je werkt.", "💡 Lightbulb: toont didactische tips die passen bij het onderdeel.", "✓ Vinkje: opent de verbeterhulp om tekst concreter, praktijkgerichter of BOW-proof te maken.", "+ Plusknop: voegt passende suggesties toe op basis van profiel, didactisch model en veld.", "B Canvas-editor: maakt geselecteerde tekst dikgedrukt op stap 2.", "I Canvas-editor: maakt geselecteerde tekst cursief op stap 2.", "• Canvas-editor: maakt van geselecteerde tekst een opsomming.", "+ Canvas-editor: voegt een nieuwe regel toe aan het actieve tekstvlak."]
+    tekst: ["? Vraagtekenknop: geeft korte uitleg over het veld waarin je werkt.", "💡 Lightbulb: toont didactische tips die passen bij het onderdeel.", "✓ Vinkje: opent de verbeterhulp om tekst concreter, praktijkgerichter of BOW-proof te maken.", "+ Plusknop: voegt passende suggesties toe op basis van BOW, lesroute, didactisch model en veld.", "B Canvas-editor: maakt geselecteerde tekst dikgedrukt op stap 2.", "I Canvas-editor: maakt geselecteerde tekst cursief op stap 2.", "• Canvas-editor: maakt van geselecteerde tekst een opsomming.", "+ Canvas-editor: voegt een nieuwe regel toe aan het actieve tekstvlak."]
   },
   {
     titel: "Hoe werkt de lesduur?",
@@ -56,11 +56,11 @@ const helpSecties = [
   },
   {
     titel: "Wat moet ik minimaal invullen?",
-    tekst: ["Vul minimaal deze onderdelen in: Lesonderwerp, Groepsniveau, Profiel, Didactisch model, Lesduur, Lesdoel, Leeropbrengst, Hoofdvaardigheid, Taalfocus, VUT, Functionele taak, Check op begrip, Praktijkleren, Terugblik en Huiswerk.", "Als er nog weinig data is ingevuld, kun je starten met basisgegevens en daarna de plusknoppen gebruiken om goede startteksten toe te voegen."]
+    tekst: ["Vul minimaal deze onderdelen in: Lesonderwerp, Groepsniveau, Lesroute, Didactisch model, Lesduur, Lesdoel, Leeropbrengst, Hoofdvaardigheid, Taalfocus, VUT, Functionele taak, Check op begrip, Praktijkleren, Terugblik en Huiswerk.", "Als er nog weinig data is ingevuld, kun je starten met basisgegevens en daarna de plusknoppen gebruiken om goede startteksten toe te voegen."]
   },
   {
     titel: "Beste werkwijze",
-    tekst: ["Begin met de basisgegevens. Kies daarna profiel en didactisch model. Gebruik de knoppen bij de velden als je uitleg, tips, verbeterhulp of suggesties nodig hebt. Controleer het lesplan op stap 2. Gebruik stap 3 voor printen of downloaden."]
+    tekst: ["Begin met de basisgegevens. Kies daarna lesroute en didactisch model. Gebruik de knoppen bij de velden als je uitleg, tips, verbeterhulp of suggesties nodig hebt. Controleer het lesplan op stap 2. Gebruik stap 3 voor printen of downloaden."]
   },
   {
     titel: "Printen en downloaden",
@@ -139,7 +139,7 @@ const privacyTekstVoorTests = privacySecties.map((sectie) => `${sectie.titel}\n$
 function formatHelpTekst(tekst) {
   const patronen = [
     "Stap 1 Invullen", "Stap 2 Aanpassen", "Stap 3 Downloaden en printen",
-    "BOW Kwaliteitsprofiel", "Taalroute Profiel", "ERK Niveauprofiel", "NT2-examenprofiel", "Z-route Alfabeta+ profiel", "Beroepsgericht profiel",
+    "BOW Kwaliteitsprofiel", "Geen extra profiel", "Taalroute Profiel", "ERK Niveauprofiel", "NT2-examenprofiel", "Z-route Alfabeta+ profiel", "Beroepsgericht profiel",
     "VUT-model", "ABCD-model", "EDI-model", "Taakgericht model", "Terugplannen vanuit de eindtaak",
     "vraagtekenknop", "vraagtekenknoppen", "plusknop", "plusknoppen", "BOW", "Volledig plan", "Samenvatting", "HTML bestand", "Chrome", "Edge", "Functionele taak"
   ];
@@ -301,7 +301,7 @@ const legeLes = {
 };
 
 const veldGroepen = [
-  { id: "basis", titel: "Basisgegevens", omschrijving: "Doel, opbrengst, niveau en kern van de les.", velden: [["profielFocus", "Profiel focus", 2], ["boekPaginas", "Boek en inhoud", 4], ["lesdoel", "Lesdoel", 3], ["leeropbrengst", "Leeropbrengst", 3], ["hoofdvaardigheid", "Hoofdvaardigheid", 2], ["ondersteunendeVaardigheid", "Ondersteunende vaardigheid", 2]] },
+  { id: "basis", titel: "Basisgegevens", omschrijving: "Doel, opbrengst, niveau en kern van de les.", velden: [["profielFocus", "Lesroute focus", 2], ["boekPaginas", "Boek en inhoud", 4], ["lesdoel", "Lesdoel", 3], ["leeropbrengst", "Leeropbrengst", 3], ["hoofdvaardigheid", "Hoofdvaardigheid", 2], ["ondersteunendeVaardigheid", "Ondersteunende vaardigheid", 2]] },
   { id: "vaardigheden", titel: "Vaardigheden en taal", omschrijving: "Lezen, luisteren, spreken, schrijven, grammatica, uitspraak en woordenschat.", velden: [["lezen", "Lezen", 3], ["luisteren", "Luisteren", 3], ["spreken", "Spreken", 3], ["schrijven", "Schrijven", 3], ["woordenschatactiviteit", "Woordenschatactiviteit", 4], ["grammatica", "Grammatica", 3], ["uitspraak", "Uitspraak", 3], ["taalfocus", "Taalfocus", 3]] },
   { id: "taken", titel: "Taken en verwerking", omschrijving: "Input, output, functionele taak, spreken en actieve deelname.", velden: [["receptieveInput", "Receptieve input", 3], ["productieveTaak", "Productieve taak", 3], ["functioneleTaak", "Functionele taak", 4], ["momentCursistAanHetWoord", "Moment cursist aan het woord", 4], ["werkvormActieveDeelname", "Werkvorm actieve deelname", 4]] },
   { id: "vut", titel: "VUT en tijd", omschrijving: "Vooruitkijken, uitvoeren, terugkijken en planning.", velden: [["vutVooruitkijken", "VUT vooruitkijken", 3], ["vutUitvoeren", "VUT uitvoeren", 3], ["vutTerugkijken", "VUT terugkijken", 3], ["tijdsindeling", "Tijdsindeling", 6]] },
@@ -327,14 +327,14 @@ const profielVeldGroepen = {
 
 const weergaveModi = {
   bow: {
-    label: "Alleen BOW",
+    label: "Alleen auditlijn",
     titel: "Compacte modus",
-    uitleg: "Snel een auditwaardige basisles maken."
+    uitleg: "Werk alleen met de vaste BOW auditlijn."
   },
   profiel: {
-    label: "Profielvelden",
+    label: "Auditlijn + lesroute",
     titel: "Uitgebreide modus",
-    uitleg: "Werk met BOW plus de velden die passen bij je gekozen profiel."
+    uitleg: "Werk met BOW plus de velden die passen bij je gekozen lesroute."
   },
   alles: {
     label: "Alles",
@@ -532,7 +532,7 @@ function maakVoorbeeldLes(profielId = "taalroute", niveau = "") {
     ...profielVoorbeelden.staatsexamen,
     ...profielVoorbeelden.zroute,
     ...profielVoorbeelden.mbo,
-    aangepasteInstructies: `Voorbeeldles over naar de dokter op ${voorbeeld.label}. Alle profielvelden zijn op de achtergrond gevuld; de docent kan in Alleen BOW starten en later profielvelden of alles openen.`,
+    aangepasteInstructies: `Voorbeeldles over naar de dokter op ${voorbeeld.label}. Alle lesroutevelden zijn op de achtergrond gevuld; de docent kan in Alleen auditlijn starten en later Auditlijn + lesroute of Alles openen.`,
     ...(profielVoorbeelden[profielId] || {})
   };
 }
@@ -596,7 +596,7 @@ const veldUitleg = {
   leeropbrengst: "Beschrijf wat de cursist aan het einde van de les kan laten zien, zeggen, schrijven of toepassen.",
   functioneleTaak: "Beschrijf een herkenbare taak buiten de les, zoals iets vragen, uitleggen, invullen, melden of reageren.",
   checkOpBegrip: "Beschrijf hoe je controleert of cursisten uitleg, tekst, opdracht of instructie begrijpen.",
-  didactischModel: "Het profiel bepaalt de kwaliteitsbril; het didactische model bepaalt de lesopbouw."
+  didactischModel: "BOW bepaalt de vaste kwaliteitscontrole; de lesroute bepaalt de extra bril; het didactische model bepaalt de lesopbouw."
 };
 
 function schoonTekst(tekst) {
@@ -621,7 +621,7 @@ function lesThema(form) {
 }
 
 function lesProfielLabel(form) {
-  return profielInfo[form?.standaard || "bow"]?.label || "BOW Kwaliteitsprofiel";
+  return lesrouteLabel(form?.standaard || "bow");
 }
 
 function formatDatumTijd(waarde) {
@@ -726,8 +726,13 @@ function actieveProfielen(form) {
   return [...new Set(["bow", form.standaard || "bow", ...(Array.isArray(form.extraProfielen) ? form.extraProfielen : [])])].filter((id) => profielInfo[id]);
 }
 
+function lesrouteLabel(id) {
+  return id === "bow" ? "Geen extra profiel" : profielInfo[id]?.label || "Geen extra profiel";
+}
+
 function profielLabels(ids) {
-  return ids.map((id) => profielInfo[id]?.label).filter(Boolean).join(" + ");
+  const extraIds = ids.filter((id) => id !== "bow");
+  return extraIds.length ? extraIds.map((id) => profielInfo[id]?.label).filter(Boolean).join(" + ") : "Geen extra profiel";
 }
 
 function veldGroepenVoorProfielen(form) {
@@ -1572,9 +1577,9 @@ function maakSecties(form) {
     form.uitspraak && `Uitspraak: ${form.uitspraak}`
   );
   return [
-    { id: "meta", titel: "Lesgegevens", inhoud: [`Groepsniveau: ${form.groepsniveau || "Nog niet gekozen"}`, `Lesduur: ${form.lesduur} minuten`, `Profielen: ${profielLabels(actieveIds)}`, `BOW auditlijn: altijd actief`, `Didactisch model: ${model.label}`].join(NL) },
+    { id: "meta", titel: "Lesgegevens", inhoud: [`Groepsniveau: ${form.groepsniveau || "Nog niet gekozen"}`, `Lesduur: ${form.lesduur} minuten`, `Lesroute: ${profielLabels(actieveIds)}`, `BOW auditlijn: altijd actief`, `Didactisch model: ${model.label}`].join(NL) },
     { id: "instructies", titel: "Aangepaste instructies", inhoud: form.aangepasteInstructies },
-    { id: "focus", titel: "Profiel focus", inhoud: form.profielFocus },
+    { id: "focus", titel: "Lesroute focus", inhoud: form.profielFocus },
     { id: "boek", titel: "Boek en inhoud", inhoud: form.boekPaginas },
     { id: "methode", titel: "Taalroute methodeopbouw", inhoud: voegSamen(
       form.themafase && `Themafase: ${form.themafase}`,
@@ -1862,7 +1867,7 @@ function maakSamenvattingHtml(titel, secties, extraIds = []) {
   const doelTekst = schoneSamenvattingTekst(sectieInhoud(secties, "doel"));
   const introTekst = doelTekst.length > 260
     ? "Doelgerichte lesvoorbereiding met BOW auditlijn. Lange onderdelen zijn volledig opgenomen bij Uitgebreide onderdelen."
-    : (doelTekst || "Doelgerichte lesvoorbereiding met BOW auditlijn en profielgerichte accenten.");
+    : (doelTekst || "Doelgerichte lesvoorbereiding met BOW auditlijn en lesroutegerichte accenten.");
   const bowBasis = [
     ["Lesdoel", sectieInhoud(secties, "doel")],
     ["Leeropbrengst", sectieInhoud(secties, "opbrengst")],
@@ -2016,7 +2021,7 @@ function maakSamenvattingPdfBlob(titel, secties) {
   nieuw();
   inhoud.push(`BT /F2 24 Tf ${donker} rg ${marge} ${y} Td (${pdfTekst(titel || "Taalroute lesplan")}) Tj ET`);
   y -= 32;
-  tekst(compactTekst(sectieInhoud(secties, "doel") || "Doelgerichte lesvoorbereiding met BOW auditlijn en profielgerichte accenten.", 260), marge, 10, "F1", grijs, 92, 14);
+  tekst(compactTekst(sectieInhoud(secties, "doel") || "Doelgerichte lesvoorbereiding met BOW auditlijn en lesroutegerichte accenten.", 260), marge, 10, "F1", grijs, 92, 14);
   y -= 8;
 
   kop("Lesgegevens");
@@ -2422,7 +2427,7 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
       ) : null}
       {suggestiesOpen ? (
         <div className="suggesties">
-          <strong>{profielIds?.length > 1 ? "Gecombineerde profiel suggesties" : maakSuggestieMenuTitel(profielId)}</strong>
+          <strong>{profielIds?.length > 1 ? "Gecombineerde suggesties" : maakSuggestieMenuTitel(profielId)}</strong>
           {opties.map((optie) => (
             <button key={optie} type="button" onClick={() => {
               onChange(waarde.includes(optie) ? waarde : waarde ? `${waarde}${NL}${optie}` : optie);
@@ -2486,7 +2491,7 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
                 <div className="verbeterTaalsteun">
                   <span>Kernwoorden: {verbeterTaalsteun.woorden.join(", ")}</span>
                   <span>Voorbeeldzinnen: {verbeterTaalsteun.zinnen.join(" / ")}</span>
-                  <span>Profielaccent: {profielInfo[verbeterProfielId]?.label || "BOW Kwaliteitsprofiel"}</span>
+          <span>Profielaccent: {verbeterProfielId === "bow" ? "BOW auditlijn" : profielInfo[verbeterProfielId]?.label || "BOW auditlijn"}</span>
                   <span>Niveauaccent: {gekozenVerbeterNiveau || "A1 NT2"}</span>
                 </div>
               ) : null}
@@ -2712,8 +2717,8 @@ function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDuplicer
           {niveaus.map((niveau) => <option key={niveau} value={niveau}>{niveau}</option>)}
         </select>
         <select className="field" value={profielFilter} onChange={(event) => setProfielFilter(event.target.value)}>
-          <option value="">Alle profielen</option>
-          {profielen.map((profielId) => <option key={profielId} value={profielId}>{profielInfo[profielId]?.label || profielId}</option>)}
+          <option value="">Alle lesroutes</option>
+          {profielen.map((profielId) => <option key={profielId} value={profielId}>{lesrouteLabel(profielId)}</option>)}
         </select>
       </div>
       <div className="savedLessonList">
@@ -2757,6 +2762,11 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
   const bowScore = maakBowKwaliteitsscore(form);
 
   const update = (key, value) => setForm((vorig) => ({ ...vorig, [key]: value }));
+  const updateLesroute = (standaard) => setForm((vorig) => ({
+    ...vorig,
+    standaard,
+    extraProfielen: standaard === "bow" ? [] : (Array.isArray(vorig.extraProfielen) ? vorig.extraProfielen.filter((id) => id !== standaard) : [])
+  }));
   const updateLesduur = (lesduur) => setForm((vorig) => ({
     ...vorig,
     lesduur,
@@ -2786,7 +2796,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
     }));
     setWeergave("bow");
     setVoorbeeldOpen(false);
-    setMelding(`Voorbeeldles ingevuld voor ${profielInfo[form.standaard]?.label || "het gekozen profiel"} op ${voorbeeld.groepsniveau}.`);
+    setMelding(`Voorbeeldles ingevuld voor ${lesrouteLabel(form.standaard)} op ${voorbeeld.groepsniveau}.`);
   };
   const verwerkBulk = () => {
     const schoon = schoonTekst(bulkTekst);
@@ -2808,7 +2818,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         <div className="workspaceTabs" aria-label="Werkruimte onderdelen">
           {[
             ["start", "Start", "Plakken en lessen"],
-            ["gegevens", "Lesgegevens", "Basis en profiel"],
+            ["gegevens", "Lesgegevens", "Basis en route"],
             ["velden", "Lesvelden", `${zichtbareVelden} velden`]
           ].map(([id, label, tekst]) => (
             <button key={id} type="button" className={werkTab === id ? "active" : ""} onClick={() => setWerkTab(id)}>
@@ -2867,10 +2877,10 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           <div className="fieldBlock"><Label verplicht>Lesonderwerp</Label><input className="field" value={form.lesonderwerp} onChange={(event) => update("lesonderwerp", event.target.value)} /></div>
           <div className="grid2">
             <div className="fieldBlock"><Label verplicht>Groepsniveau</Label><select className="field" value={form.groepsniveau} onChange={(event) => update("groepsniveau", event.target.value)}>{groepsniveaus.map((niveau) => <option key={niveau || "empty"} value={niveau}>{niveau || "Selecteer"}</option>)}</select></div>
-            <div className="fieldBlock"><Label verplicht>Hoofdprofiel</Label><select className="field" value={form.standaard} onChange={(event) => update("standaard", event.target.value)}>{Object.entries(profielInfo).map(([id, item]) => <option key={id} value={id}>{item.label}</option>)}</select></div>
+            <div className="fieldBlock"><Label verplicht>Lesroute</Label><select className="field" value={form.standaard} onChange={(event) => updateLesroute(event.target.value)}><option value="bow">Geen extra profiel</option>{Object.entries(profielInfo).filter(([id]) => id !== "bow").map(([id, item]) => <option key={id} value={id}>{item.label}</option>)}</select></div>
           </div>
           <div className="fieldBlock">
-            <Label>Combineren met extra profiel</Label>
+            <Label>Combineren met extra lesroute</Label>
             <div className="profileChecks">
               <span>BOW auditlijn staat altijd aan</span>
               {Object.entries(profielInfo).filter(([id]) => id !== "bow" && id !== form.standaard).map(([id, item]) => (
@@ -2880,7 +2890,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           </div>
           <div className="fieldBlock"><Label verplicht>Didactisch model</Label><select className="field" value={form.didactischModel} onChange={(event) => updateDidactischModel(event.target.value)}>{Object.entries(didactischeModellen).map(([id, item]) => <option key={id} value={id}>{item.label}</option>)}</select></div>
           <div className="fieldBlock"><Label>Lesduur: {form.lesduur} minuten</Label><input type="range" min="15" max="180" step="15" value={form.lesduur} onChange={(event) => updateLesduur(Number(event.target.value))} /></div>
-          <div className="profile"><strong>{profielLabels(profielIds)}</strong><p>BOW is altijd de auditlijn. Het gekozen profiel bepaalt de extra velden, suggesties en accenten.</p><p>{profielInfo[form.standaard]?.uitleg || profiel.uitleg}</p></div>
+          <div className="profile"><strong>BOW auditlijn + {lesrouteLabel(form.standaard)}</strong><p>BOW is altijd de vaste kwaliteitscontrole. De gekozen lesroute bepaalt alleen de extra velden, suggesties en accenten.</p><p>{form.standaard === "bow" ? "Er is geen extra lesroute gekozen. Je werkt alleen met de auditlijn." : profielInfo[form.standaard]?.uitleg || profiel.uitleg}</p></div>
           <div className="btnRow"><Knop onClick={naarResultaat}>Bekijk resultaat</Knop></div>
         </section> : null}
       </div>
@@ -3253,7 +3263,7 @@ function draaiZelftests() {
     { naam: "Alle voorbeeldlessen vullen alle inhoudelijke velden", geslaagd: ["Alfa B", "A1 NT2", "A2 NT2", "B1 NT2"].every((niveau) => voorbeeldControleVelden.every((key) => String(maakVoorbeeldLes("bow", niveau)[key] || "").trim())) },
     { naam: "Voorbeeldles bevat uitgebreide didactiek", geslaagd: Boolean(maakVoorbeeldLes("taalroute", "A1 NT2").instructieDocent) && Boolean(maakVoorbeeldLes("taalroute", "A1 NT2").faseGestuurdeProductie) && maakVoorbeeldLes("taalroute", "A1 NT2").vutUitvoeren.includes("Toepassen") },
     { naam: "Voorbeeldles is concreet over de dokter", geslaagd: maakVoorbeeldLes("taalroute", "A1 NT2").lesdoel.includes("dokter") && maakVoorbeeldLes("taalroute", "A1 NT2").woordenschatactiviteit.includes("lichaamsdeel") },
-    { naam: "Helptekst bevat kernonderdelen", geslaagd: ["Taalroute Lesstudio", "Werk in drie stappen", "Wat is een profiel", "Wat is een didactisch model", "Knoppen en editor", "Vraagtekenknop", "Plusknop", "Hoe werkt de lesduur", "Printen en downloaden"].every((tekst) => helpTekstVoorTests.includes(tekst)) },
+    { naam: "Helptekst bevat kernonderdelen", geslaagd: ["Taalroute Lesstudio", "Werk in drie stappen", "Wat is een lesroute", "Wat is een didactisch model", "Knoppen en editor", "Vraagtekenknop", "Plusknop", "Hoe werkt de lesduur", "Printen en downloaden"].every((tekst) => helpTekstVoorTests.includes(tekst)) },
     { naam: "Helpformatter maakt meervoudige knopwoorden volledig vet", geslaagd: formatHelpTekst("Gebruik de vraagtekenknoppen en plusknoppen.").filter((deel) => typeof deel !== "string").map((deel) => deel.props.children).join("|") === "vraagtekenknoppen|plusknoppen" },
     { naam: "Help UI bevat Help en Sluiten", geslaagd: helpUiTekst.includes("Help") && helpUiTekst.includes("Sluiten") },
     { naam: "Helptekst bevat geen oude naamgeving", geslaagd: !["Lesbouwer", "Lesplanbouwer", "Lingua Academy", "Taalroute service"].some((tekst) => helpTekstVoorTests.includes(tekst)) },
