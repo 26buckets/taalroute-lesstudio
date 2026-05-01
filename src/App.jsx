@@ -3400,8 +3400,7 @@ body { margin: 0; }
   radial-gradient(circle at 86% 8%, rgba(71,184,255,.18), transparent 28%),
   linear-gradient(180deg, #f7fcff 0%, #eef8ff 46%, #e7f3fb 100%);
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
-.appRoot::before { content: ""; position: fixed; left: 0; top: 0; bottom: 0; width: 18px; z-index: 0; background: linear-gradient(180deg, rgba(5,47,73,.96) 0%, rgba(0,111,189,.86) 100%); box-shadow: inset -1px 0 0 rgba(255,255,255,.18); pointer-events: none; opacity: .92; }
-.appRoot::after { content: ""; position: fixed; left: 6px; top: 118px; width: 6px; height: 128px; z-index: 0; background: rgba(255,255,255,.42); pointer-events: none; opacity: .8; }
+.appRoot::before, .appRoot::after { display: none; }
 .appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 260px; display: flex; justify-content: flex-end; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
 .brand:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.16); }
@@ -3420,7 +3419,7 @@ body { margin: 0; }
 .infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 12; min-width: 180px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 8px; }
 .infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 11px 12px; text-align: left; font-family: inherit; font-weight: 850; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
-.studioSidebar { position: fixed; left: 24px; top: 18px; bottom: 22px; z-index: 11; width: 212px; display: flex; flex-direction: column; gap: 14px; padding: 0 14px 14px; background: linear-gradient(180deg, #063a5a 0%, #006fbd 100%); color: white; box-shadow: 0 24px 70px rgba(8,58,89,.28); border: 1px solid rgba(255,255,255,.18); }
+.studioSidebar { position: fixed; left: 24px; top: 18px; bottom: 22px; z-index: 11; width: 212px; display: flex; flex-direction: column; gap: 14px; padding: 0 14px 14px; background: linear-gradient(180deg, #063a5a 0%, #006fbd 100%); color: white; box-shadow: 0 24px 70px rgba(8,58,89,.24); border: 1px solid rgba(185,229,255,.55); }
 .studioSidebarLogo { display: flex; align-items: center; justify-content: center; min-height: 78px; margin: 0 -14px 0; padding: 14px 18px; background: white; border-bottom: 4px solid var(--tr-blue); text-decoration: none; }
 .studioSidebarLogo:focus-visible { outline: 0; box-shadow: inset 0 0 0 4px rgba(0,144,242,.16); }
 .studioSidebarLogo img { width: 150px; height: auto; display: block; }
@@ -3432,7 +3431,7 @@ body { margin: 0; }
 .studioStappen button.active span { background: var(--tr-blue); color: white; }
 .studioStappen b { font-size: 13px; font-weight: 950; line-height: 1.1; }
 .studioStappen small { font-size: 10.5px; line-height: 1.25; font-weight: 650; opacity: .78; }
-.studioSidebarVoet { margin-top: auto; padding: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.10); }
+.studioSidebarVoet { margin-top: auto; padding: 10px 2px 2px; border-top: 1px solid rgba(255,255,255,.22); background: transparent; }
 .studioSidebarVoet strong, .studioSidebarVoet span { display: block; }
 .studioSidebarVoet strong { font-size: 12px; font-weight: 950; margin-bottom: 4px; }
 .studioSidebarVoet span { font-size: 11px; line-height: 1.35; opacity: .82; }
@@ -3464,7 +3463,7 @@ body { margin: 0; }
 .layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 260px; display: grid; grid-template-columns: minmax(0, 1fr) 330px; column-gap: 18px; row-gap: 14px; align-items: start; }
 .workspaceColumn { grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
 .workspaceTabs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; border: 1px solid var(--tr-line); background: rgba(255,255,255,.86); box-shadow: 0 14px 34px rgba(8,58,89,.08); }
-.workspaceTabs button { min-height: 54px; border: 0; border-right: 1px solid var(--tr-line); background: transparent; color: var(--tr-blue-dark); font-family: inherit; cursor: pointer; text-align: left; padding: 9px 12px; }
+.workspaceTabs button { min-height: 64px; border: 0; border-right: 1px solid var(--tr-line); background: transparent; color: var(--tr-blue-dark); font-family: inherit; cursor: pointer; text-align: left; padding: 10px 14px; }
 .workspaceTabs button:last-child { border-right: 0; }
 .workspaceTabs button:hover { background: white; border-color: var(--tr-line-soft); }
 .workspaceTabs button.active { background: var(--tr-blue); color: white; border-color: var(--tr-blue); box-shadow: 0 10px 24px rgba(0,144,242,.16); }
@@ -3598,7 +3597,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonEmpty strong { color: var(--tr-blue-dark); font-size: 13px; }
 .savedLessonEmpty span { color: #526b7d; font-size: 12px; margin-top: 3px; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 0; }
-.stats div { background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%); border: 1px solid #d7efff; border-radius: 5px; padding: 10px; box-shadow: 0 8px 18px rgba(8,58,89,.05); }
+.stats div { min-height: 64px; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%); border: 1px solid #d7efff; border-radius: 5px; padding: 10px; box-shadow: 0 8px 18px rgba(8,58,89,.05); }
 .stats strong { display: block; font-size: 20px; line-height: 1; color: var(--tr-blue); }
 .stats span { display: block; color: #61798a; font-weight: 800; font-size: 9.5px; line-height: 1.2; margin-top: 5px; }
 .bowScoreKaart { margin: 0 0 14px; padding: 14px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 14px 38px rgba(8,58,89,.10); }
