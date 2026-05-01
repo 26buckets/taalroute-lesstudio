@@ -1720,24 +1720,31 @@ function schoneSamenvattingTekst(tekst) {
   return stripCanvasOpmaak(tekst).replace(/\.{3,}|…/g, " (aanvullen)").replace(/\s+/g, " ").trim();
 }
 
+function samenvattingBronTekst(tekst) {
+  return String(tekst || "").replace(/\.{3,}|…/g, " (aanvullen)").trim();
+}
+
 function tekstOfVerwijzing(inhoud, max = 220) {
   const tekst = schoneSamenvattingTekst(inhoud);
   return tekst.length > max ? "Volledige tekst staat bij Uitgebreide onderdelen." : tekst;
 }
 
 function kaart(titel, inhoud, volledig = false) {
-  const tekst = schoneSamenvattingTekst(inhoud);
-  if (!tekst) return "";
-  return `<section class="summaryCard"><h2>${esc(titel)}</h2><p>${esc(volledig ? tekst : tekstOfVerwijzing(tekst, 320))}</p></section>`;
+  const platteTekst = schoneSamenvattingTekst(inhoud);
+  const bronTekst = samenvattingBronTekst(inhoud);
+  if (!platteTekst) return "";
+  const tekst = volledig || platteTekst.length <= 320 ? bronTekst : "Volledige tekst staat bij Uitgebreide onderdelen.";
+  return `<section class="summaryCard"><h2>${renderInlineOpmaak(titel)}</h2><div class="cardText">${renderCanvasTekst(tekst)}</div></section>`;
 }
 
 function bowAuditKaart(titel, inhoud, fallback = "Nog aanvullen in de lesvoorbereiding.", opties = {}) {
   const { volledig = false, max = 220 } = opties;
+  const basisBronTekst = samenvattingBronTekst(inhoud || fallback);
   const basisTekst = schoneSamenvattingTekst(inhoud || fallback);
-  const tekst = volledig ? basisTekst : tekstOfVerwijzing(basisTekst, max);
+  const tekst = volledig || basisTekst.length <= max ? basisBronTekst : "Volledige tekst staat bij Uitgebreide onderdelen.";
   const gevuld = Boolean(String(inhoud || "").trim());
   const extraClass = !volledig && gevuld && basisTekst.length > max ? " hasMore" : "";
-  return `<article class="bowItem ${gevuld ? "isFilled" : "isMissing"}${extraClass}"><b>${esc(titel)}</b><p>${esc(tekst)}</p></article>`;
+  return `<article class="bowItem ${gevuld ? "isFilled" : "isMissing"}${extraClass}"><b>${renderInlineOpmaak(titel)}</b><div class="cardText">${renderCanvasTekst(tekst)}</div></article>`;
 }
 
 const samenvattingBasisIds = ["doel", "opbrengst", "vut", "tijd", "taak", "werkvorm", "woordenschat", "begrip", "feedback", "terugblik", "praktijk", "differentiatie", "klimaat", "hybride", "examen", "huiswerk"];
@@ -1833,7 +1840,7 @@ function maakSamenvattingHtml(titel, secties, extraIds = []) {
       <section class="page coverPage">
         <header><img src="${DOCUMENT_LOGO_URL}" alt="Taalroute"><span>Lesstudio samenvatting</span></header>
         <div class="hero">
-          <h1>${esc(titel || "Taalroute lesplan")}</h1>
+          <h1>${renderInlineOpmaak(titel || "Taalroute lesplan")}</h1>
           <p>${esc(introTekst)}</p>
         </div>
         <div class="metaGrid">
@@ -2968,7 +2975,7 @@ function draaiZelftests() {
     { naam: "Samenvatting voegt extra inhoudspagina toe bij veel tekst", geslaagd: maakSamenvattingPrintControle(langeSecties).extraPaginaNodig && langeSamenvattingHtml.includes("Uitgebreide onderdelen") && langeSamenvattingHtml.includes('class="page extraPage"') && !langeSamenvattingHtml.includes("Deze pagina is automatisch toegevoegd") },
     { naam: "Samenvatting kapt teksten niet af met punten", geslaagd: !langeSamenvattingHtml.includes("...") },
     { naam: "Canvas-opmaak wordt gerenderd in pagina 3", geslaagd: opmaakHtml.includes("<strong>vet</strong>") && opmaakHtml.includes("<em>cursief</em>") && opmaakHtml.includes("<li>eerste punt</li>") && !opmaakHtml.includes("**vet**") },
-    { naam: "Samenvatting toont geen markdown-sterren", geslaagd: !opmaakSamenvattingHtml.includes("**vet**") },
+    { naam: "Samenvatting neemt canvas-opmaak over", geslaagd: opmaakSamenvattingHtml.includes("<strong>vet</strong>") && !opmaakSamenvattingHtml.includes("**vet**") },
     { naam: "Extra samenvattingpagina gebruikt dezelfde BOW kaartstijl", geslaagd: langeSamenvattingHtml.includes('class="bowGrid extraBowGrid"') && !langeSamenvattingHtml.includes("extraGrid") },
     { naam: "Download HTML bevat geen Lingua Academy", geslaagd: !downloadHtml.includes("Lingua Academy") },
     { naam: "Download HTML bevat geen Taalroute service", geslaagd: !downloadHtml.includes("Taalroute service") },
@@ -3498,6 +3505,12 @@ h1 { color: #083a59; font-size: 25pt; line-height: 1.05; margin: 0 0 4mm; letter
 .summaryCard { padding: 4.5mm; min-height: 27mm; }
 h2 { color: #006fbd; font-size: 12pt; line-height: 1.2; margin: 0 0 3mm; }
 p { color: #35596d; font-size: 8.8pt; line-height: 1.45; margin: 0; }
+.cardText p { margin: 0 0 1.2mm; }
+.cardText p:last-child { margin-bottom: 0; }
+.cardText strong { font-weight: 900; color: inherit; }
+.cardText em { font-style: italic; }
+.cardText ul { margin: 0 0 1.2mm 3.8mm; padding: 0; color: #35596d; }
+.cardText li { margin: 0 0 .8mm; line-height: 1.25; }
 .detailPage header { margin-bottom: 7mm; }
 .contentGrid { margin-bottom: 6mm; }
 .contentGrid .summaryCard { min-height: 33mm; }
@@ -3531,15 +3544,16 @@ td:first-child { width: 29mm; color: #006fbd; font-weight: 900; }
 .bowItem { border: 1px solid #d8f1ff; background: #fbfdff; padding: 2.3mm; min-height: 20mm; break-inside: avoid; }
 .compactBow .bowItem { min-height: 18mm; }
 .bowItem b { display: block; color: #006fbd; font-size: 8pt; margin-bottom: 1mm; }
-.bowItem p { color: #35596d; font-size: 7.2pt; line-height: 1.25; }
+.bowItem .cardText { color: #35596d; font-size: 7.2pt; line-height: 1.25; }
+.bowItem .cardText p { color: inherit; font-size: inherit; line-height: inherit; }
 .bowItem.isMissing { background: #f8fbfd; border-style: dashed; }
-.bowItem.isMissing p { color: #7a8b96; }
+.bowItem.isMissing .cardText { color: #7a8b96; }
 .bowItem.hasMore { background: #f4fbff; border-color: #b9e5ff; }
 .footerSafe { margin-bottom: 3mm; }
 .printNote { border: 1px solid #fed7aa; background: #fff7ed; color: #9a3412; padding: 3mm; font-size: 8.2pt; line-height: 1.4; font-weight: 750; }
 .extraBowGrid { grid-template-columns: 1fr; }
 .extraBowGrid .bowItem { min-height: 0; }
-.extraBowGrid .bowItem p { font-size: 7.4pt; line-height: 1.32; }
+.extraBowGrid .bowItem .cardText { font-size: 7.4pt; line-height: 1.32; }
 .auditLine { padding: 6mm; }
 .auditLine ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; padding: 0; margin: 0; list-style: none; }
 .auditLine li { background: #e6f5ff; color: #006fbd; padding: 3mm; font-size: 8.4pt; font-weight: 800; text-align: center; }
