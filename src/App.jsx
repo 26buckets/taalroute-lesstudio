@@ -2113,7 +2113,7 @@ function pasCanvasSelectieToe(waarde, actie, selectieStart = 0, selectieEinde = 
   return tekst;
 }
 
-function CanvasBlockToolbar({ label, velden }) {
+function CanvasBlockToolbar({ label, velden, className = "" }) {
   const acties = [
     ["bold", "B", "Maak selectie dikgedrukt"],
     ["italic", "I", "Maak selectie cursief"],
@@ -2129,7 +2129,7 @@ function CanvasBlockToolbar({ label, velden }) {
     doel.onChange(pasCanvasSelectieToe(doel.value, actie, start, einde));
   };
   return (
-    <div className="canvasEditorToolbar canvasBlockToolbar" aria-label={`Editor opties voor ${label}`}>
+    <div className={`canvasEditorToolbar canvasBlockToolbar ${className}`.trim()} aria-label={`Editor opties voor ${label}`}>
       <span>{label}</span>
       {acties.map(([actie, teken, aria]) => (
         <button key={actie} type="button" onMouseDown={(event) => { event.preventDefault(); pasToe(actie); }} aria-label={aria}>{teken}</button>
@@ -2338,6 +2338,17 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   );
 }
 
+function HelpKnopRegel({ tekst }) {
+  const [icoon, rest] = tekst.split(/:\s(.+)/);
+  const knopClass = icoon?.includes("💡") ? "tip" : icoon?.includes("✓") ? "check" : icoon?.includes("+") ? "plus" : icoon?.includes("?") ? "vraag" : "editor";
+  return (
+    <p className="helpKnopRegel">
+      <span className={`helpKnopIcoon ${knopClass}`} aria-hidden="true">{icoon}</span>
+      <span>{formatHelpTekst(rest || tekst)}</span>
+    </p>
+  );
+}
+
 function HelpModal({ open, onClose }) {
   useEffect(() => {
     if (!open) return undefined;
@@ -2364,7 +2375,9 @@ function HelpModal({ open, onClose }) {
           {helpSecties.map((sectie) => (
             <article className="helpSectie" key={sectie.titel}>
               <h3>{sectie.titel}</h3>
-              {sectie.tekst.map((alinea) => <p className={sectie.titel === "Knoppen en editor" ? "helpKnopRegel" : alinea.startsWith("Stap ") ? "helpStapRegel" : alinea.includes(":") ? "helpHighlight" : ""} key={alinea}>{formatHelpTekst(alinea)}</p>)}
+              {sectie.tekst.map((alinea) => sectie.titel === "Knoppen en editor"
+                ? <HelpKnopRegel tekst={alinea} key={alinea} />
+                : <p className={alinea.startsWith("Stap ") ? "helpStapRegel" : alinea.includes(":") ? "helpHighlight" : ""} key={alinea}>{formatHelpTekst(alinea)}</p>)}
             </article>
           ))}
         </div>
@@ -2695,7 +2708,6 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
         <span>Klik in een tekstvlak om de tekst direct aan te passen. Vlakken groeien automatisch mee, zodat tekst niet wordt afgebroken.</span>
       </div>
       <article className="lessonDoc">
-        <CanvasFloatingToolbar actiefVeld={actiefVeld} />
         <header className="cover">
           <img src={DOCUMENT_LOGO_URL} alt="Taalroute" />
           <div className="headerTriangle" aria-hidden="true" />
@@ -2703,6 +2715,16 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
         </header>
         {secties.map((sectie, index) => (
           <section className="lessonSection" key={sectie.id}>
+            <CanvasBlockToolbar
+              label="Editor"
+              className="canvasSectionToolbar"
+              velden={sectie.id === "tijd" ? [
+                { key: `${sectie.id}-titel`, value: sectie.titel, onChange: (waarde) => updateSectie(sectie.id, "titel", waarde) }
+              ] : [
+                { key: `${sectie.id}-titel`, value: sectie.titel, onChange: (waarde) => updateSectie(sectie.id, "titel", waarde) },
+                { key: `${sectie.id}-inhoud`, value: sectie.inhoud, onChange: (waarde) => updateSectie(sectie.id, "inhoud", waarde) }
+              ]}
+            />
             <div className="canvasSectionRail">
               <span>{String(index + 1).padStart(2, "0")}</span>
             </div>
@@ -2717,6 +2739,11 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
                 };
                 return (
                   <div className="timelineCard" key={regelIndex}>
+                    <CanvasBlockToolbar
+                      label="Editor"
+                      className="canvasSectionToolbar timelineCardToolbar"
+                      velden={[{ key: `${sectie.id}-${regelIndex}-activiteit`, value: regel.activiteit, onChange: (waarde) => updateTijdregel({ activiteit: waarde }) }]}
+                    />
                     <div className="timelineRail">
                       <div className="timelineIndex">{String(regelIndex + 1).padStart(2, "0")}</div>
                     </div>
@@ -2937,8 +2964,14 @@ export default function Lesstudio() {
 
   const nav = (nieuweStap) => {
     if (nieuweStap === 1) setStap(1);
-    if (nieuweStap === 2) maakResultaat(2);
-    if (nieuweStap === 3) maakResultaat(3);
+    if (nieuweStap === 2) {
+      if (stap === 3 && editorSecties.length) setStap(2);
+      else maakResultaat(2);
+    }
+    if (nieuweStap === 3) {
+      if (stap === 2 && editorSecties.length) setStap(3);
+      else maakResultaat(3);
+    }
   };
 
   return (
@@ -2994,8 +3027,12 @@ body { margin: 0; }
 .helpSectie strong { color: var(--tr-blue-dark); font-weight: 900; }
 .helpSectie .helpStapRegel { padding: 10px 11px; border: 1px solid #b9e5ff; border-left: 4px solid var(--tr-blue); background: #f4fbff; color: #12324a; }
 .helpHighlight { background: white; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
-.helpKnopRegel { background: white; border: 1px solid #d7efff; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
-.helpKnopRegel::first-letter { color: var(--tr-blue); font-weight: 1000; }
+.helpKnopRegel { display: grid; grid-template-columns: 34px 1fr; gap: 9px; align-items: center; background: white; border: 1px solid #d7efff; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
+.helpKnopIcoon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--tr-blue); background: white; color: var(--tr-blue); font-size: 14px; font-weight: 1000; line-height: 1; }
+.helpKnopIcoon.plus { background: var(--tr-blue); color: white; }
+.helpKnopIcoon.tip { background: #fff7ed; border-color: #f59e0b; color: #f59e0b; }
+.helpKnopIcoon.check { background: #ecfdf5; border-color: #86efac; color: #16a34a; }
+.helpKnopIcoon.editor { background: #f4fbff; color: var(--tr-blue-dark); }
 .layoutInput { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; display: grid; grid-template-columns: minmax(340px, 480px) 1fr; column-gap: 16px; row-gap: 10px; align-items: start; }
 .leftPanels { grid-column: 1; display: flex; flex-direction: column; gap: 10px; align-self: start; }
 .panel { background: white; border: 1px solid #d2edff; padding: 24px; min-height: var(--body-box-min-height); box-shadow: 0 22px 60px rgba(0,75,122,.18); }
@@ -3205,10 +3242,11 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasEditorToolbar button:disabled { opacity: .45; cursor: default; }
 .canvasEditorToolbar button:nth-of-type(2) { font-style: italic; }
 .canvasFloatingToolbar { position: absolute; top: 12px; right: 12px; z-index: 5; margin: 0; box-shadow: 0 12px 28px rgba(0,75,122,.16); }
+.canvasSectionToolbar { position: absolute; top: 10px; right: 10px; z-index: 4; margin: 0; box-shadow: 0 10px 24px rgba(0,75,122,.12); }
 .sectionTitle { width: 100%; margin: 0 0 12px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.25; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
 .canvasTextarea { width: 100%; min-height: 120px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.75; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
 .timeline { display: grid; gap: 12px; }
-.timelineCard { display: grid; grid-template-columns: 124px 1fr; gap: 14px; align-items: stretch; background: white; border: 1px solid var(--tr-line); padding: 12px; }
+.timelineCard { position: relative; display: grid; grid-template-columns: 124px 1fr; gap: 14px; align-items: stretch; background: white; border: 1px solid var(--tr-line); padding: 12px; }
 .timelineRail { display: grid; align-content: start; justify-items: start; gap: 6px; }
 .timelineIndex { width: 44px; min-height: 100%; background: var(--tr-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 1000; }
 .timelineMain { display: grid; gap: 8px; }
