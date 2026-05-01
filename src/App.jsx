@@ -2625,7 +2625,6 @@ function AppHeader({ onHelp, onDisclaimer, onPrivacy }) {
   };
   return (
     <header className="appHeader">
-      <div className="headerStudioLabel"><span>Lesstudio</span><strong>Ontwerp, check en publiceer auditwaardige lessen.</strong></div>
       <div className="headerActies">
         <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info"><InfoIcon /><span>Info</span></button>
         {infoOpen ? (
@@ -2813,7 +2812,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           <h2>Snel plakken</h2>
           <p>Plak een standaardtekst of gelabelde lesinformatie. De app zet de inhoud automatisch op de juiste plaats.</p>
           <button type="button" className="privacyWarning" onClick={onPrivacy} aria-label="Open privacy informatie" title="Privacy">Privacy</button>
-          <Tekstvak rows={9} value={bulkTekst} onChange={setBulkTekst} placeholder="Les: Thema 2&#10;Lesdoel: ...&#10;Hoofdvaardigheid: ..." />
+          <Tekstvak rows={5} value={bulkTekst} onChange={setBulkTekst} placeholder="Les: Thema 2&#10;Lesdoel: ...&#10;Hoofdvaardigheid: ..." />
           <div className="btnRow pasteActies">
             <Knop onClick={verwerkBulk}>Tekst verdelen</Knop>
             <Knop variant="secondary" onClick={onNieuweLes}>Leegmaken</Knop>
@@ -3403,13 +3402,10 @@ body { margin: 0; }
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
 .appRoot::before { content: ""; position: fixed; left: 0; top: 0; bottom: 0; width: 18px; z-index: 0; background: linear-gradient(180deg, rgba(5,47,73,.96) 0%, rgba(0,111,189,.86) 100%); box-shadow: inset -1px 0 0 rgba(255,255,255,.18); pointer-events: none; opacity: .92; }
 .appRoot::after { content: ""; position: fixed; left: 6px; top: 118px; width: 6px; height: 128px; z-index: 0; background: rgba(255,255,255,.42); pointer-events: none; opacity: .8; }
-.appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 260px; display: grid; grid-template-columns: 1fr 96px; gap: 18px; align-items: center; }
+.appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 260px; display: flex; justify-content: flex-end; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
 .brand:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.16); }
 .brand img { width: 150px; height: auto; object-fit: contain; }
-.headerStudioLabel { justify-self: start; display: grid; gap: 2px; color: var(--tr-muted); }
-.headerStudioLabel span { color: var(--tr-blue); font-size: 11px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
-.headerStudioLabel strong { color: var(--tr-text); font-size: 13px; font-weight: 800; line-height: 1.3; }
 .appHeader nav { display: flex; gap: 7px; justify-self: end; padding: 5px; background: #f4fbff; border: 1px solid var(--tr-line-soft); }
 .appHeader nav button { width: 156px; height: 48px; border: 1px solid transparent; background: transparent; color: var(--tr-blue-dark); font-weight: 850; cursor: pointer; font-family: inherit; transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .appHeader nav button:hover { background: white; border-color: var(--tr-line-soft); }
@@ -3466,9 +3462,10 @@ body { margin: 0; }
 .helpKnopIcoon.check { background: #ecfdf5; border-color: #86efac; color: #16a34a; }
 .helpKnopIcoon.editor { background: #f4fbff; color: var(--tr-blue-dark); }
 .layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 260px; display: grid; grid-template-columns: minmax(0, 1fr) 330px; column-gap: 18px; row-gap: 14px; align-items: start; }
-.workspaceColumn { grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
-.workspaceTabs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; border: 1px solid var(--tr-line); border-radius: 6px; background: rgba(255,255,255,.86); box-shadow: 0 14px 34px rgba(8,58,89,.08); }
-.workspaceTabs button { min-height: 54px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--tr-blue-dark); font-family: inherit; cursor: pointer; text-align: left; padding: 9px 12px; }
+.workspaceColumn { grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+.workspaceTabs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; border: 1px solid var(--tr-line); background: rgba(255,255,255,.86); box-shadow: 0 14px 34px rgba(8,58,89,.08); }
+.workspaceTabs button { min-height: 54px; border: 0; border-right: 1px solid var(--tr-line); background: transparent; color: var(--tr-blue-dark); font-family: inherit; cursor: pointer; text-align: left; padding: 9px 12px; }
+.workspaceTabs button:last-child { border-right: 0; }
 .workspaceTabs button:hover { background: white; border-color: var(--tr-line-soft); }
 .workspaceTabs button.active { background: var(--tr-blue); color: white; border-color: var(--tr-blue); box-shadow: 0 10px 24px rgba(0,144,242,.16); }
 .workspaceTabs strong, .workspaceTabs span { display: block; }
@@ -3479,11 +3476,12 @@ body { margin: 0; }
 .workspaceColumn > .lesdetailsPanel { grid-column: 1 / -1; }
 .lessonFieldsPanel { grid-column: 1; }
 .auditColumn { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--app-header-height) + 22px); display: grid; gap: 10px; align-self: start; max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 0; }
-.panel { background: var(--tr-surface); border: 1px solid rgba(185,229,255,.92); border-radius: 6px; padding: 22px; min-height: var(--body-box-min-height); box-shadow: var(--tr-shadow); }
-.pastePanel { position: relative; padding-top: 48px; }
+.panel { background: var(--tr-surface); border: 1px solid rgba(185,229,255,.92); padding: 20px; min-height: var(--body-box-min-height); box-shadow: var(--tr-shadow); }
+.pastePanel { position: relative; padding-top: 38px; }
+.pastePanel, .savedLessonsPanel { height: 100%; }
 .panel.wide { grid-column: 2; grid-row: 1; }
 .panel h2 { margin: 0 0 8px; color: var(--tr-text); font-size: 22px; font-weight: 850; letter-spacing: 0; }
-.panel p { margin: 0 0 18px; color: var(--tr-muted); line-height: 1.5; }
+.panel p { margin: 0 0 12px; color: var(--tr-muted); line-height: 1.45; }
 .werkruimteKop { margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid #e2f3ff; }
 .werkruimteKop span { display: block; color: var(--tr-blue); font-size: 11px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
 .werkruimteKop h2 { margin-bottom: 4px; }
@@ -3495,10 +3493,10 @@ body { margin: 0; }
 .fieldLabelRow .label { margin: 0; line-height: 30px; }
 .label { display: block; margin: 0 0 8px; font-weight: 750; font-size: 14px; }
 .label span { color: var(--tr-blue); }
-.field { width: 100%; border: 1px solid #ccecff; border-radius: 5px; padding: 12px 14px; font-size: 15px; color: var(--tr-text); outline: none; background: white; font-family: inherit; }
+.field { width: 100%; border: 1px solid #ccecff; padding: 12px 14px; font-size: 15px; color: var(--tr-text); outline: none; background: white; font-family: inherit; }
 .field:focus { border-color: var(--tr-blue); box-shadow: 0 0 0 4px rgba(0,144,242,.14); }
 .textarea { resize: vertical; min-height: 88px; line-height: 1.55; }
-.tijdEditor { border: 1px solid var(--tr-line); border-radius: 5px; background: white; overflow: hidden; }
+.tijdEditor { border: 1px solid var(--tr-line); background: white; overflow: hidden; }
 .tijdEditorHeader { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; background: var(--tr-blue-pale); border-bottom: 1px solid var(--tr-line); }
 .tijdEditorHeader span { color: var(--tr-blue-dark); font-weight: 900; }
 .tijdHerstelKnop { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--tr-blue); background: var(--tr-blue); color: white; cursor: pointer; box-shadow: 0 6px 16px rgba(0,144,242,.16); }
@@ -3515,14 +3513,14 @@ body { margin: 0; }
 input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .btnRow, .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .pasteActies { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
-.pasteActies .btn { width: 100%; min-height: 44px; padding-inline: 10px; }
+.pasteActies .btn { width: 100%; min-height: 38px; padding-inline: 10px; }
 .voorbeeldKeuze { position: relative; display: inline-flex; }
 .pasteActies .voorbeeldKeuze { width: 100%; }
 .voorbeeldMenu { position: absolute; left: 0; right: 0; top: calc(100% + 8px); z-index: 8; width: 100%; min-width: 0; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.18); padding: 6px; }
 .voorbeeldMenu strong { display: block; padding: 6px 8px 9px; color: var(--tr-blue-dark); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid #eef8ff; margin-bottom: 4px; }
 .voorbeeldMenu button { display: block; width: 100%; border: 0; background: white; color: var(--tr-text); padding: 9px 8px; text-align: left; font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
 .voorbeeldMenu button:hover, .voorbeeldMenu button:focus-visible { background: var(--tr-blue-pale); color: var(--tr-blue-dark); outline: 0; }
-.btn { border: 1px solid transparent; border-radius: 5px; padding: 11px 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(0,144,242,.14); font-size: 14px; font-family: inherit; transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease; }
+.btn { border: 1px solid transparent; padding: 11px 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(0,144,242,.14); font-size: 14px; font-family: inherit; transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn.primary { background: var(--tr-blue); color: white; }
 .btn.secondary { background: white; border-color: var(--tr-line); color: var(--tr-blue-dark); }
@@ -3584,7 +3582,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonsHeader .btn { min-height: 40px; padding: 10px 12px; white-space: nowrap; }
 .savedLessonFilters { display: grid; grid-template-columns: 1fr 132px 132px; gap: 7px; margin-bottom: 10px; }
 .savedLessonFilters .field { min-width: 0; padding: 9px 10px; font-size: 12.5px; }
-.savedLessonList { display: grid; gap: 7px; max-height: 300px; overflow: auto; padding-right: 2px; }
+.savedLessonList { display: grid; gap: 7px; max-height: 238px; overflow: auto; padding-right: 2px; }
 .savedLessonItem { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border: 1px solid #d7efff; border-radius: 5px; background: #fbfdff; padding: 10px; }
 .savedLessonItem.active { border-color: var(--tr-blue); background: #f4fbff; box-shadow: inset 3px 0 0 var(--tr-blue); }
 .savedLessonItem strong { display: block; color: var(--tr-text); font-size: 13px; line-height: 1.25; margin-bottom: 3px; }
@@ -3738,10 +3736,9 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .studioStappen span { width: 26px; height: 26px; }
   .studioStappen b { font-size: 12px; }
   .studioStappen small { display: none; }
-  .appHeader { grid-template-columns: 1fr auto; gap: 10px; padding: 12px 16px; align-content: center; }
+  .appHeader { padding: 12px 16px; }
   .brand { justify-self: center; }
   .brand img { width: 128px; }
-  .headerStudioLabel { display: none; }
   .headerActies { grid-column: 2; grid-row: 1; }
   .infoMenuKnop { width: 78px; height: 42px; font-size: 13px; }
   .helpModalBody { grid-template-columns: 1fr; }
@@ -3840,6 +3837,41 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .voorbeeldMenu { width: 100%; }
   .profileChecks { padding: 10px; }
   .suggesties button { padding: 9px 8px; font-size: 13px; }
+}
+.appRoot button,
+.appRoot input,
+.appRoot select,
+.appRoot textarea,
+.appRoot .panel,
+.appRoot .workspaceTabs,
+.appRoot .field,
+.appRoot .btn,
+.appRoot .infoMenu,
+.appRoot .infoMenuKnop,
+.appRoot .downloadPaneel,
+.appRoot .downloadKeuze,
+.appRoot .downloadActieKnop,
+.appRoot .profile,
+.appRoot .profileChecks,
+.appRoot .savedLessonItem,
+.appRoot .stats div,
+.appRoot .bowScoreKaart,
+.appRoot .bowScoreDeel,
+.appRoot .weergavePaneel,
+.appRoot .weergaveKnoppen,
+.appRoot .accordion,
+.appRoot .toolbar,
+.appRoot .canvasHint,
+.appRoot .lessonDoc,
+.appRoot .download iframe,
+.appRoot .tijdEditor,
+.appRoot .uitlegMenu,
+.appRoot .tipMenu,
+.appRoot .suggesties,
+.appRoot .verbeterMenu,
+.appRoot .helpModal,
+.appRoot .helpSectie {
+  border-radius: 0;
 }
 @media print { .appHeader, .toolbar, .downloadPaneel { display: none !important; } .appRoot, .result, .download { padding: 0 !important; background: white !important; } .download iframe { display: none; } .lessonDoc { box-shadow: none; border: 0; max-width: none; } }
 `;
