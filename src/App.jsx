@@ -606,6 +606,51 @@ function esc(waarde) {
   return String(waarde || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
+function stripCanvasOpmaak(tekst = "") {
+  return String(tekst || "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/^\s*-\s+/gm, "");
+}
+
+function renderInlineOpmaak(tekst = "") {
+  return esc(tekst)
+    .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+}
+
+function renderCanvasTekst(tekst = "") {
+  const regels = String(tekst || "").split(/\r?\n/);
+  let html = "";
+  let lijstOpen = false;
+  const sluitLijst = () => {
+    if (lijstOpen) {
+      html += "</ul>";
+      lijstOpen = false;
+    }
+  };
+
+  regels.forEach((regel) => {
+    if (/^\s*-\s+/.test(regel)) {
+      if (!lijstOpen) {
+        html += "<ul>";
+        lijstOpen = true;
+      }
+      html += `<li>${renderInlineOpmaak(regel.replace(/^\s*-\s+/, ""))}</li>`;
+      return;
+    }
+    if (regel.trim()) {
+      sluitLijst();
+      html += `<p>${renderInlineOpmaak(regel)}</p>`;
+      return;
+    }
+    sluitLijst();
+  });
+
+  sluitLijst();
+  return html || "<p></p>";
+}
+
 function voegSamen(...delen) {
   return delen.filter((deel) => String(deel || "").trim()).join(NL + NL);
 }
@@ -1432,12 +1477,12 @@ function tijdRouteHtml(tekst, compact = false) {
   if (compact) {
     return `<div class="miniRouteTable">${parseTijdregels(tekst).map((regel, index) => {
       const meta = tijdFaseMeta(regel.activiteit, index);
-      return `<div class="miniRouteRow"><span>${esc(regel.tijd)}</span><b>${esc(meta.fase)}</b><p>${esc(regel.activiteit)}</p></div>`;
+      return `<div class="miniRouteRow"><span>${esc(regel.tijd)}</span><b>${esc(meta.fase)}</b><p>${renderInlineOpmaak(regel.activiteit)}</p></div>`;
     }).join("")}</div>`;
   }
   return `<div class="${compact ? "miniRoute" : "printRoute"}">${parseTijdregels(tekst).map((regel, index) => {
     const meta = tijdFaseMeta(regel.activiteit, index);
-    return `<div class="routeStep"><div class="routeTime">${esc(regel.tijd)}</div><div class="routeDot">${String(index + 1).padStart(2, "0")}</div><div class="routeContent"><b>${esc(meta.fase)}</b><p>${esc(regel.activiteit)}</p>${compact ? "" : `<small>${esc(meta.functie)}</small>`}</div></div>`;
+    return `<div class="routeStep"><div class="routeTime">${esc(regel.tijd)}</div><div class="routeDot">${String(index + 1).padStart(2, "0")}</div><div class="routeContent"><b>${esc(meta.fase)}</b><p>${renderInlineOpmaak(regel.activiteit)}</p>${compact ? "" : `<small>${esc(meta.functie)}</small>`}</div></div>`;
   }).join("")}</div>`;
 }
 
@@ -1656,10 +1701,10 @@ function maakHtml(titel, secties) {
   const sectieHtml = secties.map((sectie, index) => {
     const inhoud = sectie.id === "tijd"
       ? tijdRouteHtml(sectie.inhoud)
-      : String(sectie.inhoud).split(NL).filter(Boolean).map((regel) => `<p>${esc(regel)}</p>`).join("");
-    return `<section><span>${String(index + 1).padStart(2, "0")}</span><h2>${esc(sectie.titel)}</h2>${inhoud}</section>`;
+      : renderCanvasTekst(sectie.inhoud);
+    return `<section><span>${String(index + 1).padStart(2, "0")}</span><h2>${renderInlineOpmaak(sectie.titel)}</h2>${inhoud}</section>`;
   }).join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(titel)}</title><style>${printCss}</style></head><body><article><header><img src="${DOCUMENT_LOGO_URL}" alt="Taalroute"><h1>${esc(titel)}</h1></header>${sectieHtml}</article></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(stripCanvasOpmaak(titel))}</title><style>${printCss}</style></head><body><article><header><img src="${DOCUMENT_LOGO_URL}" alt="Taalroute"><h1>${renderInlineOpmaak(titel)}</h1></header>${sectieHtml}</article></body></html>`;
 }
 
 function sectieInhoud(secties, id) {
@@ -1667,12 +1712,12 @@ function sectieInhoud(secties, id) {
 }
 
 function compactTekst(tekst, max = 360) {
-  const schoon = String(tekst || "").replace(/\s+/g, " ").trim();
+  const schoon = stripCanvasOpmaak(tekst).replace(/\s+/g, " ").trim();
   return schoon.length > max ? `${schoon.slice(0, max).trim()}...` : schoon;
 }
 
 function schoneSamenvattingTekst(tekst) {
-  return String(tekst || "").replace(/\.{3,}|…/g, " (aanvullen)").replace(/\s+/g, " ").trim();
+  return stripCanvasOpmaak(tekst).replace(/\.{3,}|…/g, " (aanvullen)").replace(/\s+/g, " ").trim();
 }
 
 function tekstOfVerwijzing(inhoud, max = 220) {
@@ -2338,14 +2383,25 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   );
 }
 
+function parseHelpKnopTekst(tekst) {
+  const match = String(tekst || "").match(/^(\S+)\s+([^:]+):\s*(.+)$/);
+  if (!match) return { icoon: "", label: "", omschrijving: tekst };
+  return { icoon: match[1], label: match[2], omschrijving: match[3] };
+}
+
 function HelpKnopRegel({ tekst }) {
-  const [icoon, rest] = tekst.split(/:\s(.+)/);
-  const knopClass = icoon?.includes("💡") ? "tip" : icoon?.includes("✓") ? "check" : icoon?.includes("+") ? "plus" : icoon?.includes("?") ? "vraag" : "editor";
+  const { icoon, label, omschrijving } = parseHelpKnopTekst(tekst);
+  const knopClass = label.includes("Canvas-editor")
+    ? "editor"
+    : icoon?.includes("💡") ? "tip" : icoon?.includes("✓") ? "check" : icoon?.includes("+") ? "plus" : icoon?.includes("?") ? "vraag" : "editor";
   return (
-    <p className="helpKnopRegel">
-      <span className={`helpKnopIcoon ${knopClass}`} aria-hidden="true">{icoon}</span>
-      <span>{formatHelpTekst(rest || tekst)}</span>
-    </p>
+    <div className="helpKnopRegel">
+      <div className={`helpKnopIcoon ${knopClass}`} aria-hidden="true">{icoon}</div>
+      <div className="helpKnopTekst">
+        <strong className="helpKnopNaam">{label}</strong>
+        <p className="helpKnopOmschrijving">{formatHelpTekst(omschrijving || tekst)}</p>
+      </div>
+    </div>
   );
 }
 
@@ -2774,6 +2830,7 @@ function Downloaden({ titel, secties, naarResultaat }) {
   const html = useMemo(() => maakHtml(titel || "Taalroute lesplan", secties), [titel, secties]);
   const [samenvattingExtraIds, setSamenvattingExtraIds] = useState([]);
   const [samenvattingMenuOpen, setSamenvattingMenuOpen] = useState(false);
+  const samenvattingDropdownRef = useRef(null);
   const samenvattingHtml = useMemo(() => maakSamenvattingHtml(titel || "Taalroute lesplan", secties, samenvattingExtraIds), [titel, secties, samenvattingExtraIds]);
   const [voorbeeld, setVoorbeeld] = useState("volledig");
   const [pdfBezig, setPdfBezig] = useState(false);
@@ -2785,6 +2842,23 @@ function Downloaden({ titel, secties, naarResultaat }) {
   const toggleSamenvattingExtra = (id) => {
     setSamenvattingExtraIds((vorig) => vorig.includes(id) ? vorig.filter((item) => item !== id) : [...vorig, id]);
   };
+  useEffect(() => {
+    if (!samenvattingMenuOpen) return undefined;
+    const sluitBijBuitenklik = (event) => {
+      if (samenvattingDropdownRef.current && !samenvattingDropdownRef.current.contains(event.target)) {
+        setSamenvattingMenuOpen(false);
+      }
+    };
+    const sluitMetEscape = (event) => {
+      if (event.key === "Escape") setSamenvattingMenuOpen(false);
+    };
+    document.addEventListener("mousedown", sluitBijBuitenklik);
+    window.addEventListener("keydown", sluitMetEscape);
+    return () => {
+      document.removeEventListener("mousedown", sluitBijBuitenklik);
+      window.removeEventListener("keydown", sluitMetEscape);
+    };
+  }, [samenvattingMenuOpen]);
   const downloadSamenvattingPdf = async () => {
     setPdfBezig(true);
     try {
@@ -2833,7 +2907,7 @@ function Downloaden({ titel, secties, naarResultaat }) {
           <div className="samenvattingSamenstellen">
             <strong>Compacte leskaart samenstellen</strong>
             <span>BOW auditlijn blijft vast. Extra onderdelen komen in dezelfde PDF-opmaak.</span>
-            <div className="samenvattingDropdown">
+            <div className="samenvattingDropdown" ref={samenvattingDropdownRef}>
               <button type="button" onClick={() => setSamenvattingMenuOpen((open) => !open)} aria-expanded={samenvattingMenuOpen} aria-haspopup="listbox">
                 <span>{samenvattingExtraIds.length ? `${samenvattingExtraIds.length} extra onderdelen geselecteerd` : "Kies extra onderdelen"}</span>
                 <b>{samenvattingMenuOpen ? "▲" : "▼"}</b>
@@ -2862,6 +2936,8 @@ function draaiZelftests() {
   const profielKeys = Object.keys(profielInfo);
   const downloadHtml = maakHtml("Test", maakSecties({ ...legeLes, lesonderwerp: "Test", didactischModel: "abcd" }));
   const samenvattingHtml = maakSamenvattingHtml("Test", maakSecties({ ...legeLes, lesonderwerp: "Test", didactischModel: "abcd" }));
+  const opmaakHtml = maakHtml("Opmaak", [{ id: "doel", titel: "Opmaak", inhoud: `Dit is **vet** en *cursief*.${NL}- eerste punt` }]);
+  const opmaakSamenvattingHtml = maakSamenvattingHtml("Opmaak", [{ id: "meta", titel: "Lesgegevens", inhoud: "Groepsniveau: A1 NT2" }, { id: "doel", titel: "Lesdoel", inhoud: "Dit is **vet**" }]);
   const voorbeeldSamenvattingBasis = maakSamenvattingHtml("Voorbeeld", maakSecties(maakVoorbeeldLes("taalroute", "A1 NT2")));
   const voorbeeldSamenvattingMetExtra = maakSamenvattingHtml("Voorbeeld", maakSecties(maakVoorbeeldLes("taalroute", "A1 NT2")), ["vier", "taalfocus"]);
   const langeSecties = maakSecties({ ...maakVoorbeeldLes("taalroute", "B1 NT2"), lesdoel: "Lange printcontrole ".repeat(260), functioneleTaak: "Uitgebreide taakbeschrijving ".repeat(160), praktijklerenLes: "Praktijkleren met veel toelichting ".repeat(160), huiswerk: "Huiswerk met veel toelichting ".repeat(160) });
@@ -2891,6 +2967,8 @@ function draaiZelftests() {
     { naam: "Compacte leskaart houdt BOW auditlijn vast en extra onderdelen kiesbaar", geslaagd: voorbeeldSamenvattingBasis.includes("BOW kerncontrole") && !voorbeeldSamenvattingBasis.includes("Vaardigheden en grammatica") && voorbeeldSamenvattingMetExtra.includes("Vaardigheden en grammatica") && voorbeeldSamenvattingMetExtra.includes("Taalfocus") },
     { naam: "Samenvatting voegt extra inhoudspagina toe bij veel tekst", geslaagd: maakSamenvattingPrintControle(langeSecties).extraPaginaNodig && langeSamenvattingHtml.includes("Uitgebreide onderdelen") && langeSamenvattingHtml.includes('class="page extraPage"') && !langeSamenvattingHtml.includes("Deze pagina is automatisch toegevoegd") },
     { naam: "Samenvatting kapt teksten niet af met punten", geslaagd: !langeSamenvattingHtml.includes("...") },
+    { naam: "Canvas-opmaak wordt gerenderd in pagina 3", geslaagd: opmaakHtml.includes("<strong>vet</strong>") && opmaakHtml.includes("<em>cursief</em>") && opmaakHtml.includes("<li>eerste punt</li>") && !opmaakHtml.includes("**vet**") },
+    { naam: "Samenvatting toont geen markdown-sterren", geslaagd: !opmaakSamenvattingHtml.includes("**vet**") },
     { naam: "Extra samenvattingpagina gebruikt dezelfde BOW kaartstijl", geslaagd: langeSamenvattingHtml.includes('class="bowGrid extraBowGrid"') && !langeSamenvattingHtml.includes("extraGrid") },
     { naam: "Download HTML bevat geen Lingua Academy", geslaagd: !downloadHtml.includes("Lingua Academy") },
     { naam: "Download HTML bevat geen Taalroute service", geslaagd: !downloadHtml.includes("Taalroute service") },
@@ -3027,8 +3105,11 @@ body { margin: 0; }
 .helpSectie strong { color: var(--tr-blue-dark); font-weight: 900; }
 .helpSectie .helpStapRegel { padding: 10px 11px; border: 1px solid #b9e5ff; border-left: 4px solid var(--tr-blue); background: #f4fbff; color: #12324a; }
 .helpHighlight { background: white; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
-.helpKnopRegel { display: grid; grid-template-columns: 34px 1fr; gap: 9px; align-items: center; background: white; border: 1px solid #d7efff; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
-.helpKnopIcoon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--tr-blue); background: white; color: var(--tr-blue); font-size: 14px; font-weight: 1000; line-height: 1; }
+.helpKnopRegel { display: flex; align-items: flex-start; gap: 12px; background: white; border: 1px solid #d7efff; border-left: 4px solid var(--tr-blue); padding: 10px 12px; color: #35596d; font-size: 13px; line-height: 1.45; }
+.helpKnopTekst { min-width: 0; flex: 1 1 auto; display: block; padding-top: 1px; }
+.helpKnopNaam { display: block; margin: 0 0 3px; color: var(--tr-blue-dark); font-size: 13px; font-weight: 900; line-height: 1.15; }
+.helpKnopOmschrijving { margin: 0 !important; color: #35596d; font-size: 13px; line-height: 1.45; }
+.helpKnopIcoon { flex: 0 0 30px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--tr-blue); background: white; color: var(--tr-blue); font-size: 15px; font-weight: 1000; line-height: 1; }
 .helpKnopIcoon.plus { background: var(--tr-blue); color: white; }
 .helpKnopIcoon.tip { background: #fff7ed; border-color: #f59e0b; color: #f59e0b; }
 .helpKnopIcoon.check { background: #ecfdf5; border-color: #86efac; color: #16a34a; }
@@ -3375,6 +3456,10 @@ section { position: relative; border: 1px solid #d7efff; background: #f8fcff; ma
 section span { position: absolute; left: 20px; top: 20px; width: 34px; height: 34px; background: #0090f2; color: white; display: flex; align-items: center; justify-content: center; font-weight: 1000; }
 h2 { color: #006fbd; margin: 0 0 10px; font-size: 20px; }
 p { margin: 0 0 8px; line-height: 1.6; white-space: pre-wrap; }
+strong { font-weight: 800; }
+em { font-style: italic; }
+ul { margin: 0 0 8px 18px; padding: 0; line-height: 1.6; }
+li { margin: 0 0 4px; }
 table { width: 100%; border-collapse: collapse; }
 td { border: 1px solid #b9e5ff; padding: 10px; vertical-align: top; }
 td:first-child { width: 150px; color: #006fbd; font-weight: 900; }
