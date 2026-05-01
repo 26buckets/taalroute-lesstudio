@@ -2166,9 +2166,9 @@ function InfoIcon() {
 
 function BowAuditIcon() {
   return (
-    <svg className="bowAuditIcon" viewBox="0 0 64 64" aria-hidden="true">
-      <circle cx="32" cy="12" r="9" />
-      <path d="M16 30c0-8 6-14 14-14h20c6 0 10 4 10 10s-4 10-10 10H39v10c0 8-6 14-14 14s-14-6-14-14V36h-1C4 36 0 32 0 26s4-10 10-10h8c-1 4-2 8-2 14Z" />
+    <svg className="bowAuditIcon" viewBox="0 0 548 748" aria-hidden="true">
+      <path d="M222 0a119 119 0 1 1 0 238a119 119 0 1 1 0-238Z" />
+      <path d="M103 305h365a80 80 0 0 1 0 160H344v162a121 121 0 0 1-242 0v-53A115 115 0 0 1 0 460v-40a115 115 0 0 1 103-115Z" />
     </svg>
   );
 }
@@ -2378,7 +2378,7 @@ function TijdsindelingEditor({ value, onChange, didactischModelId, lesduur }) {
   );
 }
 
-function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde, niveau, contextTekst, onChange }) {
+function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde, niveau, contextTekst, bowAudit = false, onChange }) {
   const [suggestiesOpen, setSuggestiesOpen] = useState(false);
   const [uitlegOpen, setUitlegOpen] = useState(false);
   const [tipsOpen, setTipsOpen] = useState(false);
@@ -2403,6 +2403,7 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   };
   return (
     <div className="veldActies">
+      {bowAudit ? <span className="bowAuditLabel" title="Onderdeel van BOW audit" aria-label="Onderdeel van BOW audit"><BowAuditIcon /><span>auditlijn</span></span> : null}
       <button type="button" className="uitlegKnop" onClick={() => toggleMenu("uitleg")} aria-label={`Uitleg over ${veldKey}`} title="Uitleg">?</button>
       <button type="button" className="tipKnop" onClick={() => toggleMenu("tips")} aria-label={`Didactische tip over ${veldKey}`} title="Didactische tip"><LightbulbIcon /></button>
       {verbeterOpties.length ? <button type="button" className="verbeterKnop" onClick={() => toggleMenu("verbeter")} aria-label="Verbeterhulp openen" title="Verbeterhulp">✓</button> : null}
@@ -2957,7 +2958,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
                   <div>
                     <Label>{label}</Label>
                   </div>
-                  <VeldActies profielId={form.standaard} profielIds={profielIds} didactischModelId={form.didactischModel} veldKey={key} waarde={form[key]} niveau={form.groepsniveau} contextTekst={[form.lesonderwerp, form.profielFocus, form.praktijkkern, form.kernwoorden, form.vaktaal, form.werkcontext, form.praktijksituatie, form.boekPaginas, form.aangepasteInstructies, form[key]].join(" ")} onChange={(waarde) => update(key, waarde)} />
+                  <VeldActies profielId={form.standaard} profielIds={profielIds} didactischModelId={form.didactischModel} veldKey={key} waarde={form[key]} niveau={form.groepsniveau} contextTekst={[form.lesonderwerp, form.profielFocus, form.praktijkkern, form.kernwoorden, form.vaktaal, form.werkcontext, form.praktijksituatie, form.boekPaginas, form.aangepasteInstructies, form[key]].join(" ")} bowAudit={isBowVeld(key)} onChange={(waarde) => update(key, waarde)} />
                 </div>
                 {key === "tijdsindeling"
                   ? <TijdsindelingEditor value={form[key]} lesduur={form.lesduur} didactischModelId={form.didactischModel} onChange={(waarde) => update(key, waarde)} />
@@ -3224,6 +3225,7 @@ function draaiZelftests() {
     { naam: "Alles modus toont alle veldgroepen", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "alles").length === veldGroepen.length },
     { naam: "Compacte modus bevat verplichte BOW velden", geslaagd: ["lesdoel", "functioneleTaak", "checkOpBegrip", "huiswerk"].every((key) => veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").some((groep) => groep.velden.some(([veldKey]) => veldKey === key))) },
     { naam: "BOW velden worden zichtbaar gemarkeerd", geslaagd: isBowVeld("lesdoel") && isBowVeld("checkOpBegrip") && !isBowVeld("branche") },
+    { naam: "BOW auditlabel staat naast veldacties", geslaagd: appCss.includes(".bowAuditLabel") && BowAuditIcon().props.viewBox === "0 0 548 748" },
     { naam: "BOW score onder 16 must-haves is rood", geslaagd: maakBowKwaliteitsscore(legeLes).status === "Niet audit-klaar" && maakBowKwaliteitsscore(legeLes).statusType === "concept" && maakBowKwaliteitsscore(legeLes).percentage === 0 },
     { naam: "BOW score bevat drie lagen", geslaagd: maakBowKwaliteitsscore(legeLes).secties.length === 3 && maakBowKwaliteitsscore(legeLes).secties[1].titel.includes("Kwaliteitsverdieping") },
     { naam: "BOW score 16/16 auditlijn is oranje audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore({ ...legeLes, ...Object.fromEntries(bowMustHaves.map((item) => [item.key, "ingevuld"])) }); return score.mustHaveAanwezig === 16 && score.mustHaveTotaal === 16 && score.status === "Audit-klaar" && score.statusType === "bijna"; })() },
@@ -3615,8 +3617,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .bowScoreKaart.klaar { border-left: 4px solid #16a34a; }
 .bowScoreKop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .bowScoreKop > div { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; row-gap: 2px; align-items: center; min-width: 0; }
-.bowMiniLogo { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 24px; padding: 2px; background: #eef8ff; border: 1px solid #ccecff; color: var(--tr-blue); }
-.bowAuditIcon { width: 18px; height: 18px; display: block; fill: currentColor; }
+.bowMiniLogo { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 28px; padding: 0; background: transparent; border: 0; color: var(--tr-blue); }
+.bowAuditIcon { width: 18px; height: 24px; display: block; fill: currentColor; }
 .bowScoreKop strong { color: var(--tr-text); font-size: 18px; font-weight: 900; line-height: 1.1; }
 .bowScoreKop small { grid-column: 2; color: #61798a; font-size: 11px; font-weight: 700; line-height: 1.3; }
 .bowScoreKop b { color: var(--tr-blue); font-size: 26px; line-height: 1; }
@@ -3654,12 +3656,14 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .accordion > button:hover { background: linear-gradient(180deg, #ffffff 0%, #eaf7ff 100%); }
 .accordion > button span { min-width: 0; }
 .accordion > button strong { display: block; color: var(--tr-text); font-size: 17px; font-weight: 850; line-height: 1.2; letter-spacing: 0; }
-.bowGroepBadge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 22px; margin-left: 8px; padding: 2px; background: #eef8ff; border: 1px solid #ccecff; color: var(--tr-blue); font-style: normal; line-height: 1; vertical-align: middle; }
-.bowGroepBadge .bowAuditIcon { width: 16px; height: 16px; }
+.bowGroepBadge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 24px; margin-left: 8px; padding: 0; background: transparent; border: 0; color: var(--tr-blue); font-style: normal; line-height: 1; vertical-align: middle; }
+.bowGroepBadge .bowAuditIcon { width: 15px; height: 20px; }
 .accordion small { display: block; color: #526b7d; font-size: 12.5px; font-weight: 500; margin-top: 5px; line-height: 1.4; letter-spacing: 0; }
 .accordion em { flex: 0 0 auto; min-width: 48px; text-align: center; font-style: normal; color: var(--tr-blue-dark); background: #dff4ff; border: 1px solid #b9e5ff; padding: 6px 9px; font-size: 12px; font-weight: 900; line-height: 1; }
 .accordionBody { padding: 18px; }
 .veldActies { position: relative; display: flex; align-items: center; gap: 6px; height: 30px; }
+.bowAuditLabel { display: inline-flex; align-items: center; gap: 4px; height: 30px; color: var(--tr-blue); font-size: 10px; font-weight: 900; letter-spacing: .02em; line-height: 1; white-space: nowrap; }
+.bowAuditLabel .bowAuditIcon { width: 13px; height: 18px; }
 .veldActies > button { width: 30px; height: 30px; border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); font-weight: 1000; cursor: pointer; }
 .veldActies > button.plusSuggestieKnop { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .veldActies > button.uitlegKnop { background: white; color: var(--tr-blue); border-color: var(--tr-blue); }
