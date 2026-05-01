@@ -3491,7 +3491,6 @@ body { margin: 0; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .fieldBlock { margin-bottom: 16px; }
 .fieldBlock.bowField { position: relative; border-left: 3px solid #b9e5ff; padding-left: 12px; }
-.fieldBlock.bowField:hover::after { content: "Onderdeel van BOW auditlijn"; position: absolute; right: 0; top: 0; z-index: 4; padding: 6px 8px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 12px 28px rgba(8,58,89,.14); color: var(--tr-blue-dark); font-size: 10.5px; font-weight: 850; line-height: 1.2; }
 .fieldLabelRow { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 30px; margin: 0 0 8px; }
 .fieldLabelRow .label { margin: 0; line-height: 30px; }
 .label { display: block; margin: 0 0 8px; font-weight: 750; font-size: 14px; }
