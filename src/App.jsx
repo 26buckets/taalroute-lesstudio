@@ -2616,7 +2616,7 @@ function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
   );
 }
 
-function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDupliceren }) {
+function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDupliceren, onVerwijderen }) {
   const [zoekterm, setZoekterm] = useState("");
   const [niveauFilter, setNiveauFilter] = useState("");
   const [profielFilter, setProfielFilter] = useState("");
@@ -2666,6 +2666,7 @@ function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDuplicer
             <div className="savedLessonActions">
               <button type="button" onClick={() => onLaden(les.id)}>Openen</button>
               <button type="button" onClick={() => onDupliceren(les.id)}>Dupliceren</button>
+              <button type="button" className="danger" onClick={() => onVerwijderen(les.id)}>Verwijderen</button>
             </div>
           </article>
         )) : (
@@ -2679,7 +2680,7 @@ function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDuplicer
   );
 }
 
-function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesId, onLesOpslaan, onLesLaden, onLesDupliceren, onNieuweLes }) {
+function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesId, onLesOpslaan, onLesLaden, onLesDupliceren, onLesVerwijderen, onNieuweLes }) {
   const [bulkTekst, setBulkTekst] = useState("");
   const [melding, setMelding] = useState("");
   const [openGroepen, setOpenGroepen] = useState({ basis: true });
@@ -2779,6 +2780,10 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           onDupliceren={(id) => {
             const les = onLesDupliceren(id);
             if (les) setMelding(`Kopie gemaakt: ${les.titel}`);
+          }}
+          onVerwijderen={(id) => {
+            const les = onLesVerwijderen(id);
+            if (les) setMelding(`Les verwijderd: ${les.titel}`);
           }}
         />
 
@@ -3254,6 +3259,22 @@ export default function Lesstudio() {
     return kopie;
   };
 
+  const verwijderLes = (id) => {
+    const les = opgeslagenLessen.find((item) => item.id === id);
+    if (!les) return null;
+    const akkoord = window.confirm(`Weet je zeker dat je "${les.titel}" wilt verwijderen?`);
+    if (!akkoord) return null;
+    bewaarLessen((vorig) => vorig.filter((item) => item.id !== id));
+    if (actieveLesId === id) {
+      setActieveLesId("");
+      setForm(legeLes);
+      setEditorTitel("Nieuw Taalroute lesplan");
+      setEditorSecties([]);
+      setStap(1);
+    }
+    return les;
+  };
+
   const nieuweLes = () => {
     setForm(legeLes);
     setActieveLesId("");
@@ -3288,7 +3309,7 @@ export default function Lesstudio() {
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
-      {stap === 1 ? <Invullen form={form} setForm={setForm} naarResultaat={() => maakResultaat(2)} onPrivacy={() => setPrivacyOpen(true)} lessen={opgeslagenLessen} actieveLesId={actieveLesId} onLesOpslaan={slaLesOp} onLesLaden={laadLes} onLesDupliceren={dupliceerLes} onNieuweLes={nieuweLes} /> : null}
+      {stap === 1 ? <Invullen form={form} setForm={setForm} naarResultaat={() => maakResultaat(2)} onPrivacy={() => setPrivacyOpen(true)} lessen={opgeslagenLessen} actieveLesId={actieveLesId} onLesOpslaan={slaLesOp} onLesLaden={laadLes} onLesDupliceren={dupliceerLes} onLesVerwijderen={verwijderLes} onNieuweLes={nieuweLes} /> : null}
       {stap === 2 ? <Resultaat titel={editorTitel} setTitel={setEditorTitel} secties={editorSecties} setSecties={setEditorSecties} naarInvullen={() => setStap(1)} naarDownload={() => setStap(3)} /> : null}
       {stap === 3 ? <Downloaden titel={editorTitel} secties={editorSecties} naarResultaat={() => setStap(2)} /> : null}
     </main>
@@ -3452,6 +3473,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonActions { display: flex; gap: 5px; align-items: center; }
 .savedLessonActions button { border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); padding: 7px 8px; font-family: inherit; font-size: 11px; font-weight: 900; cursor: pointer; }
 .savedLessonActions button:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
+.savedLessonActions button.danger { color: #b91c1c; border-color: #fecaca; }
+.savedLessonActions button.danger:hover { background: #dc2626; border-color: #dc2626; color: white; }
 .savedLessonEmpty { border: 1px dashed var(--tr-line); background: #f8fcff; padding: 12px; }
 .savedLessonEmpty strong, .savedLessonEmpty span { display: block; }
 .savedLessonEmpty strong { color: var(--tr-blue-dark); font-size: 13px; }
