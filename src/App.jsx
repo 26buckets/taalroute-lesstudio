@@ -2344,7 +2344,9 @@ function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
   };
   return (
     <header className="appHeader">
-      <div className="brand"><img src={APP_LOGO_URL} alt="Taalroute" /></div>
+      <a className="brand" href="https://www.taalroute.nl" target="_blank" rel="noreferrer" aria-label="Ga naar taalroute.nl">
+        <img src={APP_LOGO_URL} alt="Taalroute" />
+      </a>
       <nav>
         {[["1", "Invullen"], ["2", "Aanpassen"], ["3", "Downloaden"]].map(([nummer, label]) => (
           <button key={nummer} type="button" className={stap === Number(nummer) ? "active" : ""} onClick={() => setStap(Number(nummer))}><span>{nummer}</span>{label}</button>
@@ -2816,7 +2818,8 @@ const appCss = `
 body { margin: 0; }
 .appRoot { min-height: 100vh; background: linear-gradient(135deg, #26a8ff 0%, #0090f2 42%, #0077ca 72%, #005c9d 100%); color: var(--tr-text); padding-top: calc(var(--app-header-height) + 14px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
 .appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: white; border-bottom: 1px solid var(--tr-line); box-shadow: 0 10px 30px rgba(0,75,122,.16); padding: 18px 24px; display: grid; grid-template-columns: 220px 1fr 104px; gap: 18px; align-items: center; }
-.brand { display: flex; align-items: center; justify-content: flex-start; }
+.brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
+.brand:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.16); }
 .brand img { width: 150px; height: auto; object-fit: contain; }
 .appHeader nav { display: flex; gap: 8px; justify-self: end; }
 .appHeader nav button { width: 170px; height: 54px; border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); font-weight: 800; cursor: pointer; font-family: inherit; }
@@ -2974,14 +2977,17 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .bowChecklist span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 7px; border: 1px solid #e2f3ff; background: #f8fcff; color: #526b7d; font-size: 11px; font-weight: 750; line-height: 1; }
 .bowChecklist span.ok { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
 .bowChecklist span.mist { color: #9a3412; background: #fff7ed; border-color: #fed7aa; }
-.weergavePaneel { display: grid; grid-template-columns: minmax(220px, 1fr) auto; gap: 12px; align-items: center; margin: 0 0 14px; padding: 12px; border: 1px solid var(--tr-line); background: white; }
+.weergavePaneel { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(390px, 470px); gap: 16px; align-items: center; margin: 0 0 14px; padding: 14px 16px; border: 1px solid var(--tr-line); background: white; }
 .weergavePaneel strong { display: block; color: var(--tr-blue-dark); font-size: 15px; font-weight: 900; margin-bottom: 2px; }
 .weergavePaneel span { display: block; color: #526b7d; font-size: 12px; line-height: 1.4; font-weight: 600; }
 .weergavePaneel small { display: block; margin-top: 3px; color: #7b92a1; font-size: 11px; line-height: 1.3; font-weight: 600; }
-.weergaveKnoppen { display: inline-grid; grid-template-columns: repeat(3, auto); gap: 6px; padding: 5px; background: var(--tr-blue-pale); border: 1px solid var(--tr-line); }
-.weergaveKnoppen button { border: 1px solid transparent; background: transparent; color: var(--tr-blue-dark); padding: 8px 10px; font-family: inherit; font-size: 12px; font-weight: 900; cursor: pointer; white-space: nowrap; }
-.weergaveKnoppen button.active { background: var(--tr-blue); color: white; box-shadow: 0 8px 18px rgba(0,144,242,.16); }
-.weergaveKnoppen button:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18); }
+.weergaveKnoppen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-self: stretch; background: #f8fcff; border: 1px solid var(--tr-line); overflow: hidden; }
+.weergaveKnoppen button { min-width: 0; min-height: 42px; border: 0; border-right: 1px solid var(--tr-line); background: transparent; color: var(--tr-blue-dark); padding: 9px 10px; font-family: inherit; font-size: 12px; font-weight: 900; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
+.weergaveKnoppen button:last-child { border-right: 0; }
+.weergaveKnoppen button:hover { background: var(--tr-blue-pale); }
+.weergaveKnoppen button.active { background: var(--tr-blue); color: white; }
+.weergaveKnoppen button.active:hover { background: var(--tr-blue-dark); }
+.weergaveKnoppen button:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px rgba(0,111,189,.28); }
 .accordion { border: 1px solid #d7efff; margin-bottom: 12px; background: white; }
 .accordion > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 15px 18px; border: 0; background: linear-gradient(180deg, #ffffff 0%, var(--tr-blue-pale) 100%); cursor: pointer; color: var(--tr-text); text-align: left; font-family: inherit; }
 .accordion > button span { min-width: 0; }
