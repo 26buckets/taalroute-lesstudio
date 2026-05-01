@@ -25,6 +25,7 @@ const APP_LOGO_URL = "https://media.publit.io/file/taalroute/taalroute-logo/taal
 const DOCUMENT_LOGO_URL = "https://media.publit.io/file/taalroute/taalroute-logo/logo-taalroute4x.png";
 const FAVICON_URL = "https://media.publit.io/file/taalroute/taalroute-logo/flavicon-taalroute-v24x.png";
 const BRAND = "#0090f2";
+const LESSEN_STORAGE_KEY = "taalroute_lesstudio_opgeslagen_lessen_v1";
 
 const groepsniveaus = ["", "Alfa A", "Alfa B", "Alfa C", "A0 NT2", "A1 NT2", "A2 NT2", "B1 NT2", "B2 NT2", "C1 NT2", "MBO 1", "MBO 2", "MBO 3", "MBO 4"];
 
@@ -600,6 +601,72 @@ const veldUitleg = {
 
 function schoonTekst(tekst) {
   return String(tekst || "").replace(/\r\n?/g, NL).split(NL).map((regel) => regel.trimEnd()).join(NL).trim();
+}
+
+function browserStorageBeschikbaar() {
+  return typeof window !== "undefined" && Boolean(window.localStorage);
+}
+
+function maakLesId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return `les-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function lesTitel(form) {
+  return String(form?.lesonderwerp || "").trim() || "Naamloze les";
+}
+
+function lesThema(form) {
+  return String(form?.praktijkkern || form?.boekPaginas || form?.profielFocus || form?.lesonderwerp || "").trim();
+}
+
+function lesProfielLabel(form) {
+  return profielInfo[form?.standaard || "bow"]?.label || "BOW Kwaliteitsprofiel";
+}
+
+function formatDatumTijd(waarde) {
+  if (!waarde) return "Nog niet bewerkt";
+  try {
+    return new Intl.DateTimeFormat("nl-NL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(new Date(waarde));
+  } catch {
+    return String(waarde);
+  }
+}
+
+function normaliseerLesItem(item) {
+  if (!item || !item.form) return null;
+  const form = { ...legeLes, ...item.form, extraProfielen: Array.isArray(item.form.extraProfielen) ? item.form.extraProfielen : [] };
+  return {
+    id: item.id || maakLesId(),
+    titel: item.titel || lesTitel(form),
+    niveau: item.niveau || form.groepsniveau || "",
+    profiel: item.profiel || form.standaard || "bow",
+    thema: item.thema || lesThema(form),
+    aangemaaktOp: item.aangemaaktOp || new Date().toISOString(),
+    bijgewerktOp: item.bijgewerktOp || item.aangemaaktOp || new Date().toISOString(),
+    form
+  };
+}
+
+function leesOpgeslagenLessen() {
+  if (!browserStorageBeschikbaar()) return [];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(LESSEN_STORAGE_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.map(normaliseerLesItem).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function schrijfOpgeslagenLessen(lessen) {
+  if (!browserStorageBeschikbaar()) return;
+  window.localStorage.setItem(LESSEN_STORAGE_KEY, JSON.stringify(lessen));
 }
 
 function esc(waarde) {
@@ -2549,7 +2616,70 @@ function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
   );
 }
 
-function Invullen({ form, setForm, naarResultaat, onPrivacy }) {
+function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDupliceren }) {
+  const [zoekterm, setZoekterm] = useState("");
+  const [niveauFilter, setNiveauFilter] = useState("");
+  const [profielFilter, setProfielFilter] = useState("");
+  const niveaus = [...new Set(lessen.map((les) => les.niveau).filter(Boolean))].sort();
+  const profielen = [...new Set(lessen.map((les) => les.profiel).filter(Boolean))].sort();
+  const zoek = zoekterm.trim().toLowerCase();
+  const gefilterdeLessen = lessen
+    .filter((les) => !niveauFilter || les.niveau === niveauFilter)
+    .filter((les) => !profielFilter || les.profiel === profielFilter)
+    .filter((les) => {
+      if (!zoek) return true;
+      return [les.titel, les.niveau, lesProfielLabel(les.form), les.thema, les.form?.lesdoel, les.form?.kernwoorden]
+        .join(" ")
+        .toLowerCase()
+        .includes(zoek);
+    })
+    .sort((a, b) => new Date(b.bijgewerktOp).getTime() - new Date(a.bijgewerktOp).getTime());
+
+  return (
+    <section className="panel savedLessonsPanel">
+      <div className="savedLessonsHeader">
+        <div>
+          <h2>Mijn lessen</h2>
+          <p>Bewaar lessen lokaal, zoek ze later terug en maak snel een kopie.</p>
+        </div>
+        <Knop onClick={onOpslaan}>{actieveLesId ? "Les bijwerken" : "Les opslaan"}</Knop>
+      </div>
+      <div className="savedLessonFilters">
+        <input className="field" value={zoekterm} onChange={(event) => setZoekterm(event.target.value)} placeholder="Zoek op thema, lesdoel of woord" />
+        <select className="field" value={niveauFilter} onChange={(event) => setNiveauFilter(event.target.value)}>
+          <option value="">Alle niveaus</option>
+          {niveaus.map((niveau) => <option key={niveau} value={niveau}>{niveau}</option>)}
+        </select>
+        <select className="field" value={profielFilter} onChange={(event) => setProfielFilter(event.target.value)}>
+          <option value="">Alle profielen</option>
+          {profielen.map((profielId) => <option key={profielId} value={profielId}>{profielInfo[profielId]?.label || profielId}</option>)}
+        </select>
+      </div>
+      <div className="savedLessonList">
+        {gefilterdeLessen.length ? gefilterdeLessen.map((les) => (
+          <article className={`savedLessonItem ${les.id === actieveLesId ? "active" : ""}`} key={les.id}>
+            <div>
+              <strong>{les.titel}</strong>
+              <span>{les.niveau || "Geen niveau"} · {lesProfielLabel(les.form)}</span>
+              <small>Laatst bewerkt: {formatDatumTijd(les.bijgewerktOp)}</small>
+            </div>
+            <div className="savedLessonActions">
+              <button type="button" onClick={() => onLaden(les.id)}>Openen</button>
+              <button type="button" onClick={() => onDupliceren(les.id)}>Dupliceren</button>
+            </div>
+          </article>
+        )) : (
+          <div className="savedLessonEmpty">
+            <strong>Nog geen lessen gevonden</strong>
+            <span>Sla je huidige les op of pas de zoekfilters aan.</span>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesId, onLesOpslaan, onLesLaden, onLesDupliceren, onNieuweLes }) {
   const [bulkTekst, setBulkTekst] = useState("");
   const [melding, setMelding] = useState("");
   const [openGroepen, setOpenGroepen] = useState({ basis: true });
@@ -2619,7 +2749,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy }) {
           <Tekstvak rows={9} value={bulkTekst} onChange={setBulkTekst} placeholder="Les: Thema 2&#10;Lesdoel: ...&#10;Hoofdvaardigheid: ..." />
           <div className="btnRow pasteActies">
             <Knop onClick={verwerkBulk}>Tekst verdelen</Knop>
-            <Knop variant="secondary" onClick={() => setForm(legeLes)}>Leegmaken</Knop>
+            <Knop variant="secondary" onClick={onNieuweLes}>Leegmaken</Knop>
             <div className="voorbeeldKeuze">
               <Knop variant="secondary" onClick={() => setVoorbeeldOpen((open) => !open)}>Voorbeeldles</Knop>
               {voorbeeldOpen ? (
@@ -2634,6 +2764,23 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy }) {
           </div>
           {melding ? <div className="message pasteMelding">{melding}</div> : null}
         </section>
+
+        <MijnLessenPaneel
+          lessen={lessen}
+          actieveLesId={actieveLesId}
+          onOpslaan={() => {
+            const les = onLesOpslaan();
+            setMelding(les ? `Les opgeslagen: ${les.titel}` : "Les kon niet worden opgeslagen.");
+          }}
+          onLaden={(id) => {
+            const les = onLesLaden(id);
+            if (les) setMelding(`Les geopend: ${les.titel}`);
+          }}
+          onDupliceren={(id) => {
+            const les = onLesDupliceren(id);
+            if (les) setMelding(`Kopie gemaakt: ${les.titel}`);
+          }}
+        />
 
         <section className="panel">
           <h2>Lesdetails</h2>
@@ -2945,6 +3092,7 @@ function draaiZelftests() {
   const samenvattingHtml = maakSamenvattingHtml("Test", maakSecties({ ...legeLes, lesonderwerp: "Test", didactischModel: "abcd" }));
   const opmaakHtml = maakHtml("Opmaak", [{ id: "doel", titel: "Opmaak", inhoud: `Dit is **vet** en *cursief*.${NL}- eerste punt` }]);
   const opmaakSamenvattingHtml = maakSamenvattingHtml("Opmaak", [{ id: "meta", titel: "Lesgegevens", inhoud: "Groepsniveau: A1 NT2" }, { id: "doel", titel: "Lesdoel", inhoud: "Dit is **vet**" }]);
+  const lesOpslagTest = normaliseerLesItem({ form: { ...legeLes, lesonderwerp: "Dokter", groepsniveau: "A1 NT2", standaard: "taalroute" } });
   const voorbeeldSamenvattingBasis = maakSamenvattingHtml("Voorbeeld", maakSecties(maakVoorbeeldLes("taalroute", "A1 NT2")));
   const voorbeeldSamenvattingMetExtra = maakSamenvattingHtml("Voorbeeld", maakSecties(maakVoorbeeldLes("taalroute", "A1 NT2")), ["vier", "taalfocus"]);
   const langeSecties = maakSecties({ ...maakVoorbeeldLes("taalroute", "B1 NT2"), lesdoel: "Lange printcontrole ".repeat(260), functioneleTaak: "Uitgebreide taakbeschrijving ".repeat(160), praktijklerenLes: "Praktijkleren met veel toelichting ".repeat(160), huiswerk: "Huiswerk met veel toelichting ".repeat(160) });
@@ -2976,6 +3124,7 @@ function draaiZelftests() {
     { naam: "Samenvatting kapt teksten niet af met punten", geslaagd: !langeSamenvattingHtml.includes("...") },
     { naam: "Canvas-opmaak wordt gerenderd in pagina 3", geslaagd: opmaakHtml.includes("<strong>vet</strong>") && opmaakHtml.includes("<em>cursief</em>") && opmaakHtml.includes("<li>eerste punt</li>") && !opmaakHtml.includes("**vet**") },
     { naam: "Samenvatting neemt canvas-opmaak over", geslaagd: opmaakSamenvattingHtml.includes("<strong>vet</strong>") && !opmaakSamenvattingHtml.includes("**vet**") },
+    { naam: "Lesopslag bewaart metadata voor zoeken", geslaagd: lesOpslagTest.titel === "Dokter" && lesOpslagTest.niveau === "A1 NT2" && lesOpslagTest.profiel === "taalroute" && Boolean(lesOpslagTest.bijgewerktOp) },
     { naam: "Extra samenvattingpagina gebruikt dezelfde BOW kaartstijl", geslaagd: langeSamenvattingHtml.includes('class="bowGrid extraBowGrid"') && !langeSamenvattingHtml.includes("extraGrid") },
     { naam: "Download HTML bevat geen Lingua Academy", geslaagd: !downloadHtml.includes("Lingua Academy") },
     { naam: "Download HTML bevat geen Taalroute service", geslaagd: !downloadHtml.includes("Taalroute service") },
@@ -3032,6 +3181,8 @@ function draaiZelftests() {
 export default function Lesstudio() {
   const [stap, setStap] = useState(1);
   const [form, setForm] = useState(legeLes);
+  const [opgeslagenLessen, setOpgeslagenLessen] = useState(() => leesOpgeslagenLessen());
+  const [actieveLesId, setActieveLesId] = useState("");
   const [editorTitel, setEditorTitel] = useState("Nieuw Taalroute lesplan");
   const [editorSecties, setEditorSecties] = useState([]);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -3039,6 +3190,76 @@ export default function Lesstudio() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const zelftests = useMemo(() => draaiZelftests(), []);
   const zelftestsGeslaagd = zelftests.every((test) => test.geslaagd);
+
+  useEffect(() => {
+    schrijfOpgeslagenLessen(opgeslagenLessen);
+  }, [opgeslagenLessen]);
+
+  const bewaarLessen = (updater) => {
+    setOpgeslagenLessen((vorig) => (typeof updater === "function" ? updater(vorig) : updater));
+  };
+
+  const slaLesOp = () => {
+    const nu = new Date().toISOString();
+    const bestaand = actieveLesId ? opgeslagenLessen.find((les) => les.id === actieveLesId) : null;
+    const les = {
+      id: bestaand?.id || maakLesId(),
+      titel: lesTitel(form),
+      niveau: form.groepsniveau || "",
+      profiel: form.standaard || "bow",
+      thema: lesThema(form),
+      aangemaaktOp: bestaand?.aangemaaktOp || nu,
+      bijgewerktOp: nu,
+      form: { ...form, extraProfielen: Array.isArray(form.extraProfielen) ? [...form.extraProfielen] : [] }
+    };
+    bewaarLessen((vorig) => bestaand ? vorig.map((item) => item.id === les.id ? les : item) : [les, ...vorig]);
+    setActieveLesId(les.id);
+    return les;
+  };
+
+  const laadLes = (id) => {
+    const les = opgeslagenLessen.find((item) => item.id === id);
+    if (!les) return null;
+    setForm({ ...legeLes, ...les.form, extraProfielen: Array.isArray(les.form.extraProfielen) ? [...les.form.extraProfielen] : [] });
+    setActieveLesId(les.id);
+    setEditorTitel(lesTitel(les.form));
+    setEditorSecties([]);
+    setStap(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return les;
+  };
+
+  const dupliceerLes = (id) => {
+    const les = opgeslagenLessen.find((item) => item.id === id);
+    if (!les) return null;
+    const nu = new Date().toISOString();
+    const kopieForm = { ...legeLes, ...les.form, lesonderwerp: `${lesTitel(les.form)} kopie`, extraProfielen: Array.isArray(les.form.extraProfielen) ? [...les.form.extraProfielen] : [] };
+    const kopie = {
+      id: maakLesId(),
+      titel: lesTitel(kopieForm),
+      niveau: kopieForm.groepsniveau || "",
+      profiel: kopieForm.standaard || "bow",
+      thema: lesThema(kopieForm),
+      aangemaaktOp: nu,
+      bijgewerktOp: nu,
+      form: kopieForm
+    };
+    bewaarLessen((vorig) => [kopie, ...vorig]);
+    setForm(kopieForm);
+    setActieveLesId(kopie.id);
+    setEditorTitel(kopie.titel);
+    setEditorSecties([]);
+    setStap(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return kopie;
+  };
+
+  const nieuweLes = () => {
+    setForm(legeLes);
+    setActieveLesId("");
+    setEditorTitel("Nieuw Taalroute lesplan");
+    setEditorSecties([]);
+  };
 
   const maakResultaat = (volgendeStap) => {
     setEditorTitel(form.lesonderwerp || "Nieuw Taalroute lesplan");
@@ -3067,7 +3288,7 @@ export default function Lesstudio() {
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
-      {stap === 1 ? <Invullen form={form} setForm={setForm} naarResultaat={() => maakResultaat(2)} onPrivacy={() => setPrivacyOpen(true)} /> : null}
+      {stap === 1 ? <Invullen form={form} setForm={setForm} naarResultaat={() => maakResultaat(2)} onPrivacy={() => setPrivacyOpen(true)} lessen={opgeslagenLessen} actieveLesId={actieveLesId} onLesOpslaan={slaLesOp} onLesLaden={laadLes} onLesDupliceren={dupliceerLes} onNieuweLes={nieuweLes} /> : null}
       {stap === 2 ? <Resultaat titel={editorTitel} setTitel={setEditorTitel} secties={editorSecties} setSecties={setEditorSecties} naarInvullen={() => setStap(1)} naarDownload={() => setStap(3)} /> : null}
       {stap === 3 ? <Downloaden titel={editorTitel} secties={editorSecties} naarResultaat={() => setStap(2)} /> : null}
     </main>
@@ -3216,6 +3437,25 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .profileChecks span { display: block; color: var(--tr-blue-dark); font-size: 13px; font-weight: 900; }
 .profileChecks label { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 700; color: var(--tr-text); }
 .profileChecks input { accent-color: var(--tr-blue); }
+.savedLessonsPanel { padding: 18px; }
+.savedLessonsHeader { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; margin-bottom: 12px; }
+.savedLessonsHeader h2 { margin-bottom: 4px; font-size: 20px; }
+.savedLessonsHeader p { margin: 0; font-size: 12.5px; line-height: 1.4; }
+.savedLessonsHeader .btn { min-height: 40px; padding: 10px 12px; white-space: nowrap; }
+.savedLessonFilters { display: grid; grid-template-columns: 1fr 132px 132px; gap: 7px; margin-bottom: 10px; }
+.savedLessonFilters .field { min-width: 0; padding: 9px 10px; font-size: 12.5px; }
+.savedLessonList { display: grid; gap: 7px; max-height: 300px; overflow: auto; padding-right: 2px; }
+.savedLessonItem { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border: 1px solid #d7efff; background: #fbfdff; padding: 10px; }
+.savedLessonItem.active { border-color: var(--tr-blue); background: #f4fbff; box-shadow: inset 3px 0 0 var(--tr-blue); }
+.savedLessonItem strong { display: block; color: var(--tr-text); font-size: 13px; line-height: 1.25; margin-bottom: 3px; }
+.savedLessonItem span, .savedLessonItem small { display: block; color: #526b7d; font-size: 11px; line-height: 1.35; font-weight: 650; }
+.savedLessonActions { display: flex; gap: 5px; align-items: center; }
+.savedLessonActions button { border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); padding: 7px 8px; font-family: inherit; font-size: 11px; font-weight: 900; cursor: pointer; }
+.savedLessonActions button:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
+.savedLessonEmpty { border: 1px dashed var(--tr-line); background: #f8fcff; padding: 12px; }
+.savedLessonEmpty strong, .savedLessonEmpty span { display: block; }
+.savedLessonEmpty strong { color: var(--tr-blue-dark); font-size: 13px; }
+.savedLessonEmpty span { color: #526b7d; font-size: 12px; margin-top: 3px; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
 .stats div { background: var(--tr-blue-pale); border: 1px solid #d7efff; padding: 18px; }
 .stats strong { display: block; font-size: 28px; color: var(--tr-blue); }
@@ -3382,6 +3622,9 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .pastePanel { padding-top: 58px; }
   .privacyWarning { left: auto; right: 12px; }
   .grid2, .stats, .timelineCard, .timelineTop { grid-template-columns: 1fr; }
+  .savedLessonsHeader, .savedLessonItem, .savedLessonFilters { grid-template-columns: 1fr; }
+  .savedLessonActions { align-items: stretch; }
+  .savedLessonActions button { flex: 1; }
   .stats { gap: 8px; }
   .stats div { padding: 12px; }
   .stats strong { font-size: 23px; }
