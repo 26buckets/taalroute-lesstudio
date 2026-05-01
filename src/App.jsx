@@ -2164,6 +2164,15 @@ function InfoIcon() {
   );
 }
 
+function BowAuditIcon() {
+  return (
+    <svg className="bowAuditIcon" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="12" r="9" />
+      <path d="M16 30c0-8 6-14 14-14h20c6 0 10 4 10 10s-4 10-10 10H39v10c0 8-6 14-14 14s-14-6-14-14V36h-1C4 36 0 32 0 26s4-10 10-10h8c-1 4-2 8-2 14Z" />
+    </svg>
+  );
+}
+
 function OpenLesIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2884,7 +2893,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         <section className={`bowScoreKaart ${bowScore.statusType}`}>
           <div className="bowScoreKop">
             <div>
-              <span className="bowMiniLogo">BOW</span>
+              <span className="bowMiniLogo" title="BOW auditlijn" aria-label="BOW auditlijn"><BowAuditIcon /></span>
               <strong>{bowScore.status}</strong>
               <small>{bowScore.mustHaveAanwezig}/{bowScore.mustHaveTotaal} BOW auditlijn · {bowScore.aanwezig}/{bowScore.totaal} totaal</small>
             </div>
@@ -2937,7 +2946,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           <section className="accordion" key={groep.id}>
             <button type="button" onClick={() => setOpenGroepen((vorig) => ({ ...vorig, [groep.id]: !vorig[groep.id] }))}>
               <span>
-                <strong>{groep.titel}{groep.velden.some(([key]) => isBowVeld(key)) ? <i className="bowGroepBadge" aria-label="BOW auditlijn"><span>BOW auditlijn</span></i> : null}</strong>
+                <strong>{groep.titel}{groep.velden.some(([key]) => isBowVeld(key)) ? <i className="bowGroepBadge" aria-label="BOW auditlijn" title="BOW auditlijn"><BowAuditIcon /></i> : null}</strong>
                 <small>{groep.omschrijving}</small>
               </span>
               <em>{groep.velden.filter(([key]) => String(form[key] || "").trim()).length}/{groep.velden.length}</em>
@@ -3606,7 +3615,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .bowScoreKaart.klaar { border-left: 4px solid #16a34a; }
 .bowScoreKop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .bowScoreKop > div { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; row-gap: 2px; align-items: center; min-width: 0; }
-.bowMiniLogo { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 20px; padding: 0 7px; background: #eef8ff; border: 1px solid #ccecff; color: #5f9fc4; font-size: 9px; font-weight: 900; letter-spacing: .02em; }
+.bowMiniLogo { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 24px; padding: 2px; background: #eef8ff; border: 1px solid #ccecff; color: var(--tr-blue); }
+.bowAuditIcon { width: 18px; height: 18px; display: block; fill: currentColor; }
 .bowScoreKop strong { color: var(--tr-text); font-size: 18px; font-weight: 900; line-height: 1.1; }
 .bowScoreKop small { grid-column: 2; color: #61798a; font-size: 11px; font-weight: 700; line-height: 1.3; }
 .bowScoreKop b { color: var(--tr-blue); font-size: 26px; line-height: 1; }
@@ -3644,8 +3654,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .accordion > button:hover { background: linear-gradient(180deg, #ffffff 0%, #eaf7ff 100%); }
 .accordion > button span { min-width: 0; }
 .accordion > button strong { display: block; color: var(--tr-text); font-size: 17px; font-weight: 850; line-height: 1.2; letter-spacing: 0; }
-.bowGroepBadge { display: inline-flex; align-items: center; margin-left: 8px; padding: 0; background: transparent; border: 0; font-style: normal; line-height: 1; vertical-align: middle; }
-.bowGroepBadge span { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 20px; padding: 0 7px; background: #eef8ff; border: 1px solid #ccecff; color: #5f9fc4; font-size: 9px; font-weight: 900; letter-spacing: .02em; }
+.bowGroepBadge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 22px; margin-left: 8px; padding: 2px; background: #eef8ff; border: 1px solid #ccecff; color: var(--tr-blue); font-style: normal; line-height: 1; vertical-align: middle; }
+.bowGroepBadge .bowAuditIcon { width: 16px; height: 16px; }
 .accordion small { display: block; color: #526b7d; font-size: 12.5px; font-weight: 500; margin-top: 5px; line-height: 1.4; letter-spacing: 0; }
 .accordion em { flex: 0 0 auto; min-width: 48px; text-align: center; font-style: normal; color: var(--tr-blue-dark); background: #dff4ff; border: 1px solid #b9e5ff; padding: 6px 9px; font-size: 12px; font-weight: 900; line-height: 1; }
 .accordionBody { padding: 18px; }
