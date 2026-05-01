@@ -6,7 +6,7 @@ export const profielInfo = {
   taalroute: { label: "Taalroute Profiel", uitleg: "Praktijkkern, werkbrug, digitale verlenging, hybride online deelname en taakgerichte afsluiting." },
   erk: { label: "ERK Niveauprofiel", uitleg: "Can do doelen, vaardigheidsontwikkeling en niveau passende output." },
   staatsexamen: { label: "NT2-examenprofiel", uitleg: "Examenvaardigheid, strategie, taakuitvoering, tijdsdruk en beoordelingscriteria." },
-  zroute: { label: "Z-route Praktijkprofiel", uitleg: "Praktische taal, herhaling, mondelinge interactie, veiligheid en haalbare buitenschoolse opdrachten." },
+  zroute: { label: "Z-route Alfabeta+ profiel", uitleg: "Praktische taal, herhaling, mondelinge interactie, veiligheid en haalbare buitenschoolse opdrachten." },
   mbo: { label: "Beroepsgericht profiel", uitleg: "Beroepshandeling, vaktaal, werknemersvaardigheden, veiligheid en werkcontext." }
 } as const;
 

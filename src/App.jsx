@@ -40,7 +40,7 @@ const helpSecties = [
   },
   {
     titel: "Wat is een profiel?",
-    tekst: ["Het profiel bepaalt vanuit welke kwaliteitsbril de les wordt opgebouwd. BOW blijft altijd actief als auditlijn. Elk profiel geeft andere velden en andere suggesties bij de plusknop.", "BOW Kwaliteitsprofiel: voor lessen waarin leskwaliteit, doelgerichtheid, VUT, actieve deelname, praktijkleren, feedback en voortgang zichtbaar moeten zijn.", "Taalroute Profiel: voor lessen die sterk moeten aansluiten op de Taalroute methode, het boek, de werkbrug, de ELO, kernwoorden en de praktijktaak.", "ERK Niveauprofiel: voor lessen waarin het taalniveau, de can do doelen, de hoofdvaardigheid, de mate van steun en de leeropbrengst centraal staan.", "NT2-examenprofiel: voor lessen die voorbereiden op examenvaardigheid, taaktype, strategie, tijdsbewaking en beoordelingscriteria.", "Z-route Praktijkprofiel: voor lessen met eenvoudige taal, herhaling, beeldsteun, voordoen, nadoen, mondelinge interactie en haalbare praktijkopdrachten.", "Beroepsgericht profiel: voor lessen waarin werktaal, vaktaal, beroepshandeling, veiligheid, samenwerken en werknemersvaardigheden centraal staan."]
+    tekst: ["Het profiel bepaalt vanuit welke kwaliteitsbril de les wordt opgebouwd. BOW blijft altijd actief als auditlijn. Elk profiel geeft andere velden en andere suggesties bij de plusknop.", "BOW Kwaliteitsprofiel: voor lessen waarin leskwaliteit, doelgerichtheid, VUT, actieve deelname, praktijkleren, feedback en voortgang zichtbaar moeten zijn.", "Taalroute Profiel: voor lessen die sterk moeten aansluiten op de Taalroute methode, het boek, de werkbrug, de ELO, kernwoorden en de praktijktaak.", "ERK Niveauprofiel: voor lessen waarin het taalniveau, de can do doelen, de hoofdvaardigheid, de mate van steun en de leeropbrengst centraal staan.", "NT2-examenprofiel: voor lessen die voorbereiden op examenvaardigheid, taaktype, strategie, tijdsbewaking en beoordelingscriteria.", "Z-route Alfabeta+ profiel: voor lessen met eenvoudige taal, herhaling, beeldsteun, voordoen, nadoen, mondelinge interactie en haalbare praktijkopdrachten.", "Beroepsgericht profiel: voor lessen waarin werktaal, vaktaal, beroepshandeling, veiligheid, samenwerken en werknemersvaardigheden centraal staan."]
   },
   {
     titel: "Wat is een didactisch model?",
@@ -139,7 +139,7 @@ const privacyTekstVoorTests = privacySecties.map((sectie) => `${sectie.titel}\n$
 function formatHelpTekst(tekst) {
   const patronen = [
     "Stap 1 Invullen", "Stap 2 Aanpassen", "Stap 3 Downloaden en printen",
-    "BOW Kwaliteitsprofiel", "Taalroute Profiel", "ERK Niveauprofiel", "NT2-examenprofiel", "Z-route Praktijkprofiel", "Beroepsgericht profiel",
+    "BOW Kwaliteitsprofiel", "Taalroute Profiel", "ERK Niveauprofiel", "NT2-examenprofiel", "Z-route Alfabeta+ profiel", "Beroepsgericht profiel",
     "VUT-model", "ABCD-model", "EDI-model", "Taakgericht model", "Terugplannen vanuit de eindtaak",
     "vraagtekenknop", "vraagtekenknoppen", "plusknop", "plusknoppen", "BOW", "Volledig plan", "Samenvatting", "HTML bestand", "Chrome", "Edge", "Functionele taak"
   ];
@@ -182,7 +182,7 @@ const standaarden = {
     eisen: ["Examenvaardigheid", "Strategie", "Examengerichte taak", "Feedback op criteria", "Examenhuiswerk"]
   },
   zroute: {
-    label: "Z-route Praktijkprofiel",
+    label: "Z-route Alfabeta+ profiel",
     uitleg: "Praktische taal, herhaling, mondelinge interactie, veiligheid en haalbare buitenschoolse opdrachten.",
     eisen: ["Concrete praktijksituatie", "Herhaling", "Beeld of voordoen", "Spreektaak", "Haalbare buitenopdracht"]
   },
