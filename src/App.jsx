@@ -2164,13 +2164,45 @@ function InfoIcon() {
   );
 }
 
+function OpenLesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 5h14v14H5z" />
+      <path d="M9 15 15 9" />
+      <path d="M10 9h5v5" />
+    </svg>
+  );
+}
+
+function CopyLesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 8h10v12H8z" />
+      <path d="M6 16H4V4h10v2" />
+    </svg>
+  );
+}
+
+function TrashLesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 7h16" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+      <path d="M6 7l1 14h10l1-14" />
+      <path d="M9 7V4h6v3" />
+    </svg>
+  );
+}
+
 function IconActieKnop({ label, onClick, children }) {
   return <button type="button" className="iconActieKnop" onClick={onClick} aria-label={label} title={label}>{children}</button>;
 }
 
 function DownloadActieKnop({ label, sublabel, onClick, children, disabled = false }) {
+  const titel = sublabel ? `${label} ${sublabel}` : label;
   return (
-    <button type="button" className="downloadActieKnop" onClick={onClick} disabled={disabled}>
+    <button type="button" className="downloadActieKnop" onClick={onClick} disabled={disabled} aria-label={titel} title={titel}>
       <span className="downloadActieIcon">{children}</span>
       <span><strong>{label}</strong>{sublabel ? <small>{sublabel}</small> : null}</span>
     </button>
@@ -2212,7 +2244,7 @@ function CanvasToolbar({ label, value, onChange }) {
     <div className="canvasEditorToolbar" aria-label={`Editor opties voor ${label}`}>
       <span>{label}</span>
       {acties.map(([actie, teken, aria]) => (
-        <button key={actie} type="button" onClick={() => onChange(pasCanvasOpmaakToe(value, actie))} aria-label={aria}>{teken}</button>
+        <button key={actie} type="button" onClick={() => onChange(pasCanvasOpmaakToe(value, actie))} aria-label={aria} title={aria}>{teken}</button>
       ))}
     </div>
   );
@@ -2251,7 +2283,7 @@ function CanvasBlockToolbar({ label, velden, className = "" }) {
     <div className={`canvasEditorToolbar canvasBlockToolbar ${className}`.trim()} aria-label={`Editor opties voor ${label}`}>
       <span>{label}</span>
       {acties.map(([actie, teken, aria]) => (
-        <button key={actie} type="button" onMouseDown={(event) => { event.preventDefault(); pasToe(actie); }} aria-label={aria}>{teken}</button>
+        <button key={actie} type="button" onMouseDown={(event) => { event.preventDefault(); pasToe(actie); }} aria-label={aria} title={aria}>{teken}</button>
       ))}
     </div>
   );
@@ -2275,7 +2307,7 @@ function CanvasFloatingToolbar({ actiefVeld }) {
     <div className="canvasEditorToolbar canvasFloatingToolbar" aria-label="Vaste editor opties voor het canvas">
       <span>Editor</span>
       {acties.map(([actie, teken, aria]) => (
-        <button key={actie} type="button" disabled={!actiefVeld} onMouseDown={(event) => { event.preventDefault(); pasToe(actie); }} aria-label={aria}>{teken}</button>
+        <button key={actie} type="button" disabled={!actiefVeld} onMouseDown={(event) => { event.preventDefault(); pasToe(actie); }} aria-label={aria} title={aria}>{teken}</button>
       ))}
     </div>
   );
@@ -2363,10 +2395,10 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   return (
     <div className="veldActies">
       {isBowVeld(veldKey) ? <span className="bowActieBadge" aria-label="BOW auditlijn: verplicht zichtbaar" title="verplicht zichtbaar">auditlijn</span> : null}
-      <button type="button" className="uitlegKnop" onClick={() => toggleMenu("uitleg")} aria-label={`Uitleg over ${veldKey}`}>?</button>
-      <button type="button" className="tipKnop" onClick={() => toggleMenu("tips")} aria-label={`Didactische tip over ${veldKey}`}><LightbulbIcon /></button>
+      <button type="button" className="uitlegKnop" onClick={() => toggleMenu("uitleg")} aria-label={`Uitleg over ${veldKey}`} title="Uitleg">?</button>
+      <button type="button" className="tipKnop" onClick={() => toggleMenu("tips")} aria-label={`Didactische tip over ${veldKey}`} title="Didactische tip"><LightbulbIcon /></button>
       {verbeterOpties.length ? <button type="button" className="verbeterKnop" onClick={() => toggleMenu("verbeter")} aria-label="Verbeterhulp openen" title="Verbeterhulp">✓</button> : null}
-      {opties.length ? <button type="button" className="plusSuggestieKnop" onClick={() => toggleMenu("suggesties")} aria-label="Suggestie toevoegen">+</button> : null}
+      {opties.length ? <button type="button" className="plusSuggestieKnop" onClick={() => toggleMenu("suggesties")} aria-label="Suggestie toevoegen" title="Suggestie toevoegen">+</button> : null}
       {uitlegOpen ? (
         <div className="uitlegMenu">
           <strong>Wat betekent dit?</strong>
@@ -2603,7 +2635,7 @@ function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
         ))}
       </nav>
       <div className="headerActies">
-        <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen}><InfoIcon /><span>Info</span></button>
+        <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info"><InfoIcon /><span>Info</span></button>
         {infoOpen ? (
           <div className="infoMenu">
             <button type="button" onClick={() => kies(onHelp)}>Help</button>
@@ -2664,9 +2696,9 @@ function MijnLessenPaneel({ lessen, actieveLesId, onOpslaan, onLaden, onDuplicer
               <small>Laatst bewerkt: {formatDatumTijd(les.bijgewerktOp)}</small>
             </div>
             <div className="savedLessonActions">
-              <button type="button" onClick={() => onLaden(les.id)}>Openen</button>
-              <button type="button" onClick={() => onDupliceren(les.id)}>Dupliceren</button>
-              <button type="button" className="danger" onClick={() => onVerwijderen(les.id)}>Verwijderen</button>
+              <button type="button" onClick={() => onLaden(les.id)} aria-label={`Open ${les.titel}`} title="Openen"><OpenLesIcon /></button>
+              <button type="button" onClick={() => onDupliceren(les.id)} aria-label={`Dupliceer ${les.titel}`} title="Dupliceren"><CopyLesIcon /></button>
+              <button type="button" className="danger" onClick={() => onVerwijderen(les.id)} aria-label={`Verwijder ${les.titel}`} title="Verwijderen"><TrashLesIcon /></button>
             </div>
           </article>
         )) : (
@@ -2746,7 +2778,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         <section className="panel pastePanel">
           <h2>Snel plakken</h2>
           <p>Plak een standaardtekst of gelabelde lesinformatie. De app zet de inhoud automatisch op de juiste plaats.</p>
-          <button type="button" className="privacyWarning" onClick={onPrivacy} aria-label="Open privacy informatie">Privacy</button>
+          <button type="button" className="privacyWarning" onClick={onPrivacy} aria-label="Open privacy informatie" title="Privacy">Privacy</button>
           <Tekstvak rows={9} value={bulkTekst} onChange={setBulkTekst} placeholder="Les: Thema 2&#10;Lesdoel: ...&#10;Hoofdvaardigheid: ..." />
           <div className="btnRow pasteActies">
             <Knop onClick={verwerkBulk}>Tekst verdelen</Knop>
@@ -3471,7 +3503,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonItem strong { display: block; color: var(--tr-text); font-size: 13px; line-height: 1.25; margin-bottom: 3px; }
 .savedLessonItem span, .savedLessonItem small { display: block; color: #526b7d; font-size: 11px; line-height: 1.35; font-weight: 650; }
 .savedLessonActions { display: flex; gap: 5px; align-items: center; }
-.savedLessonActions button { border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); padding: 7px 8px; font-family: inherit; font-size: 11px; font-weight: 900; cursor: pointer; }
+.savedLessonActions button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); padding: 0; font-family: inherit; cursor: pointer; }
+.savedLessonActions svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .savedLessonActions button:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .savedLessonActions button.danger { color: #b91c1c; border-color: #fecaca; }
 .savedLessonActions button.danger:hover { background: #dc2626; border-color: #dc2626; color: white; }
@@ -3646,8 +3679,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .privacyWarning { left: auto; right: 12px; }
   .grid2, .stats, .timelineCard, .timelineTop { grid-template-columns: 1fr; }
   .savedLessonsHeader, .savedLessonItem, .savedLessonFilters { grid-template-columns: 1fr; }
-  .savedLessonActions { align-items: stretch; }
-  .savedLessonActions button { flex: 1; }
+  .savedLessonActions { align-items: center; justify-content: flex-start; }
+  .savedLessonActions button { flex: 0 0 30px; }
   .stats { gap: 8px; }
   .stats div { padding: 12px; }
   .stats strong { font-size: 23px; }
