@@ -3690,18 +3690,18 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .verbeterMenu button span { display: block; color: var(--tr-blue-dark); font-size: 12px; font-weight: 900; margin-bottom: 4px; }
 .verbeterMenu button small { display: block; color: #526b7d; font-size: 12px; line-height: 1.4; font-weight: 600; }
 .testMelding { position: fixed; left: 24px; bottom: 24px; z-index: 20; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px 12px; font-weight: 800; }
-.result, .download { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 28px 72px 260px; }
+.result, .download { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 260px; }
 .toolbar { justify-content: flex-end; min-height: var(--body-box-min-height); margin-bottom: 22px; background: var(--tr-surface); border: 1px solid var(--tr-line); border-radius: 6px; padding: 16px; box-shadow: var(--tr-shadow); }
 .resultaatToolbar { justify-content: space-between; }
-.canvasHint { max-width: 900px; margin: -8px auto 14px; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 11px 14px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 12px 34px rgba(8,58,89,.08); }
+.canvasHint { max-width: none; margin: -8px 0 14px; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 11px 14px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 12px 34px rgba(8,58,89,.08); }
 .canvasHint strong { color: var(--tr-blue); font-size: 13px; font-weight: 1000; text-transform: uppercase; letter-spacing: .04em; }
 .canvasHint span { color: #526b7d; font-size: 12px; font-weight: 650; line-height: 1.4; }
-.lessonDoc { position: relative; max-width: 900px; margin: 0 auto; background: white; border: 1px solid var(--tr-line); border-radius: 6px; box-shadow: 0 28px 90px rgba(8,58,89,.18); overflow: visible; }
+.lessonDoc { position: relative; width: 100%; margin: 0; background: white; border: 1px solid var(--tr-line); border-radius: 6px; box-shadow: 0 28px 90px rgba(8,58,89,.18); overflow: visible; }
 .cover { background: linear-gradient(135deg, #0090f2 0%, #0077ca 70%, #005c9d 100%); color: white; padding: 42px 50px; position: relative; overflow: visible; }
 .cover img { width: 150px; background: white; padding: 8px 10px; margin-bottom: 18px; position: relative; z-index: 1; }
 .headerTriangle { position: absolute; right: 0; top: 0; width: 0; height: 0; border-top: 126px solid transparent; border-bottom: 126px solid transparent; border-left: 188px solid rgba(255,255,255,.13); transform: translate(22px, -16px); pointer-events: none; }
 .cover .canvasTitle { width: 100%; border: 0; outline: 0; background: rgba(255,255,255,.08); color: white; font-size: 42px; font-weight: 1000; line-height: 1.12; position: relative; z-index: 1; padding: 8px 0; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
-.lessonSection { position: relative; margin: 28px 42px; padding: 24px 26px 24px 78px; border: 1px solid #d7efff; background: linear-gradient(180deg, white 0%, #f7fcff 100%); }
+.lessonSection { position: relative; margin: 22px 34px; padding: 20px 24px 18px 76px; border: 1px solid #d7efff; background: linear-gradient(180deg, white 0%, #f7fcff 100%); }
 .canvasSectionRail { position: absolute; left: 24px; top: 24px; display: grid; gap: 6px; justify-items: start; }
 .canvasSectionRail > span { width: 36px; height: 36px; background: var(--tr-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 1000; }
 .canvasEditorToolbar { display: inline-flex; align-items: center; gap: 3px; width: fit-content; margin: 0 0 8px; padding: 3px; border: 1px solid #d7efff; background: #f8fcff; color: var(--tr-blue-dark); position: relative; z-index: 2; }
@@ -3713,8 +3713,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasEditorToolbar button:nth-of-type(2) { font-style: italic; }
 .canvasFloatingToolbar { position: absolute; top: 12px; right: 12px; z-index: 5; margin: 0; box-shadow: 0 12px 28px rgba(0,75,122,.16); }
 .canvasSectionToolbar { position: absolute; top: 10px; right: 10px; z-index: 4; margin: 0; box-shadow: 0 10px 24px rgba(0,75,122,.12); }
-.sectionTitle { width: 100%; margin: 0 0 12px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.25; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
-.canvasTextarea { width: 100%; min-height: 120px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.75; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
+.sectionTitle { width: 100%; margin: 0 0 4px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.2; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.canvasTextarea { width: 100%; min-height: 92px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.58; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
 .timeline { display: grid; gap: 12px; }
 .timelineCard { position: relative; display: grid; grid-template-columns: 124px 1fr; gap: 14px; align-items: stretch; background: white; border: 1px solid var(--tr-line); padding: 12px; }
 .timelineRail { display: grid; align-content: start; justify-items: start; gap: 6px; }
