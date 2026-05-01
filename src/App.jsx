@@ -2622,7 +2622,7 @@ function PrivacyModal({ open, onClose }) {
   );
 }
 
-function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
+function AppHeader({ onHelp, onDisclaimer, onPrivacy }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const kies = (actie) => {
     setInfoOpen(false);
@@ -2633,11 +2633,7 @@ function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
       <a className="brand" href="https://www.taalroute.nl" target="_blank" rel="noreferrer" aria-label="Ga naar taalroute.nl">
         <img src={APP_LOGO_URL} alt="Taalroute" />
       </a>
-      <nav>
-        {[["1", "Invullen"], ["2", "Aanpassen"], ["3", "Downloaden"]].map(([nummer, label]) => (
-          <button key={nummer} type="button" className={stap === Number(nummer) ? "active" : ""} onClick={() => setStap(Number(nummer))}><span>{nummer}</span>{label}</button>
-        ))}
-      </nav>
+      <div className="headerStudioLabel"><span>Lesstudio</span><strong>Ontwerp, check en publiceer auditwaardige lessen.</strong></div>
       <div className="headerActies">
         <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info"><InfoIcon /><span>Info</span></button>
         {infoOpen ? (
@@ -2649,6 +2645,35 @@ function AppHeader({ stap, setStap, onHelp, onDisclaimer, onPrivacy }) {
         ) : null}
       </div>
     </header>
+  );
+}
+
+function StudioSidebar({ stap, setStap }) {
+  const stappen = [
+    ["1", "Invullen", "Lesdata en velden"],
+    ["2", "Aanpassen", "Canvas bewerken"],
+    ["3", "Downloaden", "Print en export"]
+  ];
+  return (
+    <aside className="studioSidebar" aria-label="Studio navigatie">
+      <div className="studioSidebarKop">
+        <span>Studio</span>
+        <strong>Lesroute</strong>
+      </div>
+      <nav className="studioStappen">
+        {stappen.map(([nummer, label, tekst]) => (
+          <button key={nummer} type="button" className={stap === Number(nummer) ? "active" : ""} onClick={() => setStap(Number(nummer))}>
+            <span>{nummer}</span>
+            <b>{label}</b>
+            <small>{tekst}</small>
+          </button>
+        ))}
+      </nav>
+      <div className="studioSidebarVoet">
+        <strong>BOW auditlijn</strong>
+        <span>Altijd zichtbaar als kwaliteitscontrole.</span>
+      </div>
+    </aside>
   );
 }
 
@@ -2778,7 +2803,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
 
   return (
     <div className="layoutInput">
-      <div className="leftPanels">
+      <div className="workspaceColumn">
         <section className="panel pastePanel">
           <h2>Snel plakken</h2>
           <p>Plak een standaardtekst of gelabelde lesinformatie. De app zet de inhoud automatisch op de juiste plaats.</p>
@@ -2846,7 +2871,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         </section>
       </div>
 
-      <section className="panel wide">
+      <aside className="auditColumn" aria-label="BOW auditkolom">
         <div className="stats">
           <div><strong>{ingevuldeVelden}</strong><span>velden ingevuld</span></div>
           <div><strong>{bowScore.percentage}%</strong><span>BOW audit-klaar</span></div>
@@ -2895,6 +2920,14 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
               </button>
             ))}
           </div>
+        </div>
+      </aside>
+
+      <section className="panel lessonFieldsPanel">
+        <div className="werkruimteKop">
+          <span>Werkruimte</span>
+          <h2>Lesonderdelen</h2>
+          <p>Vul de onderdelen in die bij je gekozen veldmodus horen. De BOW auditlijn blijft op de achtergrond meekijken.</p>
         </div>
         {zichtbareGroepen.map((groep) => (
           <section className="accordion" key={groep.id}>
@@ -3341,7 +3374,8 @@ export default function Lesstudio() {
     <main className="appRoot">
       <style>{appCss}</style>
       {!zelftestsGeslaagd ? <div className="testMelding">Interne datacheck vraagt aandacht.</div> : null}
-      <AppHeader stap={stap} setStap={nav} onHelp={() => setHelpOpen(true)} onPrivacy={() => setPrivacyOpen(true)} onDisclaimer={() => setDisclaimerOpen(true)} />
+      <AppHeader onHelp={() => setHelpOpen(true)} onPrivacy={() => setPrivacyOpen(true)} onDisclaimer={() => setDisclaimerOpen(true)} />
+      <StudioSidebar stap={stap} setStap={nav} />
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
@@ -3364,10 +3398,13 @@ body { margin: 0; }
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
 .appRoot::before { content: ""; position: fixed; left: 0; top: 0; bottom: 0; width: 18px; z-index: 0; background: linear-gradient(180deg, rgba(5,47,73,.96) 0%, rgba(0,111,189,.86) 100%); box-shadow: inset -1px 0 0 rgba(255,255,255,.18); pointer-events: none; opacity: .92; }
 .appRoot::after { content: ""; position: fixed; left: 6px; top: 118px; width: 6px; height: 128px; z-index: 0; background: rgba(255,255,255,.42); pointer-events: none; opacity: .8; }
-.appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 42px; display: grid; grid-template-columns: 236px 1fr 96px; gap: 18px; align-items: center; }
+.appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 260px; display: grid; grid-template-columns: 236px 1fr 96px; gap: 18px; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
 .brand:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.16); }
 .brand img { width: 150px; height: auto; object-fit: contain; }
+.headerStudioLabel { justify-self: start; display: grid; gap: 2px; color: var(--tr-muted); }
+.headerStudioLabel span { color: var(--tr-blue); font-size: 11px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
+.headerStudioLabel strong { color: var(--tr-text); font-size: 13px; font-weight: 800; line-height: 1.3; }
 .appHeader nav { display: flex; gap: 7px; justify-self: end; padding: 5px; background: #f4fbff; border: 1px solid var(--tr-line-soft); }
 .appHeader nav button { width: 156px; height: 48px; border: 1px solid transparent; background: transparent; color: var(--tr-blue-dark); font-weight: 850; cursor: pointer; font-family: inherit; transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .appHeader nav button:hover { background: white; border-color: var(--tr-line-soft); }
@@ -3382,6 +3419,22 @@ body { margin: 0; }
 .infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 12; min-width: 180px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 8px; }
 .infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 11px 12px; text-align: left; font-family: inherit; font-weight: 850; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
+.studioSidebar { position: fixed; left: 24px; top: 18px; bottom: 22px; z-index: 11; width: 212px; display: flex; flex-direction: column; gap: 14px; padding: 16px; background: linear-gradient(180deg, #063a5a 0%, #006fbd 100%); color: white; box-shadow: 0 24px 70px rgba(8,58,89,.28); border: 1px solid rgba(255,255,255,.18); }
+.studioSidebarKop { display: grid; gap: 2px; padding: 4px 2px 12px; border-bottom: 1px solid rgba(255,255,255,.22); }
+.studioSidebarKop span { font-size: 11px; font-weight: 900; letter-spacing: .10em; text-transform: uppercase; opacity: .78; }
+.studioSidebarKop strong { font-size: 24px; line-height: 1; font-weight: 900; }
+.studioStappen { display: grid; gap: 8px; }
+.studioStappen button { width: 100%; display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; row-gap: 1px; align-items: center; padding: 10px; border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08); color: white; font-family: inherit; text-align: left; cursor: pointer; }
+.studioStappen button:hover { background: rgba(255,255,255,.15); }
+.studioStappen button.active { background: white; color: var(--tr-blue-dark); border-color: white; box-shadow: 0 12px 28px rgba(0,0,0,.16); }
+.studioStappen span { grid-row: 1 / span 2; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,.16); font-weight: 1000; }
+.studioStappen button.active span { background: var(--tr-blue); color: white; }
+.studioStappen b { font-size: 13px; font-weight: 950; line-height: 1.1; }
+.studioStappen small { font-size: 10.5px; line-height: 1.25; font-weight: 650; opacity: .78; }
+.studioSidebarVoet { margin-top: auto; padding: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.10); }
+.studioSidebarVoet strong, .studioSidebarVoet span { display: block; }
+.studioSidebarVoet strong { font-size: 12px; font-weight: 950; margin-bottom: 4px; }
+.studioSidebarVoet span { font-size: 11px; line-height: 1.35; opacity: .82; }
 .helpOverlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px; background: rgba(6, 43, 68, .42); }
 .helpModal { width: min(920px, 100%); max-height: min(840px, calc(100vh - 48px)); display: flex; flex-direction: column; background: white; border: 1px solid var(--tr-line); box-shadow: 0 28px 90px rgba(0, 47, 80, .28); }
 .helpModalHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 22px 24px; background: linear-gradient(180deg, white 0%, var(--tr-blue-pale) 100%); border-bottom: 1px solid var(--tr-line); }
@@ -3407,13 +3460,22 @@ body { margin: 0; }
 .helpKnopIcoon.tip { background: #fff7ed; border-color: #f59e0b; color: #f59e0b; }
 .helpKnopIcoon.check { background: #ecfdf5; border-color: #86efac; color: #16a34a; }
 .helpKnopIcoon.editor { background: #f4fbff; color: var(--tr-blue-dark); }
-.layoutInput { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 0 28px 72px 42px; display: grid; grid-template-columns: minmax(330px, 420px) minmax(620px, 1fr); column-gap: 18px; row-gap: 12px; align-items: start; }
-.leftPanels { grid-column: 1; display: flex; flex-direction: column; gap: 12px; align-self: start; position: sticky; top: calc(var(--app-header-height) + 22px); max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 2px; }
+.layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 260px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; column-gap: 18px; row-gap: 14px; align-items: start; }
+.workspaceColumn { grid-column: 1; display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); gap: 14px; align-items: start; }
+.workspaceColumn > .pastePanel { grid-column: 1; }
+.workspaceColumn > .savedLessonsPanel { grid-column: 2; }
+.workspaceColumn > .panel:not(.pastePanel):not(.savedLessonsPanel) { grid-column: 1 / -1; }
+.lessonFieldsPanel { grid-column: 1; }
+.auditColumn { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--app-header-height) + 22px); display: grid; gap: 12px; align-self: start; max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 2px; }
 .panel { background: var(--tr-surface); border: 1px solid rgba(185,229,255,.92); border-radius: 6px; padding: 22px; min-height: var(--body-box-min-height); box-shadow: var(--tr-shadow); }
 .pastePanel { position: relative; padding-top: 48px; }
 .panel.wide { grid-column: 2; grid-row: 1; }
 .panel h2 { margin: 0 0 8px; color: var(--tr-text); font-size: 22px; font-weight: 850; letter-spacing: 0; }
 .panel p { margin: 0 0 18px; color: var(--tr-muted); line-height: 1.5; }
+.werkruimteKop { margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid #e2f3ff; }
+.werkruimteKop span { display: block; color: var(--tr-blue); font-size: 11px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+.werkruimteKop h2 { margin-bottom: 4px; }
+.werkruimteKop p { margin-bottom: 0; font-size: 13px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .fieldBlock { margin-bottom: 16px; }
 .fieldBlock.bowField { border-left: 3px solid #b9e5ff; padding-left: 12px; }
@@ -3619,7 +3681,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .verbeterMenu button span { display: block; color: var(--tr-blue-dark); font-size: 12px; font-weight: 900; margin-bottom: 4px; }
 .verbeterMenu button small { display: block; color: #526b7d; font-size: 12px; line-height: 1.4; font-weight: 600; }
 .testMelding { position: fixed; left: 24px; bottom: 24px; z-index: 20; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px 12px; font-weight: 800; }
-.result, .download { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 28px 72px 42px; }
+.result, .download { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 28px 72px 260px; }
 .toolbar { justify-content: flex-end; min-height: var(--body-box-min-height); margin-bottom: 22px; background: var(--tr-surface); border: 1px solid var(--tr-line); border-radius: 6px; padding: 16px; box-shadow: var(--tr-shadow); }
 .resultaatToolbar { justify-content: space-between; }
 .canvasHint { max-width: 900px; margin: -8px auto 14px; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 11px 14px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 12px 34px rgba(8,58,89,.08); }
@@ -3660,18 +3722,24 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   :root { --app-header-height: 136px; }
   .appRoot { padding-top: calc(var(--app-header-height) + 10px); }
   .appRoot::before, .appRoot::after { display: none; }
+  .studioSidebar { left: 16px; right: 16px; top: 72px; bottom: auto; width: auto; min-height: 52px; padding: 6px; display: block; }
+  .studioSidebarKop, .studioSidebarVoet { display: none; }
+  .studioStappen { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .studioStappen button { grid-template-columns: 26px 1fr; padding: 7px 8px; }
+  .studioStappen span { width: 26px; height: 26px; }
+  .studioStappen b { font-size: 12px; }
+  .studioStappen small { display: none; }
   .appHeader { grid-template-columns: 1fr auto; gap: 10px; padding: 12px 16px; align-content: center; }
   .brand { justify-self: center; }
   .brand img { width: 128px; }
-  .appHeader nav { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; justify-self: stretch; }
-  .appHeader nav button { width: 100%; height: 48px; padding: 0 8px; font-size: 13px; }
-  .appHeader nav span { width: 22px; height: 22px; margin-right: 5px; }
+  .headerStudioLabel { display: none; }
   .headerActies { grid-column: 2; grid-row: 1; }
   .infoMenuKnop { width: 78px; height: 42px; font-size: 13px; }
   .helpModalBody { grid-template-columns: 1fr; }
   .layoutInput { grid-template-columns: 1fr; padding-inline: 16px; }
-  .leftPanels { position: static; max-height: none; overflow: visible; padding-right: 0; }
-  .leftPanels, .panel.wide { grid-column: auto; grid-row: auto; }
+  .workspaceColumn { grid-template-columns: 1fr; }
+  .workspaceColumn > .pastePanel, .workspaceColumn > .savedLessonsPanel, .workspaceColumn > .panel:not(.pastePanel):not(.savedLessonsPanel), .lessonFieldsPanel, .auditColumn { grid-column: auto; grid-row: auto; }
+  .auditColumn { position: static; max-height: none; overflow: visible; padding-right: 0; }
   .result, .download { padding-inline: 16px; }
   .downloadPaneel { grid-template-columns: 1fr; }
   .downloadTerug { justify-content: flex-start; }
@@ -3687,8 +3755,6 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .infoMenuKnop { width: 68px; height: 36px; font-size: 12px; }
   .infoMenuKnop svg { width: 16px; height: 16px; }
   .infoMenu { min-width: 155px; }
-  .appHeader nav button { height: 40px; font-size: 12px; }
-  .appHeader nav span { display: none; }
   .layoutInput, .result, .download { padding-inline: 10px; padding-bottom: 36px; }
   .panel { padding: 16px; box-shadow: 0 14px 34px rgba(0,75,122,.15); }
   .panel h2 { font-size: 20px; }
