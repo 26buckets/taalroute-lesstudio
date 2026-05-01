@@ -46,12 +46,8 @@ const helpSecties = [
     tekst: ["Het didactisch model bepaalt hoe de les wordt opgebouwd. Het profiel bepaalt waar je op let. Het didactisch model bepaalt de route van de les.", "VUT-model: de les wordt opgebouwd met vooruitkijken, uitvoeren en terugkijken.", "ABCD-model: de les wordt opgebouwd van input naar reproductie, gestuurde productie en vrije productie.", "EDI-model: de les wordt opgebouwd met expliciete instructie, voordoen, begripcheck, begeleide oefening en zelfstandige verwerking.", "Taakgericht model: de les wordt opgebouwd rond een herkenbare taak, met taalsteun, uitvoering, feedback en verbetering.", "Terugplannen vanuit de eindtaak: de les start bij de eindtaak. Daarna wordt teruggebouwd naar de woorden, zinnen, input en oefeningen die nodig zijn."]
   },
   {
-    titel: "Wat doet de vraagtekenknop?",
-    tekst: ["De vraagtekenknop geeft uitleg over een onderdeel. Gebruik deze knop als je niet precies weet wat je in een veld moet invullen.", "Voorbeeld: bij Functionele taak legt de vraagtekenknop uit dat dit een herkenbare taak is waarin de cursist taal gebruikt voor een echte situatie."]
-  },
-  {
-    titel: "Wat doet de plusknop?",
-    tekst: ["De blauwe plusknop geeft kant en klare suggesties. De suggesties passen bij het gekozen profiel, het gekozen didactisch model en het veld waarin je werkt.", "Voorbeeld: bij BOW Kwaliteitsprofiel geeft de plusknop andere suggesties dan bij NT2-examenprofiel. Bij gecombineerde profielen worden suggesties samengevoegd."]
+    titel: "Knoppen en editor",
+    tekst: ["? Vraagtekenknop: geeft korte uitleg over het veld waarin je werkt.", "💡 Lightbulb: toont didactische tips die passen bij het onderdeel.", "✓ Vinkje: opent de verbeterhulp om tekst concreter, praktijkgerichter of BOW-proof te maken.", "+ Plusknop: voegt passende suggesties toe op basis van profiel, didactisch model en veld.", "B Canvas-editor: maakt geselecteerde tekst dikgedrukt op stap 2.", "I Canvas-editor: maakt geselecteerde tekst cursief op stap 2.", "• Canvas-editor: maakt van geselecteerde tekst een opsomming.", "+ Canvas-editor: voegt een nieuwe regel toe aan het actieve tekstvlak."]
   },
   {
     titel: "Hoe werkt de lesduur?",
@@ -63,7 +59,7 @@ const helpSecties = [
   },
   {
     titel: "Beste werkwijze",
-    tekst: ["Begin met de basisgegevens. Kies daarna profiel en didactisch model. Gebruik de vraagtekenknoppen als je uitleg nodig hebt. Gebruik de plusknoppen om snel goede teksten toe te voegen. Controleer het lesplan op stap 2. Gebruik stap 3 voor printen of downloaden."]
+    tekst: ["Begin met de basisgegevens. Kies daarna profiel en didactisch model. Gebruik de knoppen bij de velden als je uitleg, tips, verbeterhulp of suggesties nodig hebt. Controleer het lesplan op stap 2. Gebruik stap 3 voor printen of downloaden."]
   },
   {
     titel: "Printen en downloaden",
@@ -2142,7 +2138,31 @@ function CanvasBlockToolbar({ label, velden }) {
   );
 }
 
-function AutoGrowTextarea({ value, onChange, className = "", rows = 1, ariaLabel, canvasKey }) {
+function CanvasFloatingToolbar({ actiefVeld }) {
+  const acties = [
+    ["bold", "B", "Maak selectie dikgedrukt"],
+    ["italic", "I", "Maak selectie cursief"],
+    ["bullet", "•", "Maak selectie een opsomming"],
+    ["regel", "+", "Nieuwe regel"]
+  ];
+  const pasToe = (actie) => {
+    if (!actiefVeld) return;
+    const actief = document.activeElement;
+    const start = actief?.selectionStart ?? String(actiefVeld.value || "").length;
+    const einde = actief?.selectionEnd ?? start;
+    actiefVeld.onChange(pasCanvasSelectieToe(actiefVeld.value, actie, start, einde));
+  };
+  return (
+    <div className="canvasEditorToolbar canvasFloatingToolbar" aria-label="Vaste editor opties voor het canvas">
+      <span>Editor</span>
+      {acties.map(([actie, teken, aria]) => (
+        <button key={actie} type="button" disabled={!actiefVeld} onMouseDown={(event) => { event.preventDefault(); pasToe(actie); }} aria-label={aria}>{teken}</button>
+      ))}
+    </div>
+  );
+}
+
+function AutoGrowTextarea({ value, onChange, className = "", rows = 1, ariaLabel, canvasKey, onCanvasFocus }) {
   const ref = useRef(null);
   useEffect(() => {
     const veld = ref.current;
@@ -2158,6 +2178,7 @@ function AutoGrowTextarea({ value, onChange, className = "", rows = 1, ariaLabel
       aria-label={ariaLabel}
       data-canvas-key={canvasKey}
       value={value}
+      onFocus={() => onCanvasFocus?.(canvasKey)}
       onChange={(event) => onChange(event.target.value)}
     />
   );
@@ -2343,7 +2364,7 @@ function HelpModal({ open, onClose }) {
           {helpSecties.map((sectie) => (
             <article className="helpSectie" key={sectie.titel}>
               <h3>{sectie.titel}</h3>
-              {sectie.tekst.map((alinea) => <p className={alinea.startsWith("Stap ") ? "helpStapRegel" : alinea.includes(":") ? "helpHighlight" : ""} key={alinea}>{formatHelpTekst(alinea)}</p>)}
+              {sectie.tekst.map((alinea) => <p className={sectie.titel === "Knoppen en editor" ? "helpKnopRegel" : alinea.startsWith("Stap ") ? "helpStapRegel" : alinea.includes(":") ? "helpHighlight" : ""} key={alinea}>{formatHelpTekst(alinea)}</p>)}
             </article>
           ))}
         </div>
@@ -2641,7 +2662,31 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy }) {
 }
 
 function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDownload }) {
+  const [actiefCanvasKey, setActiefCanvasKey] = useState("");
   const updateSectie = (id, key, waarde) => setSecties((vorig) => vorig.map((sectie) => sectie.id === id ? { ...sectie, [key]: waarde } : sectie));
+  const canvasVelden = [
+    { key: "titel", value: titel, onChange: setTitel },
+    ...secties.flatMap((sectie) => {
+      const velden = [{ key: `${sectie.id}-titel`, value: sectie.titel, onChange: (waarde) => updateSectie(sectie.id, "titel", waarde) }];
+      if (sectie.id === "tijd") {
+        parseTijdregels(sectie.inhoud).forEach((regel, regelIndex) => {
+          velden.push({
+            key: `${sectie.id}-${regelIndex}-activiteit`,
+            value: regel.activiteit,
+            onChange: (waarde) => {
+              const regels = parseTijdregels(sectie.inhoud);
+              regels[regelIndex] = { ...regels[regelIndex], activiteit: waarde };
+              updateSectie(sectie.id, "inhoud", regels.map((item) => `${item.tijd}: ${item.activiteit}`).join(NL));
+            }
+          });
+        });
+      } else {
+        velden.push({ key: `${sectie.id}-inhoud`, value: sectie.inhoud, onChange: (waarde) => updateSectie(sectie.id, "inhoud", waarde) });
+      }
+      return velden;
+    })
+  ];
+  const actiefVeld = canvasVelden.find((veld) => veld.key === actiefCanvasKey) || null;
   return (
     <div className="result">
       <div className="toolbar resultaatToolbar"><Knop variant="secondary" onClick={naarInvullen}><RichtingIcon richting="left" />stap 1</Knop><Knop onClick={naarDownload}>stap 3<RichtingIcon richting="right" /></Knop></div>
@@ -2650,27 +2695,18 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
         <span>Klik in een tekstvlak om de tekst direct aan te passen. Vlakken groeien automatisch mee, zodat tekst niet wordt afgebroken.</span>
       </div>
       <article className="lessonDoc">
+        <CanvasFloatingToolbar actiefVeld={actiefVeld} />
         <header className="cover">
           <img src={DOCUMENT_LOGO_URL} alt="Taalroute" />
           <div className="headerTriangle" aria-hidden="true" />
-          <CanvasBlockToolbar label="Titel" velden={[{ key: "titel", value: titel, onChange: setTitel }]} />
-          <AutoGrowTextarea className="canvasTitle" rows={1} ariaLabel="Titel van het canvas" canvasKey="titel" value={titel} onChange={setTitel} />
+          <AutoGrowTextarea className="canvasTitle" rows={1} ariaLabel="Titel van het canvas" canvasKey="titel" value={titel} onChange={setTitel} onCanvasFocus={setActiefCanvasKey} />
         </header>
         {secties.map((sectie, index) => (
           <section className="lessonSection" key={sectie.id}>
             <div className="canvasSectionRail">
               <span>{String(index + 1).padStart(2, "0")}</span>
-              <CanvasBlockToolbar
-                label="Bewerk"
-                velden={sectie.id === "tijd" ? [
-                  { key: `${sectie.id}-titel`, value: sectie.titel, onChange: (waarde) => updateSectie(sectie.id, "titel", waarde) }
-                ] : [
-                  { key: `${sectie.id}-titel`, value: sectie.titel, onChange: (waarde) => updateSectie(sectie.id, "titel", waarde) },
-                  { key: `${sectie.id}-inhoud`, value: sectie.inhoud, onChange: (waarde) => updateSectie(sectie.id, "inhoud", waarde) }
-                ]}
-              />
             </div>
-            <AutoGrowTextarea className="sectionTitle" rows={1} ariaLabel={`Kop ${sectie.titel}`} canvasKey={`${sectie.id}-titel`} value={sectie.titel} onChange={(waarde) => updateSectie(sectie.id, "titel", waarde)} />
+            <AutoGrowTextarea className="sectionTitle" rows={1} ariaLabel={`Kop ${sectie.titel}`} canvasKey={`${sectie.id}-titel`} value={sectie.titel} onChange={(waarde) => updateSectie(sectie.id, "titel", waarde)} onCanvasFocus={setActiefCanvasKey} />
             {sectie.id === "tijd" ? (
               <div className="timeline">{parseTijdregels(sectie.inhoud).map((regel, regelIndex) => {
                 const meta = tijdFaseMeta(regel.activiteit, regelIndex);
@@ -2683,17 +2719,13 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
                   <div className="timelineCard" key={regelIndex}>
                     <div className="timelineRail">
                       <div className="timelineIndex">{String(regelIndex + 1).padStart(2, "0")}</div>
-                      <CanvasBlockToolbar
-                        label="Bewerk"
-                        velden={[{ key: `${sectie.id}-${regelIndex}-activiteit`, value: regel.activiteit, onChange: (waarde) => updateTijdregel({ activiteit: waarde }) }]}
-                      />
                     </div>
                     <div className="timelineMain">
                       <div className="timelineTop">
                         <input aria-label="Tijd" value={regel.tijd} onChange={(event) => updateTijdregel({ tijd: event.target.value })} />
                         <strong>{meta.fase}</strong>
                       </div>
-                      <AutoGrowTextarea rows={1} value={regel.activiteit} ariaLabel={`Activiteit ${regelIndex + 1}`} canvasKey={`${sectie.id}-${regelIndex}-activiteit`} onChange={(waarde) => updateTijdregel({ activiteit: waarde })} />
+                      <AutoGrowTextarea rows={1} value={regel.activiteit} ariaLabel={`Activiteit ${regelIndex + 1}`} canvasKey={`${sectie.id}-${regelIndex}-activiteit`} onChange={(waarde) => updateTijdregel({ activiteit: waarde })} onCanvasFocus={setActiefCanvasKey} />
                       <small>{meta.functie}</small>
                     </div>
                   </div>
@@ -2701,7 +2733,7 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
               })}</div>
             ) : (
               <>
-                <AutoGrowTextarea rows={3} value={sectie.inhoud} ariaLabel={`Tekst ${sectie.titel}`} canvasKey={`${sectie.id}-inhoud`} onChange={(waarde) => updateSectie(sectie.id, "inhoud", waarde)} />
+                <AutoGrowTextarea rows={3} value={sectie.inhoud} ariaLabel={`Tekst ${sectie.titel}`} canvasKey={`${sectie.id}-inhoud`} onChange={(waarde) => updateSectie(sectie.id, "inhoud", waarde)} onCanvasFocus={setActiefCanvasKey} />
               </>
             )}
           </section>
@@ -2871,7 +2903,7 @@ function draaiZelftests() {
     { naam: "Alle voorbeeldlessen vullen alle inhoudelijke velden", geslaagd: ["Alfa B", "A1 NT2", "A2 NT2", "B1 NT2"].every((niveau) => voorbeeldControleVelden.every((key) => String(maakVoorbeeldLes("bow", niveau)[key] || "").trim())) },
     { naam: "Voorbeeldles bevat uitgebreide didactiek", geslaagd: Boolean(maakVoorbeeldLes("taalroute", "A1 NT2").instructieDocent) && Boolean(maakVoorbeeldLes("taalroute", "A1 NT2").faseGestuurdeProductie) && maakVoorbeeldLes("taalroute", "A1 NT2").vutUitvoeren.includes("Toepassen") },
     { naam: "Voorbeeldles is concreet over de dokter", geslaagd: maakVoorbeeldLes("taalroute", "A1 NT2").lesdoel.includes("dokter") && maakVoorbeeldLes("taalroute", "A1 NT2").woordenschatactiviteit.includes("lichaamsdeel") },
-    { naam: "Helptekst bevat kernonderdelen", geslaagd: ["Taalroute Lesstudio", "Werk in drie stappen", "Wat is een profiel", "Wat is een didactisch model", "Wat doet de vraagtekenknop", "Wat doet de plusknop", "Hoe werkt de lesduur", "Printen en downloaden"].every((tekst) => helpTekstVoorTests.includes(tekst)) },
+    { naam: "Helptekst bevat kernonderdelen", geslaagd: ["Taalroute Lesstudio", "Werk in drie stappen", "Wat is een profiel", "Wat is een didactisch model", "Knoppen en editor", "Vraagtekenknop", "Plusknop", "Hoe werkt de lesduur", "Printen en downloaden"].every((tekst) => helpTekstVoorTests.includes(tekst)) },
     { naam: "Helpformatter maakt meervoudige knopwoorden volledig vet", geslaagd: formatHelpTekst("Gebruik de vraagtekenknoppen en plusknoppen.").filter((deel) => typeof deel !== "string").map((deel) => deel.props.children).join("|") === "vraagtekenknoppen|plusknoppen" },
     { naam: "Help UI bevat Help en Sluiten", geslaagd: helpUiTekst.includes("Help") && helpUiTekst.includes("Sluiten") },
     { naam: "Helptekst bevat geen oude naamgeving", geslaagd: !["Lesbouwer", "Lesplanbouwer", "Lingua Academy", "Taalroute service"].some((tekst) => helpTekstVoorTests.includes(tekst)) },
@@ -2962,6 +2994,8 @@ body { margin: 0; }
 .helpSectie strong { color: var(--tr-blue-dark); font-weight: 900; }
 .helpSectie .helpStapRegel { padding: 10px 11px; border: 1px solid #b9e5ff; border-left: 4px solid var(--tr-blue); background: #f4fbff; color: #12324a; }
 .helpHighlight { background: white; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
+.helpKnopRegel { background: white; border: 1px solid #d7efff; border-left: 4px solid var(--tr-blue); padding: 8px 10px; }
+.helpKnopRegel::first-letter { color: var(--tr-blue); font-weight: 1000; }
 .layoutInput { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; display: grid; grid-template-columns: minmax(340px, 480px) 1fr; column-gap: 16px; row-gap: 10px; align-items: start; }
 .leftPanels { grid-column: 1; display: flex; flex-direction: column; gap: 10px; align-self: start; }
 .panel { background: white; border: 1px solid #d2edff; padding: 24px; min-height: var(--body-box-min-height); box-shadow: 0 22px 60px rgba(0,75,122,.18); }
@@ -3155,7 +3189,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasHint { max-width: 900px; margin: -8px auto 14px; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 11px 14px; border: 1px solid var(--tr-line); background: white; box-shadow: 0 12px 34px rgba(0,75,122,.08); }
 .canvasHint strong { color: var(--tr-blue); font-size: 13px; font-weight: 1000; text-transform: uppercase; letter-spacing: .04em; }
 .canvasHint span { color: #526b7d; font-size: 12px; font-weight: 650; line-height: 1.4; }
-.lessonDoc { max-width: 900px; margin: 0 auto; background: white; border: 1px solid var(--tr-line); box-shadow: 0 24px 80px rgba(0,75,122,.14); overflow: visible; }
+.lessonDoc { position: relative; max-width: 900px; margin: 0 auto; background: white; border: 1px solid var(--tr-line); box-shadow: 0 24px 80px rgba(0,75,122,.14); overflow: visible; }
 .cover { background: linear-gradient(135deg, #0090f2 0%, #0077ca 70%, #005c9d 100%); color: white; padding: 42px 50px; position: relative; overflow: visible; }
 .cover img { width: 150px; background: white; padding: 8px 10px; margin-bottom: 18px; position: relative; z-index: 1; }
 .headerTriangle { position: absolute; right: 0; top: 0; width: 0; height: 0; border-top: 126px solid transparent; border-bottom: 126px solid transparent; border-left: 188px solid rgba(255,255,255,.13); transform: translate(22px, -16px); pointer-events: none; }
@@ -3168,7 +3202,9 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasEditorToolbar span { display: inline-flex; align-items: center; width: auto; height: 22px; padding: 0 6px; background: transparent; color: #5f7890; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
 .canvasEditorToolbar button { width: 24px; height: 22px; border: 0; background: white; color: var(--tr-blue-dark); font-family: inherit; font-size: 12px; font-weight: 1000; cursor: pointer; }
 .canvasEditorToolbar button:hover, .canvasEditorToolbar button:focus-visible { background: var(--tr-blue); color: white; outline: 0; }
+.canvasEditorToolbar button:disabled { opacity: .45; cursor: default; }
 .canvasEditorToolbar button:nth-of-type(2) { font-style: italic; }
+.canvasFloatingToolbar { position: absolute; top: 12px; right: 12px; z-index: 5; margin: 0; box-shadow: 0 12px 28px rgba(0,75,122,.16); }
 .sectionTitle { width: 100%; margin: 0 0 12px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.25; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
 .canvasTextarea { width: 100%; min-height: 120px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.75; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
 .timeline { display: grid; gap: 12px; }
