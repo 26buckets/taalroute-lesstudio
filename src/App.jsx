@@ -2394,7 +2394,11 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   };
   return (
     <div className="veldActies">
-      {isBowVeld(veldKey) ? <span className="bowActieBadge" aria-label="BOW auditlijn: verplicht zichtbaar" title="verplicht zichtbaar">auditlijn</span> : null}
+      {isBowVeld(veldKey) ? (
+        <span className="bowActieBadge" aria-label="Onderdeel van BOW audit" title="Onderdeel van BOW audit">
+          <span className="bowShield" aria-hidden="true" />
+        </span>
+      ) : null}
       <button type="button" className="uitlegKnop" onClick={() => toggleMenu("uitleg")} aria-label={`Uitleg over ${veldKey}`} title="Uitleg">?</button>
       <button type="button" className="tipKnop" onClick={() => toggleMenu("tips")} aria-label={`Didactische tip over ${veldKey}`} title="Didactische tip"><LightbulbIcon /></button>
       {verbeterOpties.length ? <button type="button" className="verbeterKnop" onClick={() => toggleMenu("verbeter")} aria-label="Verbeterhulp openen" title="Verbeterhulp">✓</button> : null}
@@ -3566,8 +3570,12 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .accordionBody { padding: 18px; }
 .veldActies { position: relative; display: flex; align-items: center; gap: 6px; height: 30px; }
 .veldActies > button { width: 30px; height: 30px; border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); font-weight: 1000; cursor: pointer; }
-.bowActieBadge { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 48px; height: 17px; background: #eef8ff; border: 1px solid #ccecff; color: #5f9fc4; font-size: 9px; font-weight: 700; letter-spacing: 0; line-height: 1; }
-.bowActieBadge:hover::after, .bowActieBadge:focus-visible::after { content: "verplicht zichtbaar"; position: absolute; right: 0; top: calc(100% + 7px); z-index: 9; min-width: 118px; padding: 7px 9px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 12px 30px rgba(0,75,122,.18); color: var(--tr-blue-dark); font-size: 11px; font-weight: 800; line-height: 1.2; text-align: center; }
+.bowActieBadge { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 24px; color: #5f9fc4; line-height: 1; }
+.bowShield { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 22px; color: #5f9fc4; font-size: 8px; font-weight: 1000; letter-spacing: .02em; }
+.bowShield::before { content: ""; position: absolute; inset: 0; background: #eef8ff; border: 1px solid #ccecff; clip-path: polygon(50% 0, 92% 16%, 84% 72%, 50% 100%, 16% 72%, 8% 16%); }
+.bowShield { isolation: isolate; }
+.bowShield::after { content: "BOW"; position: relative; z-index: 1; }
+.bowActieBadge:hover::after, .bowActieBadge:focus-visible::after { content: "Onderdeel van BOW audit"; position: absolute; right: 0; top: calc(100% + 7px); z-index: 9; min-width: 150px; padding: 7px 9px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 12px 30px rgba(0,75,122,.18); color: var(--tr-blue-dark); font-size: 11px; font-weight: 800; line-height: 1.2; text-align: center; }
 .veldActies > button.plusSuggestieKnop { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .veldActies > button.uitlegKnop { background: white; color: var(--tr-blue); border-color: var(--tr-blue); }
 .veldActies > button.tipKnop { background: #fff7ed; color: #f59e0b; border-color: #f59e0b; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
