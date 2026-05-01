@@ -3661,7 +3661,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .veldActies > button.verbeterKnop { background: #ecfdf5; color: #16a34a; border-color: #86efac; box-shadow: inset 0 0 0 1px rgba(22,163,74,.08); }
 .veldActies > button.verbeterKnop:hover, .veldActies > button.verbeterKnop:focus-visible { background: #16a34a; color: white; border-color: #86efac; outline: 0; }
 .lightbulbIcon { width: 18px; height: 18px; display: block; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.uitlegMenu { position: absolute; right: 36px; top: 36px; z-index: 6; width: min(360px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
+.uitlegMenu { position: absolute; right: 0; top: 36px; z-index: 6; width: min(360px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
 .tipMenu { position: absolute; right: 0; top: 36px; z-index: 7; width: min(390px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
 .verbeterMenu { position: absolute; right: 0; top: 36px; z-index: 8; width: min(460px, 82vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 10px; }
 .uitlegMenu strong, .tipMenu strong, .suggesties strong, .verbeterMenu strong { display: block; color: var(--tr-blue-dark); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; padding: 4px 6px 10px; border-bottom: 1px solid #eef8ff; margin-bottom: 8px; }
