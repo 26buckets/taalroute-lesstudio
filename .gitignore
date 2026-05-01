@@ -1,6 +1,7 @@
 node_modules/
 dist/
 cloudflare-single/
+landingpage-afbeeldingen*/
 
 *.zip
 

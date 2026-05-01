@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "@fontsource/poppins/latin-400.css";
 import "@fontsource/poppins/latin-500.css";
 import "@fontsource/poppins/latin-600.css";
@@ -2077,6 +2077,52 @@ function Tekstvak({ value, onChange, rows = 4, placeholder = "" }) {
   return <textarea className="field textarea" rows={rows} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />;
 }
 
+function pasCanvasOpmaakToe(waarde, actie) {
+  const tekst = String(waarde || "");
+  if (actie === "bold") return tekst ? `**${tekst}**` : "**tekst**";
+  if (actie === "italic") return tekst ? `*${tekst}*` : "*tekst*";
+  if (actie === "bullet") return tekst.split(NL).map((regel) => regel.trim() ? `- ${regel.replace(/^[-•]\s*/, "")}` : regel).join(NL);
+  if (actie === "regel") return tekst ? `${tekst}${NL}` : "";
+  return tekst;
+}
+
+function CanvasToolbar({ label, value, onChange }) {
+  const acties = [
+    ["bold", "B", "Maak tekst dikgedrukt"],
+    ["italic", "I", "Maak tekst cursief"],
+    ["bullet", "•", "Maak opsomming"],
+    ["regel", "+", "Nieuwe regel"]
+  ];
+  return (
+    <div className="canvasEditorToolbar" aria-label={`Editor opties voor ${label}`}>
+      <span>{label}</span>
+      {acties.map(([actie, teken, aria]) => (
+        <button key={actie} type="button" onClick={() => onChange(pasCanvasOpmaakToe(value, actie))} aria-label={aria}>{teken}</button>
+      ))}
+    </div>
+  );
+}
+
+function AutoGrowTextarea({ value, onChange, className = "", rows = 1, ariaLabel }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const veld = ref.current;
+    if (!veld) return;
+    veld.style.height = "auto";
+    veld.style.height = `${veld.scrollHeight}px`;
+  }, [value]);
+  return (
+    <textarea
+      ref={ref}
+      className={`canvasTextarea ${className}`.trim()}
+      rows={rows}
+      aria-label={ariaLabel}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    />
+  );
+}
+
 function TijdsindelingEditor({ value, onChange, didactischModelId, lesduur }) {
   const inhoud = value || maakAutomatischeTijdsindeling(lesduur, didactischModelId);
   const model = didactischeModellen[didactischModelId] || didactischeModellen.vut;
@@ -2559,16 +2605,22 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
   return (
     <div className="result">
       <div className="toolbar resultaatToolbar"><Knop variant="secondary" onClick={naarInvullen}><RichtingIcon richting="left" />stap 1</Knop><Knop onClick={naarDownload}>stap 3<RichtingIcon richting="right" /></Knop></div>
+      <div className="canvasHint">
+        <strong>Canvas</strong>
+        <span>Klik in een tekstvlak om de tekst direct aan te passen. Vlakken groeien automatisch mee, zodat tekst niet wordt afgebroken.</span>
+      </div>
       <article className="lessonDoc">
         <header className="cover">
           <img src={DOCUMENT_LOGO_URL} alt="Taalroute" />
           <div className="headerTriangle" aria-hidden="true" />
-          <input value={titel} onChange={(event) => setTitel(event.target.value)} />
+          <CanvasToolbar label="Titel" value={titel} onChange={setTitel} />
+          <AutoGrowTextarea className="canvasTitle" rows={1} ariaLabel="Titel van het canvas" value={titel} onChange={setTitel} />
         </header>
         {secties.map((sectie, index) => (
           <section className="lessonSection" key={sectie.id}>
             <span>{String(index + 1).padStart(2, "0")}</span>
-            <input className="sectionTitle" value={sectie.titel} onChange={(event) => updateSectie(sectie.id, "titel", event.target.value)} />
+            <CanvasToolbar label="Kop" value={sectie.titel} onChange={(waarde) => updateSectie(sectie.id, "titel", waarde)} />
+            <AutoGrowTextarea className="sectionTitle" rows={1} ariaLabel={`Kop ${sectie.titel}`} value={sectie.titel} onChange={(waarde) => updateSectie(sectie.id, "titel", waarde)} />
             {sectie.id === "tijd" ? (
               <div className="timeline">{parseTijdregels(sectie.inhoud).map((regel, regelIndex) => {
                 const meta = tijdFaseMeta(regel.activiteit, regelIndex);
@@ -2585,13 +2637,19 @@ function Resultaat({ titel, setTitel, secties, setSecties, naarInvullen, naarDow
                         <input aria-label="Tijd" value={regel.tijd} onChange={(event) => updateTijdregel({ tijd: event.target.value })} />
                         <strong>{meta.fase}</strong>
                       </div>
-                      <textarea value={regel.activiteit} onChange={(event) => updateTijdregel({ activiteit: event.target.value })} />
+                      <CanvasToolbar label="Activiteit" value={regel.activiteit} onChange={(waarde) => updateTijdregel({ activiteit: waarde })} />
+                      <AutoGrowTextarea rows={1} value={regel.activiteit} ariaLabel={`Activiteit ${regelIndex + 1}`} onChange={(waarde) => updateTijdregel({ activiteit: waarde })} />
                       <small>{meta.functie}</small>
                     </div>
                   </div>
                 );
               })}</div>
-            ) : <textarea value={sectie.inhoud} onChange={(event) => updateSectie(sectie.id, "inhoud", event.target.value)} />}
+            ) : (
+              <>
+                <CanvasToolbar label="Tekst" value={sectie.inhoud} onChange={(waarde) => updateSectie(sectie.id, "inhoud", waarde)} />
+                <AutoGrowTextarea rows={3} value={sectie.inhoud} ariaLabel={`Tekst ${sectie.titel}`} onChange={(waarde) => updateSectie(sectie.id, "inhoud", waarde)} />
+              </>
+            )}
           </section>
         ))}
       </article>
@@ -3040,15 +3098,24 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .result, .download { max-width: 1120px; margin: 0 auto; padding: 0 24px 64px; }
 .toolbar { justify-content: flex-end; min-height: var(--body-box-min-height); margin-bottom: 22px; background: rgba(255,255,255,.96); border: 1px solid var(--tr-line); padding: 16px; box-shadow: 0 18px 50px rgba(0,75,122,.12); }
 .resultaatToolbar { justify-content: space-between; }
-.lessonDoc { max-width: 900px; margin: 0 auto; background: white; border: 1px solid var(--tr-line); box-shadow: 0 24px 80px rgba(0,75,122,.14); overflow: hidden; }
-.cover { background: linear-gradient(135deg, #0090f2 0%, #0077ca 70%, #005c9d 100%); color: white; padding: 42px 50px; position: relative; overflow: hidden; }
+.canvasHint { max-width: 900px; margin: -8px auto 14px; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 11px 14px; border: 1px solid var(--tr-line); background: white; box-shadow: 0 12px 34px rgba(0,75,122,.08); }
+.canvasHint strong { color: var(--tr-blue); font-size: 13px; font-weight: 1000; text-transform: uppercase; letter-spacing: .04em; }
+.canvasHint span { color: #526b7d; font-size: 12px; font-weight: 650; line-height: 1.4; }
+.lessonDoc { max-width: 900px; margin: 0 auto; background: white; border: 1px solid var(--tr-line); box-shadow: 0 24px 80px rgba(0,75,122,.14); overflow: visible; }
+.cover { background: linear-gradient(135deg, #0090f2 0%, #0077ca 70%, #005c9d 100%); color: white; padding: 42px 50px; position: relative; overflow: visible; }
 .cover img { width: 150px; background: white; padding: 8px 10px; margin-bottom: 18px; position: relative; z-index: 1; }
 .headerTriangle { position: absolute; right: 0; top: 0; width: 0; height: 0; border-top: 126px solid transparent; border-bottom: 126px solid transparent; border-left: 188px solid rgba(255,255,255,.13); transform: translate(22px, -16px); pointer-events: none; }
-.cover input { width: 100%; border: 0; outline: 0; background: transparent; color: white; font-size: 42px; font-weight: 1000; line-height: 1.1; position: relative; z-index: 1; }
+.cover .canvasTitle { width: 100%; border: 0; outline: 0; background: rgba(255,255,255,.08); color: white; font-size: 42px; font-weight: 1000; line-height: 1.12; position: relative; z-index: 1; padding: 8px 0; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
 .lessonSection { position: relative; margin: 28px 42px; padding: 24px 26px 24px 78px; border: 1px solid #d7efff; background: linear-gradient(180deg, white 0%, #f7fcff 100%); }
 .lessonSection > span { position: absolute; left: 24px; top: 26px; width: 36px; height: 36px; background: var(--tr-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 1000; }
-.sectionTitle { width: 100%; margin: 0 0 12px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; }
-.lessonSection textarea { width: 100%; min-height: 120px; resize: vertical; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.75; outline: none; font-family: inherit; white-space: pre-wrap; }
+.canvasEditorToolbar { display: inline-flex; align-items: center; gap: 4px; width: fit-content; margin: 0 0 8px; padding: 3px; border: 1px solid #d7efff; background: #f8fcff; color: var(--tr-blue-dark); position: relative; z-index: 2; }
+.cover .canvasEditorToolbar { background: rgba(255,255,255,.95); border-color: rgba(255,255,255,.7); color: var(--tr-blue-dark); }
+.canvasEditorToolbar span { display: inline-flex; align-items: center; width: auto; height: 24px; padding: 0 7px; background: transparent; color: #5f7890; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+.canvasEditorToolbar button { width: 26px; height: 24px; border: 0; background: white; color: var(--tr-blue-dark); font-family: inherit; font-size: 12px; font-weight: 1000; cursor: pointer; }
+.canvasEditorToolbar button:hover, .canvasEditorToolbar button:focus-visible { background: var(--tr-blue); color: white; outline: 0; }
+.canvasEditorToolbar button:nth-of-type(2) { font-style: italic; }
+.sectionTitle { width: 100%; margin: 0 0 12px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.25; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.canvasTextarea { width: 100%; min-height: 120px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.75; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
 .timeline { display: grid; gap: 12px; }
 .timelineCard { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: stretch; background: white; border: 1px solid var(--tr-line); padding: 12px; }
 .timelineIndex { width: 44px; min-height: 100%; background: var(--tr-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 1000; }
@@ -3056,7 +3123,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .timelineTop { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: center; }
 .timelineTop input { width: 100%; border: 1px solid var(--tr-line); color: var(--tr-blue-dark); font-weight: 900; padding: 9px 10px; font-family: inherit; }
 .timelineTop strong { color: var(--tr-blue-dark); font-size: 14px; }
-.timeline textarea { background: var(--tr-blue-pale); border: 1px solid #d7efff; padding: 10px; min-height: 58px; font-size: 14px; line-height: 1.5; }
+.timeline .canvasEditorToolbar { margin: 2px 0 6px; }
+.timeline .canvasTextarea { background: var(--tr-blue-pale); border: 1px solid #d7efff; padding: 10px; min-height: 58px; font-size: 14px; line-height: 1.5; }
 .timeline small { color: #61798a; font-size: 12px; line-height: 1.45; }
 .download iframe { width: 100%; min-height: 1200px; border: 1px solid var(--tr-line); background: white; box-shadow: 0 24px 80px rgba(0,75,122,.14); }
 @media (max-width: 1050px) {
@@ -3133,11 +3201,11 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .lessonDoc { max-width: none; }
   .cover { padding: 28px 22px; }
   .cover img { width: 118px; margin-bottom: 14px; }
-  .cover input { font-size: 28px; }
+  .cover .canvasTitle { font-size: 28px; }
   .lessonSection { margin: 14px 10px; padding: 18px 16px 18px 58px; }
   .lessonSection > span { left: 14px; top: 18px; width: 30px; height: 30px; font-size: 11px; }
   .sectionTitle { font-size: 18px; }
-  .lessonSection textarea { font-size: 14px; line-height: 1.6; }
+  .canvasTextarea { font-size: 14px; line-height: 1.6; }
   .timelineIndex { width: 100%; height: 32px; }
   .timelineCard { padding: 10px; gap: 8px; }
   .timelineTop input { padding: 8px; }
