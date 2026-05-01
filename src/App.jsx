@@ -40,7 +40,7 @@ const helpSecties = [
   },
   {
     titel: "Wat is een lesroute?",
-    tekst: ["De BOW auditlijn staat altijd aan als vaste kwaliteitscontrole. De lesroute bepaalt welke extra inhoudelijke bril, velden en suggesties je naast BOW gebruikt.", "Geen extra profiel: je werkt alleen met de vaste BOW auditlijn.", "Taalroute Profiel: voor lessen die sterk moeten aansluiten op de Taalroute methode, het boek, de werkbrug, de ELO, kernwoorden en de praktijktaak.", "ERK Niveauprofiel: voor lessen waarin het taalniveau, de can do doelen, de hoofdvaardigheid, de mate van steun en de leeropbrengst centraal staan.", "NT2-examenprofiel: voor lessen die voorbereiden op examenvaardigheid, taaktype, strategie, tijdsbewaking en beoordelingscriteria.", "Z-route Alfabeta+ profiel: voor lessen met eenvoudige taal, herhaling, beeldsteun, voordoen, nadoen, mondelinge interactie en haalbare praktijkopdrachten.", "Beroepsgericht profiel: voor lessen waarin werktaal, vaktaal, beroepshandeling, veiligheid, samenwerken en werknemersvaardigheden centraal staan."]
+    tekst: ["De BOW auditlijn staat altijd aan als vaste kwaliteitscontrole. De lesroute bepaalt welke extra inhoudelijke bril, velden en suggesties je naast BOW gebruikt.", "BOW auditlijn: de vaste set invulvelden voor een auditwaardige basisles.", "BOW must-haves: 16 harde controlepunten voor de status Audit-klaar.", "BOW volledige check: 33 punten voor de groene volledige kwaliteitsscore.", "Geen extra profiel: je werkt alleen met de vaste BOW auditlijn.", "Taalroute Profiel: voor lessen die sterk moeten aansluiten op de Taalroute methode, het boek, de werkbrug, de ELO, kernwoorden en de praktijktaak.", "ERK Niveauprofiel: voor lessen waarin het taalniveau, de can do doelen, de hoofdvaardigheid, de mate van steun en de leeropbrengst centraal staan.", "NT2-examenprofiel: voor lessen die voorbereiden op examenvaardigheid, taaktype, strategie, tijdsbewaking en beoordelingscriteria.", "Z-route Alfabeta+ profiel: voor lessen met eenvoudige taal, herhaling, beeldsteun, voordoen, nadoen, mondelinge interactie en haalbare praktijkopdrachten.", "Beroepsgericht profiel: voor lessen waarin werktaal, vaktaal, beroepshandeling, veiligheid, samenwerken en werknemersvaardigheden centraal staan."]
   },
   {
     titel: "Wat is een didactisch model?",
@@ -327,19 +327,19 @@ const profielVeldGroepen = {
 
 const weergaveModi = {
   bow: {
-    label: "Alleen auditlijn",
-    titel: "Compacte modus",
-    uitleg: "Werk alleen met de vaste BOW auditlijn."
+    label: "BOW auditlijn",
+    titel: "BOW auditlijn",
+    uitleg: "Toon alleen de vaste invulvelden voor een auditwaardige basisles."
   },
   profiel: {
-    label: "Auditlijn + lesroute",
-    titel: "Uitgebreide modus",
-    uitleg: "Werk met BOW plus de velden die passen bij je gekozen lesroute."
+    label: "BOW + lesroute",
+    titel: "BOW auditlijn + lesroute",
+    uitleg: "Toon de BOW auditlijn plus de extra velden van je gekozen lesroute."
   },
   alles: {
     label: "Alles",
-    titel: "Volledige modus",
-    uitleg: "Gebruik alle onderdelen als je de les heel precies wilt uitwerken."
+    titel: "Alle velden",
+    uitleg: "Toon alle beschikbare onderdelen, ook buiten de gekozen lesroute."
   }
 };
 
@@ -532,7 +532,7 @@ function maakVoorbeeldLes(profielId = "taalroute", niveau = "") {
     ...profielVoorbeelden.staatsexamen,
     ...profielVoorbeelden.zroute,
     ...profielVoorbeelden.mbo,
-    aangepasteInstructies: `Voorbeeldles over naar de dokter op ${voorbeeld.label}. Alle lesroutevelden zijn op de achtergrond gevuld; de docent kan in Alleen auditlijn starten en later Auditlijn + lesroute of Alles openen.`,
+    aangepasteInstructies: `Voorbeeldles over naar de dokter op ${voorbeeld.label}. Alle lesroutevelden zijn op de achtergrond gevuld; de docent kan in BOW auditlijn starten en later BOW + lesroute of Alles openen.`,
     ...(profielVoorbeelden[profielId] || {})
   };
 }
@@ -1337,9 +1337,9 @@ function maakScoreSectie(id, titel, uitleg, items, form) {
 
 function maakBowKwaliteitsscore(form) {
   const secties = [
-    maakScoreSectie("must", "1. BOW must-haves", "De harde basis voor een auditwaardige les.", bowMustHaves, form),
-    maakScoreSectie("verdieping", "2. Kwaliteitsverdieping", "Didactische kwaliteit die de les sterker en beter verantwoord maakt.", bowKwaliteitsVerdieping, form),
-    maakScoreSectie("audit", "3. Extra auditpunten", "Belangrijke aandachtspunten uit toezicht en kwaliteitskader.", bowExtraAuditpunten, form)
+    maakScoreSectie("must", "1. BOW must-haves", "16 harde controlepunten voor de status Audit-klaar.", bowMustHaves, form),
+    maakScoreSectie("verdieping", "2. BOW kwaliteitsverdieping", "Didactische kwaliteit die de les sterker en beter verantwoord maakt.", bowKwaliteitsVerdieping, form),
+    maakScoreSectie("audit", "3. BOW extra auditpunten", "Aanvullende punten voor de BOW volledige check.", bowExtraAuditpunten, form)
   ];
   const items = secties.flatMap((sectie) => sectie.items);
   const aanwezig = items.filter((item) => item.aanwezig).length;
@@ -2898,7 +2898,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
       <aside className="auditColumn" aria-label="BOW auditkolom">
         <div className="stats">
           <div><strong>{ingevuldeVelden}</strong><span>velden ingevuld</span></div>
-          <div><strong>{bowScore.percentage}%</strong><span>BOW audit-klaar</span></div>
+          <div><strong>{bowScore.percentage}%</strong><span>BOW volledige check</span></div>
           <div><strong>{form.lesduur}</strong><span>minuten</span></div>
         </div>
         <section className={`bowScoreKaart ${bowScore.statusType}`}>
@@ -2906,7 +2906,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
             <div>
               <span className="bowMiniLogo" title="BOW auditlijn" aria-label="BOW auditlijn"><BowAuditIcon /></span>
               <strong>{bowScore.status}</strong>
-              <small>{bowScore.mustHaveAanwezig}/{bowScore.mustHaveTotaal} BOW auditlijn · {bowScore.aanwezig}/{bowScore.totaal} totaal</small>
+              <small>{bowScore.mustHaveAanwezig}/{bowScore.mustHaveTotaal} BOW must-haves - {bowScore.aanwezig}/{bowScore.totaal} BOW volledige check</small>
             </div>
             <b>{bowScore.percentage}%</b>
           </div>
@@ -3231,16 +3231,16 @@ function draaiZelftests() {
     { naam: "Samenvatting bevat Taalroute website en favicon", geslaagd: samenvattingHtml.includes("www.taalroute.nl") && samenvattingHtml.includes(FAVICON_URL) },
     { naam: "Samenvatting gebruikt geen printbare labeltekst", geslaagd: !samenvattingHtml.includes("Printbare 2 pagina") },
     { naam: "BOW staat altijd in de lesgegevens", geslaagd: maakSecties({ ...legeLes, standaard: "mbo" })[0].inhoud.includes("BOW auditlijn: altijd actief") },
-    { naam: "Compacte modus toont minder velden", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").reduce((totaal, groep) => totaal + groep.velden.length, 0) < veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "profiel").reduce((totaal, groep) => totaal + groep.velden.length, 0) },
-    { naam: "Alles modus toont alle veldgroepen", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "alles").length === veldGroepen.length },
-    { naam: "Compacte modus bevat verplichte BOW velden", geslaagd: ["lesdoel", "functioneleTaak", "checkOpBegrip", "huiswerk"].every((key) => veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").some((groep) => groep.velden.some(([veldKey]) => veldKey === key))) },
-    { naam: "BOW velden worden zichtbaar gemarkeerd", geslaagd: isBowVeld("lesdoel") && isBowVeld("checkOpBegrip") && !isBowVeld("branche") },
+    { naam: "BOW auditlijn toont minder velden dan BOW plus lesroute", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").reduce((totaal, groep) => totaal + groep.velden.length, 0) < veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "profiel").reduce((totaal, groep) => totaal + groep.velden.length, 0) },
+    { naam: "Alle velden toont alle veldgroepen", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "alles").length === veldGroepen.length },
+    { naam: "BOW auditlijn bevat verplichte invulvelden", geslaagd: ["lesdoel", "functioneleTaak", "checkOpBegrip", "huiswerk"].every((key) => veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").some((groep) => groep.velden.some(([veldKey]) => veldKey === key))) },
+    { naam: "BOW auditlijnvelden worden zichtbaar gemarkeerd", geslaagd: isBowVeld("lesdoel") && isBowVeld("checkOpBegrip") && !isBowVeld("branche") },
     { naam: "BOW auditlabel staat naast veldacties", geslaagd: appCss.includes(".bowAuditLabel") && BowAuditIcon().props.viewBox === "0 0 548 748" },
-    { naam: "BOW score onder 16 must-haves is rood", geslaagd: maakBowKwaliteitsscore(legeLes).status === "Niet audit-klaar" && maakBowKwaliteitsscore(legeLes).statusType === "concept" && maakBowKwaliteitsscore(legeLes).percentage === 0 },
-    { naam: "BOW score bevat drie lagen", geslaagd: maakBowKwaliteitsscore(legeLes).secties.length === 3 && maakBowKwaliteitsscore(legeLes).secties[1].titel.includes("Kwaliteitsverdieping") },
-    { naam: "BOW score 16/16 auditlijn is oranje audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore({ ...legeLes, ...Object.fromEntries(bowMustHaves.map((item) => [item.key, "ingevuld"])) }); return score.mustHaveAanwezig === 16 && score.mustHaveTotaal === 16 && score.status === "Audit-klaar" && score.statusType === "bijna"; })() },
-    { naam: "BOW score 33/33 is groen volledig audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore(maakVoorbeeldLes("taalroute", "A1 NT2")); return score.aanwezig === score.totaal && score.status === "Volledig audit-klaar" && score.statusType === "klaar"; })() },
-    { naam: "BOW score toont waarschuwingen", geslaagd: maakBowKwaliteitsscore({ ...maakVoorbeeldLes("taalroute", "A1 NT2"), checkOpBegrip: "" }).waarschuwingen.includes("Check op begrip ontbreekt") },
+    { naam: "BOW must-haves onder 16/16 zijn rood", geslaagd: maakBowKwaliteitsscore(legeLes).status === "Niet audit-klaar" && maakBowKwaliteitsscore(legeLes).statusType === "concept" && maakBowKwaliteitsscore(legeLes).percentage === 0 },
+    { naam: "BOW volledige check bevat drie lagen", geslaagd: maakBowKwaliteitsscore(legeLes).secties.length === 3 && maakBowKwaliteitsscore(legeLes).secties[1].titel.includes("BOW kwaliteitsverdieping") },
+    { naam: "BOW must-haves 16/16 zijn oranje audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore({ ...legeLes, ...Object.fromEntries(bowMustHaves.map((item) => [item.key, "ingevuld"])) }); return score.mustHaveAanwezig === 16 && score.mustHaveTotaal === 16 && score.status === "Audit-klaar" && score.statusType === "bijna"; })() },
+    { naam: "BOW volledige check 33/33 is groen", geslaagd: (() => { const score = maakBowKwaliteitsscore(maakVoorbeeldLes("taalroute", "A1 NT2")); return score.aanwezig === score.totaal && score.status === "Volledig audit-klaar" && score.statusType === "klaar"; })() },
+    { naam: "BOW volledige check toont waarschuwingen", geslaagd: maakBowKwaliteitsscore({ ...maakVoorbeeldLes("taalroute", "A1 NT2"), checkOpBegrip: "" }).waarschuwingen.includes("Check op begrip ontbreekt") },
     { naam: "Verbeterhulp is zichtbaar als gekleurde knop", geslaagd: appCss.includes(".veldActies > button.verbeterKnop") && appCss.includes("#16a34a") },
     { naam: "Verbeterhulp geeft lesdoel feedback", geslaagd: verbeterZinnenVoorVeld("lesdoel", "Oefenen met dokterwoorden", "A1 NT2").some((item) => item.label === "Maak dit BOW-proof" && item.tekst.includes("doktersituatie")) },
     { naam: "Verbeterhulp herkent vage lesdoelen", geslaagd: verbeterZinnenVoorVeld("lesdoel", "Oefenen met dokterwoorden", "A1 NT2")[0].waarschuwing.includes("algemeen") },
@@ -3263,7 +3263,7 @@ function draaiZelftests() {
     { naam: "Alle voorbeeldlessen vullen alle inhoudelijke velden", geslaagd: ["Alfa B", "A1 NT2", "A2 NT2", "B1 NT2"].every((niveau) => voorbeeldControleVelden.every((key) => String(maakVoorbeeldLes("bow", niveau)[key] || "").trim())) },
     { naam: "Voorbeeldles bevat uitgebreide didactiek", geslaagd: Boolean(maakVoorbeeldLes("taalroute", "A1 NT2").instructieDocent) && Boolean(maakVoorbeeldLes("taalroute", "A1 NT2").faseGestuurdeProductie) && maakVoorbeeldLes("taalroute", "A1 NT2").vutUitvoeren.includes("Toepassen") },
     { naam: "Voorbeeldles is concreet over de dokter", geslaagd: maakVoorbeeldLes("taalroute", "A1 NT2").lesdoel.includes("dokter") && maakVoorbeeldLes("taalroute", "A1 NT2").woordenschatactiviteit.includes("lichaamsdeel") },
-    { naam: "Helptekst bevat kernonderdelen", geslaagd: ["Taalroute Lesstudio", "Werk in drie stappen", "Wat is een lesroute", "Wat is een didactisch model", "Knoppen en editor", "Vraagtekenknop", "Plusknop", "Hoe werkt de lesduur", "Printen en downloaden"].every((tekst) => helpTekstVoorTests.includes(tekst)) },
+    { naam: "Helptekst bevat kernonderdelen", geslaagd: ["Taalroute Lesstudio", "Werk in drie stappen", "Wat is een lesroute", "BOW must-haves", "BOW volledige check", "Wat is een didactisch model", "Knoppen en editor", "Vraagtekenknop", "Plusknop", "Hoe werkt de lesduur", "Printen en downloaden"].every((tekst) => helpTekstVoorTests.includes(tekst)) },
     { naam: "Helpformatter maakt meervoudige knopwoorden volledig vet", geslaagd: formatHelpTekst("Gebruik de vraagtekenknoppen en plusknoppen.").filter((deel) => typeof deel !== "string").map((deel) => deel.props.children).join("|") === "vraagtekenknoppen|plusknoppen" },
     { naam: "Help UI bevat Help en Sluiten", geslaagd: helpUiTekst.includes("Help") && helpUiTekst.includes("Sluiten") },
     { naam: "Helptekst bevat geen oude naamgeving", geslaagd: !["Lesbouwer", "Lesplanbouwer", "Lingua Academy", "Taalroute service"].some((tekst) => helpTekstVoorTests.includes(tekst)) },
@@ -4012,3 +4012,4 @@ footer img { width: 7mm; height: 7mm; object-fit: contain; }
   .page:last-child { break-after: auto; page-break-after: auto; }
 }
 `;
+
