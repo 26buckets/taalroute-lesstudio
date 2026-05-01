@@ -2394,11 +2394,6 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   };
   return (
     <div className="veldActies">
-      {isBowVeld(veldKey) ? (
-        <span className="bowActieBadge" aria-label="Onderdeel van BOW audit" title="Onderdeel van BOW audit">
-          <span className="bowAuditText">auditlijn</span>
-        </span>
-      ) : null}
       <button type="button" className="uitlegKnop" onClick={() => toggleMenu("uitleg")} aria-label={`Uitleg over ${veldKey}`} title="Uitleg">?</button>
       <button type="button" className="tipKnop" onClick={() => toggleMenu("tips")} aria-label={`Didactische tip over ${veldKey}`} title="Didactische tip"><LightbulbIcon /></button>
       {verbeterOpties.length ? <button type="button" className="verbeterKnop" onClick={() => toggleMenu("verbeter")} aria-label="Verbeterhulp openen" title="Verbeterhulp">✓</button> : null}
@@ -2630,9 +2625,6 @@ function AppHeader({ onHelp, onDisclaimer, onPrivacy }) {
   };
   return (
     <header className="appHeader">
-      <a className="brand" href="https://www.taalroute.nl" target="_blank" rel="noreferrer" aria-label="Ga naar taalroute.nl">
-        <img src={APP_LOGO_URL} alt="Taalroute" />
-      </a>
       <div className="headerStudioLabel"><span>Lesstudio</span><strong>Ontwerp, check en publiceer auditwaardige lessen.</strong></div>
       <div className="headerActies">
         <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info"><InfoIcon /><span>Info</span></button>
@@ -2656,10 +2648,9 @@ function StudioSidebar({ stap, setStap }) {
   ];
   return (
     <aside className="studioSidebar" aria-label="Studio navigatie">
-      <div className="studioSidebarKop">
-        <span>Studio</span>
-        <strong>Lesroute</strong>
-      </div>
+      <a className="studioSidebarLogo" href="https://www.taalroute.nl" target="_blank" rel="noreferrer" aria-label="Ga naar taalroute.nl">
+        <img src={APP_LOGO_URL} alt="Taalroute" />
+      </a>
       <nav className="studioStappen">
         {stappen.map(([nummer, label, tekst]) => (
           <button key={nummer} type="button" className={stap === Number(nummer) ? "active" : ""} onClick={() => setStap(Number(nummer))}>
@@ -2746,6 +2737,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
   const [melding, setMelding] = useState("");
   const [openGroepen, setOpenGroepen] = useState({ basis: true });
   const [weergave, setWeergave] = useState("bow");
+  const [werkTab, setWerkTab] = useState("start");
   const [voorbeeldOpen, setVoorbeeldOpen] = useState(false);
   const [openScoreDelen, setOpenScoreDelen] = useState({});
   const profiel = profielInfo[form.standaard] || profielInfo.bow;
@@ -2804,7 +2796,20 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
   return (
     <div className="layoutInput">
       <div className="workspaceColumn">
-        <section className="panel pastePanel">
+        <div className="workspaceTabs" aria-label="Werkruimte onderdelen">
+          {[
+            ["start", "Start", "Plakken en lessen"],
+            ["gegevens", "Lesgegevens", "Basis en profiel"],
+            ["velden", "Lesvelden", `${zichtbareVelden} velden`]
+          ].map(([id, label, tekst]) => (
+            <button key={id} type="button" className={werkTab === id ? "active" : ""} onClick={() => setWerkTab(id)}>
+              <strong>{label}</strong>
+              <span>{tekst}</span>
+            </button>
+          ))}
+        </div>
+
+        {werkTab === "start" ? <section className="panel pastePanel">
           <h2>Snel plakken</h2>
           <p>Plak een standaardtekst of gelabelde lesinformatie. De app zet de inhoud automatisch op de juiste plaats.</p>
           <button type="button" className="privacyWarning" onClick={onPrivacy} aria-label="Open privacy informatie" title="Privacy">Privacy</button>
@@ -2825,9 +2830,9 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
             </div>
           </div>
           {melding ? <div className="message pasteMelding">{melding}</div> : null}
-        </section>
+        </section> : null}
 
-        <MijnLessenPaneel
+        {werkTab === "start" ? <MijnLessenPaneel
           lessen={lessen}
           actieveLesId={actieveLesId}
           onOpslaan={() => {
@@ -2846,9 +2851,9 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
             const les = onLesVerwijderen(id);
             if (les) setMelding(`Les verwijderd: ${les.titel}`);
           }}
-        />
+        /> : null}
 
-        <section className="panel">
+        {werkTab === "gegevens" ? <section className="panel lesdetailsPanel">
           <h2>Lesdetails</h2>
           <div className="fieldBlock"><Label verplicht>Lesonderwerp</Label><input className="field" value={form.lesonderwerp} onChange={(event) => update("lesonderwerp", event.target.value)} /></div>
           <div className="grid2">
@@ -2868,7 +2873,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           <div className="fieldBlock"><Label>Lesduur: {form.lesduur} minuten</Label><input type="range" min="15" max="180" step="15" value={form.lesduur} onChange={(event) => updateLesduur(Number(event.target.value))} /></div>
           <div className="profile"><strong>{profielLabels(profielIds)}</strong><p>BOW is altijd de auditlijn. Het gekozen profiel bepaalt de extra velden, suggesties en accenten.</p><p>{profielInfo[form.standaard]?.uitleg || profiel.uitleg}</p></div>
           <div className="btnRow"><Knop onClick={naarResultaat}>Bekijk resultaat</Knop></div>
-        </section>
+        </section> : null}
       </div>
 
       <aside className="auditColumn" aria-label="BOW auditkolom">
@@ -2923,7 +2928,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         </div>
       </aside>
 
-      <section className="panel lessonFieldsPanel">
+      {werkTab === "velden" ? <section className="panel lessonFieldsPanel">
         <div className="werkruimteKop">
           <span>Werkruimte</span>
           <h2>Lesonderdelen</h2>
@@ -2933,7 +2938,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           <section className="accordion" key={groep.id}>
             <button type="button" onClick={() => setOpenGroepen((vorig) => ({ ...vorig, [groep.id]: !vorig[groep.id] }))}>
               <span>
-                <strong>{groep.titel}{groep.velden.some(([key]) => isBowVeld(key)) ? <i className="bowGroepBadge" aria-label="BOW auditlijn"><span>BOW</span></i> : null}</strong>
+                <strong>{groep.titel}{groep.velden.some(([key]) => isBowVeld(key)) ? <i className="bowGroepBadge" aria-label="BOW auditlijn"><span>BOW auditlijn</span></i> : null}</strong>
                 <small>{groep.omschrijving}</small>
               </span>
               <em>{groep.velden.filter(([key]) => String(form[key] || "").trim()).length}/{groep.velden.length}</em>
@@ -2953,7 +2958,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
             ))}</div> : null}
           </section>
         ))}
-      </section>
+      </section> : null}
     </div>
   );
 }
@@ -3398,7 +3403,7 @@ body { margin: 0; }
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
 .appRoot::before { content: ""; position: fixed; left: 0; top: 0; bottom: 0; width: 18px; z-index: 0; background: linear-gradient(180deg, rgba(5,47,73,.96) 0%, rgba(0,111,189,.86) 100%); box-shadow: inset -1px 0 0 rgba(255,255,255,.18); pointer-events: none; opacity: .92; }
 .appRoot::after { content: ""; position: fixed; left: 6px; top: 118px; width: 6px; height: 128px; z-index: 0; background: rgba(255,255,255,.42); pointer-events: none; opacity: .8; }
-.appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 260px; display: grid; grid-template-columns: 236px 1fr 96px; gap: 18px; align-items: center; }
+.appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.88); box-shadow: 0 14px 44px rgba(8,58,89,.14); padding: 14px 26px 14px 260px; display: grid; grid-template-columns: 1fr 96px; gap: 18px; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
 .brand:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.16); }
 .brand img { width: 150px; height: auto; object-fit: contain; }
@@ -3419,10 +3424,10 @@ body { margin: 0; }
 .infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 12; min-width: 180px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 8px; }
 .infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 11px 12px; text-align: left; font-family: inherit; font-weight: 850; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
-.studioSidebar { position: fixed; left: 24px; top: 18px; bottom: 22px; z-index: 11; width: 212px; display: flex; flex-direction: column; gap: 14px; padding: 16px; background: linear-gradient(180deg, #063a5a 0%, #006fbd 100%); color: white; box-shadow: 0 24px 70px rgba(8,58,89,.28); border: 1px solid rgba(255,255,255,.18); }
-.studioSidebarKop { display: grid; gap: 2px; padding: 4px 2px 12px; border-bottom: 1px solid rgba(255,255,255,.22); }
-.studioSidebarKop span { font-size: 11px; font-weight: 900; letter-spacing: .10em; text-transform: uppercase; opacity: .78; }
-.studioSidebarKop strong { font-size: 24px; line-height: 1; font-weight: 900; }
+.studioSidebar { position: fixed; left: 24px; top: 18px; bottom: 22px; z-index: 11; width: 212px; display: flex; flex-direction: column; gap: 14px; padding: 0 14px 14px; background: linear-gradient(180deg, #063a5a 0%, #006fbd 100%); color: white; box-shadow: 0 24px 70px rgba(8,58,89,.28); border: 1px solid rgba(255,255,255,.18); }
+.studioSidebarLogo { display: flex; align-items: center; justify-content: center; min-height: 78px; margin: 0 -14px 0; padding: 14px 18px; background: white; border-bottom: 4px solid var(--tr-blue); text-decoration: none; }
+.studioSidebarLogo:focus-visible { outline: 0; box-shadow: inset 0 0 0 4px rgba(0,144,242,.16); }
+.studioSidebarLogo img { width: 150px; height: auto; display: block; }
 .studioStappen { display: grid; gap: 8px; }
 .studioStappen button { width: 100%; display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; row-gap: 1px; align-items: center; padding: 10px; border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08); color: white; font-family: inherit; text-align: left; cursor: pointer; }
 .studioStappen button:hover { background: rgba(255,255,255,.15); }
@@ -3460,13 +3465,20 @@ body { margin: 0; }
 .helpKnopIcoon.tip { background: #fff7ed; border-color: #f59e0b; color: #f59e0b; }
 .helpKnopIcoon.check { background: #ecfdf5; border-color: #86efac; color: #16a34a; }
 .helpKnopIcoon.editor { background: #f4fbff; color: var(--tr-blue-dark); }
-.layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 260px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; column-gap: 18px; row-gap: 14px; align-items: start; }
-.workspaceColumn { grid-column: 1; display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); gap: 14px; align-items: start; }
+.layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 260px; display: grid; grid-template-columns: minmax(0, 1fr) 330px; column-gap: 18px; row-gap: 14px; align-items: start; }
+.workspaceColumn { grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+.workspaceTabs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; border: 1px solid var(--tr-line); border-radius: 6px; background: rgba(255,255,255,.86); box-shadow: 0 14px 34px rgba(8,58,89,.08); }
+.workspaceTabs button { min-height: 54px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--tr-blue-dark); font-family: inherit; cursor: pointer; text-align: left; padding: 9px 12px; }
+.workspaceTabs button:hover { background: white; border-color: var(--tr-line-soft); }
+.workspaceTabs button.active { background: var(--tr-blue); color: white; border-color: var(--tr-blue); box-shadow: 0 10px 24px rgba(0,144,242,.16); }
+.workspaceTabs strong, .workspaceTabs span { display: block; }
+.workspaceTabs strong { font-size: 13px; font-weight: 950; line-height: 1.2; }
+.workspaceTabs span { margin-top: 2px; font-size: 10.5px; font-weight: 750; line-height: 1.2; opacity: .78; }
 .workspaceColumn > .pastePanel { grid-column: 1; }
 .workspaceColumn > .savedLessonsPanel { grid-column: 2; }
-.workspaceColumn > .panel:not(.pastePanel):not(.savedLessonsPanel) { grid-column: 1 / -1; }
+.workspaceColumn > .lesdetailsPanel { grid-column: 1 / -1; }
 .lessonFieldsPanel { grid-column: 1; }
-.auditColumn { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--app-header-height) + 22px); display: grid; gap: 12px; align-self: start; max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 2px; }
+.auditColumn { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--app-header-height) + 22px); display: grid; gap: 10px; align-self: start; max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 0; }
 .panel { background: var(--tr-surface); border: 1px solid rgba(185,229,255,.92); border-radius: 6px; padding: 22px; min-height: var(--body-box-min-height); box-shadow: var(--tr-shadow); }
 .pastePanel { position: relative; padding-top: 48px; }
 .panel.wide { grid-column: 2; grid-row: 1; }
@@ -3478,7 +3490,8 @@ body { margin: 0; }
 .werkruimteKop p { margin-bottom: 0; font-size: 13px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .fieldBlock { margin-bottom: 16px; }
-.fieldBlock.bowField { border-left: 3px solid #b9e5ff; padding-left: 12px; }
+.fieldBlock.bowField { position: relative; border-left: 3px solid #b9e5ff; padding-left: 12px; }
+.fieldBlock.bowField:hover::after { content: "Onderdeel van BOW auditlijn"; position: absolute; right: 0; top: 0; z-index: 4; padding: 6px 8px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 12px 28px rgba(8,58,89,.14); color: var(--tr-blue-dark); font-size: 10.5px; font-weight: 850; line-height: 1.2; }
 .fieldLabelRow { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 30px; margin: 0 0 8px; }
 .fieldLabelRow .label { margin: 0; line-height: 30px; }
 .label { display: block; margin: 0 0 8px; font-weight: 750; font-size: 14px; }
@@ -3587,14 +3600,14 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonEmpty strong, .savedLessonEmpty span { display: block; }
 .savedLessonEmpty strong { color: var(--tr-blue-dark); font-size: 13px; }
 .savedLessonEmpty span { color: #526b7d; font-size: 12px; margin-top: 3px; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
-.stats div { background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%); border: 1px solid #d7efff; border-radius: 6px; padding: 18px; box-shadow: 0 10px 28px rgba(8,58,89,.06); }
-.stats strong { display: block; font-size: 28px; color: var(--tr-blue); }
-.stats span { display: block; color: #61798a; font-weight: 800; font-size: 13px; margin-top: 4px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 0; }
+.stats div { background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%); border: 1px solid #d7efff; border-radius: 5px; padding: 10px; box-shadow: 0 8px 18px rgba(8,58,89,.05); }
+.stats strong { display: block; font-size: 20px; line-height: 1; color: var(--tr-blue); }
+.stats span { display: block; color: #61798a; font-weight: 800; font-size: 9.5px; line-height: 1.2; margin-top: 5px; }
 .bowScoreKaart { margin: 0 0 14px; padding: 14px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 14px 38px rgba(8,58,89,.10); }
-.bowScoreKaart.concept { border-left: 4px solid #dc2626; border-right: 4px solid #dc2626; }
-.bowScoreKaart.bijna { border-left: 4px solid #f59e0b; border-right: 4px solid #f59e0b; }
-.bowScoreKaart.klaar { border-left: 4px solid #16a34a; border-right: 4px solid #16a34a; }
+.bowScoreKaart.concept { border-left: 4px solid #dc2626; }
+.bowScoreKaart.bijna { border-left: 4px solid #f59e0b; }
+.bowScoreKaart.klaar { border-left: 4px solid #16a34a; }
 .bowScoreKop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .bowScoreKop > div { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; row-gap: 2px; align-items: center; min-width: 0; }
 .bowMiniLogo { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 20px; padding: 0 7px; background: #eef8ff; border: 1px solid #ccecff; color: #5f9fc4; font-size: 9px; font-weight: 900; letter-spacing: .02em; }
@@ -3619,12 +3632,12 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .bowChecklist span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 7px; border: 1px solid #e2f3ff; background: #f8fcff; color: #526b7d; font-size: 11px; font-weight: 750; line-height: 1; }
 .bowChecklist span.ok { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
 .bowChecklist span.mist { color: #9a3412; background: #fff7ed; border-color: #fed7aa; }
-.weergavePaneel { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(390px, 470px); gap: 16px; align-items: center; margin: 0 0 14px; padding: 14px 16px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 10px 30px rgba(8,58,89,.06); }
+.weergavePaneel { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: center; margin: 0 0 14px; padding: 12px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 10px 30px rgba(8,58,89,.06); }
 .weergavePaneel strong { display: block; color: var(--tr-blue-dark); font-size: 15px; font-weight: 900; margin-bottom: 2px; }
 .weergavePaneel span { display: block; color: #526b7d; font-size: 12px; line-height: 1.4; font-weight: 600; }
 .weergavePaneel small { display: block; margin-top: 3px; color: #7b92a1; font-size: 11px; line-height: 1.3; font-weight: 600; }
 .weergaveKnoppen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-self: stretch; background: #f8fcff; border: 1px solid var(--tr-line); border-radius: 5px; overflow: hidden; }
-.weergaveKnoppen button { min-width: 0; min-height: 42px; border: 0; border-right: 1px solid var(--tr-line); background: transparent; color: var(--tr-blue-dark); padding: 9px 10px; font-family: inherit; font-size: 12px; font-weight: 900; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
+.weergaveKnoppen button { min-width: 0; min-height: 38px; border: 0; border-right: 1px solid var(--tr-line); background: transparent; color: var(--tr-blue-dark); padding: 8px 8px; font-family: inherit; font-size: 11px; font-weight: 900; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
 .weergaveKnoppen button:last-child { border-right: 0; }
 .weergaveKnoppen button:hover { background: var(--tr-blue-pale); }
 .weergaveKnoppen button.active { background: var(--tr-blue); color: white; }
@@ -3642,9 +3655,6 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .accordionBody { padding: 18px; }
 .veldActies { position: relative; display: flex; align-items: center; gap: 6px; height: 30px; }
 .veldActies > button { width: 30px; height: 30px; border: 1px solid var(--tr-line); background: white; color: var(--tr-blue-dark); font-weight: 1000; cursor: pointer; }
-.bowActieBadge { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 54px; height: 24px; color: #5f9fc4; line-height: 1; }
-.bowAuditText { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; background: #eef8ff; border: 1px solid #ccecff; color: #5f9fc4; font-size: 9px; font-weight: 800; letter-spacing: 0; }
-.bowActieBadge:hover::after, .bowActieBadge:focus-visible::after { content: "Onderdeel van BOW audit"; position: absolute; right: 0; top: calc(100% + 7px); z-index: 9; min-width: 150px; padding: 7px 9px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 12px 30px rgba(0,75,122,.18); color: var(--tr-blue-dark); font-size: 11px; font-weight: 800; line-height: 1.2; text-align: center; }
 .veldActies > button.plusSuggestieKnop { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .veldActies > button.uitlegKnop { background: white; color: var(--tr-blue); border-color: var(--tr-blue); }
 .veldActies > button.tipKnop { background: #fff7ed; color: #f59e0b; border-color: #f59e0b; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
@@ -3723,7 +3733,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .appRoot { padding-top: calc(var(--app-header-height) + 10px); }
   .appRoot::before, .appRoot::after { display: none; }
   .studioSidebar { left: 16px; right: 16px; top: 72px; bottom: auto; width: auto; min-height: 52px; padding: 6px; display: block; }
-  .studioSidebarKop, .studioSidebarVoet { display: none; }
+  .studioSidebarLogo, .studioSidebarKop, .studioSidebarVoet { display: none; }
   .studioStappen { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
   .studioStappen button { grid-template-columns: 26px 1fr; padding: 7px 8px; }
   .studioStappen span { width: 26px; height: 26px; }
@@ -3738,7 +3748,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .helpModalBody { grid-template-columns: 1fr; }
   .layoutInput { grid-template-columns: 1fr; padding-inline: 16px; }
   .workspaceColumn { grid-template-columns: 1fr; }
-  .workspaceColumn > .pastePanel, .workspaceColumn > .savedLessonsPanel, .workspaceColumn > .panel:not(.pastePanel):not(.savedLessonsPanel), .lessonFieldsPanel, .auditColumn { grid-column: auto; grid-row: auto; }
+  .workspaceTabs, .workspaceColumn > .pastePanel, .workspaceColumn > .savedLessonsPanel, .workspaceColumn > .lesdetailsPanel, .lessonFieldsPanel, .auditColumn { grid-column: auto; grid-row: auto; }
   .auditColumn { position: static; max-height: none; overflow: visible; padding-right: 0; }
   .result, .download { padding-inline: 16px; }
   .downloadPaneel { grid-template-columns: 1fr; }
