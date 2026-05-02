@@ -672,7 +672,7 @@ function schrijfOpgeslagenLessen(lessen) {
 }
 
 function leesInstellingen() {
-  const standaard = { darkMode: false };
+  const standaard = { darkMode: false, compacteWeergave: false, hoogContrast: false, minderBeweging: false };
   if (!browserStorageBeschikbaar()) return standaard;
   try {
     return { ...standaard, ...(JSON.parse(window.localStorage.getItem(INSTELLINGEN_STORAGE_KEY) || "{}") || {}) };
@@ -2205,15 +2205,8 @@ function InfoIcon() {
 function SettingsIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3v3" />
-      <path d="M12 18v3" />
-      <path d="m5.6 5.6 2.1 2.1" />
-      <path d="m16.3 16.3 2.1 2.1" />
-      <path d="M3 12h3" />
-      <path d="M18 12h3" />
-      <path d="m5.6 18.4 2.1-2.1" />
-      <path d="m16.3 7.7 2.1-2.1" />
-      <circle cx="12" cy="12" r="3.5" />
+      <path d="M9.7 3.3 9.1 5.6a7.2 7.2 0 0 0-1.3.8L5.5 5.8 3.8 8.7l1.7 1.7a7.3 7.3 0 0 0 0 1.6l-1.7 1.7 1.7 2.9 2.3-.6c.4.3.8.6 1.3.8l.6 2.3h3.4l.6-2.3c.5-.2.9-.5 1.3-.8l2.3.6 1.7-2.9-1.7-1.7a7.3 7.3 0 0 0 0-1.6L19 8.7l-1.7-2.9-2.3.6c-.4-.3-.8-.6-1.3-.8l-.6-2.3H9.7Z" />
+      <circle cx="12" cy="12" r="3.1" />
     </svg>
   );
 }
@@ -2698,6 +2691,7 @@ function InstellingenDrawer({ open, instellingen, onChange, onClose }) {
   }, [open, onClose]);
 
   if (!open) return null;
+  const pasAan = (key, checked) => onChange({ ...instellingen, [key]: checked });
 
   return (
     <div className="settingsOverlay" onMouseDown={onClose}>
@@ -2710,16 +2704,41 @@ function InstellingenDrawer({ open, instellingen, onChange, onClose }) {
           <button type="button" onClick={onClose} aria-label="Instellingen sluiten">Sluiten</button>
         </div>
         <div className="settingsBody">
+          <div className="settingsGroup">
+            <strong>Weergave</strong>
+            <p>Kies hoe rustig of compact de studio op je scherm staat.</p>
+          </div>
           <label className="settingsToggle">
             <span>
               <strong>Dark mode</strong>
-              <small>Rustiger werken bij weinig licht. Print en downloads blijven licht.</small>
+              <small>Donkere basis met verhoogde panelen. Print, PDF en downloads blijven licht.</small>
             </span>
-            <input type="checkbox" checked={instellingen.darkMode} onChange={(event) => onChange({ ...instellingen, darkMode: event.target.checked })} />
+            <input type="checkbox" checked={instellingen.darkMode} onChange={(event) => pasAan("darkMode", event.target.checked)} />
+          </label>
+          <label className="settingsToggle">
+            <span>
+              <strong>Compacte werkruimte</strong>
+              <small>Minder witruimte tussen kaarten, koppen en velden. Handig op kleinere schermen.</small>
+            </span>
+            <input type="checkbox" checked={instellingen.compacteWeergave} onChange={(event) => pasAan("compacteWeergave", event.target.checked)} />
+          </label>
+          <label className="settingsToggle">
+            <span>
+              <strong>Hoog contrast</strong>
+              <small>Meer randcontrast en duidelijkere tekst in lichte en donkere modus.</small>
+            </span>
+            <input type="checkbox" checked={instellingen.hoogContrast} onChange={(event) => pasAan("hoogContrast", event.target.checked)} />
+          </label>
+          <label className="settingsToggle">
+            <span>
+              <strong>Minder beweging</strong>
+              <small>Beperkt subtiele overgangen. Rustiger tijdens veel klikken en invullen.</small>
+            </span>
+            <input type="checkbox" checked={instellingen.minderBeweging} onChange={(event) => pasAan("minderBeweging", event.target.checked)} />
           </label>
           <div className="settingsNote">
-            <strong>Tip</strong>
-            <p>Gebruik dark mode vooral voor schermwerk. Voor documenten zou ik wit houden, omdat audit, print en PDF daar betrouwbaarder en professioneler blijven.</p>
+            <strong>Dark-mode tip</strong>
+            <p>De app gebruikt donkere basiskleuren en lichtere panelen voor diepte. Dat leest rustiger dan puur zwart met fel wit.</p>
           </div>
         </div>
       </aside>
@@ -3340,6 +3359,8 @@ function draaiZelftests() {
     { naam: "BOW auditlabel staat naast veldacties", geslaagd: appCss.includes(".bowAuditLabel") && BowAuditIcon().props.viewBox === "0 0 548 748" },
     { naam: "BOW auditlabel toont alleen het icoon", geslaagd: appCss.includes(".helpKnopIcoon.bow") && parseHelpKnopTekst("BOW-icoon: uitleg").label === "BOW-icoon" && !appCss.includes("auditlijn</span>") },
     { naam: "Instellingen drawer en dark mode bestaan", geslaagd: appCss.includes(".settingsDrawer") && appCss.includes(".appRoot.darkMode") && INSTELLINGEN_STORAGE_KEY.includes("instellingen") },
+    { naam: "Instellingen bevatten compacte weergave, hoog contrast en minder beweging", geslaagd: appCss.includes(".appRoot.compacteWeergave") && appCss.includes(".appRoot.hoogContrast") && appCss.includes(".appRoot.minderBeweging") && leesInstellingen().hasOwnProperty("compacteWeergave") },
+    { naam: "Settings icoon is een herkenbaar tandwiel", geslaagd: SettingsIcon().props.children.length === 2 && SettingsIcon().props.children[0].props.d.includes("9.7 3.3") },
     { naam: "Dark mode gebruikt wit app-logo", geslaagd: APP_LOGO_DARK_URL.includes("taalroute-lesstudio-logo-wit4x") },
     { naam: "Canvas kop heeft geen grote tekstvlakhoogte", geslaagd: appCss.includes(".canvasTextarea.sectionTitle { min-height: 26px;") },
     { naam: "Canvas header verbergt tekstvlak en houdt triangle binnen header", geslaagd: appCss.includes(".cover { background:") && appCss.includes("overflow: hidden;") && appCss.includes(".cover .canvasTitle { width: calc(100% - 180px);") && appCss.includes("background: transparent;") },
@@ -3509,7 +3530,7 @@ export default function Lesstudio() {
   };
 
   return (
-    <main className={`appRoot ${instellingen.darkMode ? "darkMode" : ""}`}>
+    <main className={`appRoot ${instellingen.darkMode ? "darkMode" : ""} ${instellingen.compacteWeergave ? "compacteWeergave" : ""} ${instellingen.hoogContrast ? "hoogContrast" : ""} ${instellingen.minderBeweging ? "minderBeweging" : ""}`}>
       <style>{appCss}</style>
       {!zelftestsGeslaagd ? <div className="testMelding">Interne datacheck vraagt aandacht.</div> : null}
       <AppHeader onHelp={() => setHelpOpen(true)} onPrivacy={() => setPrivacyOpen(true)} onDisclaimer={() => setDisclaimerOpen(true)} onSettings={() => setSettingsOpen(true)} />
@@ -3526,13 +3547,13 @@ export default function Lesstudio() {
 }
 
 const appCss = `
-:root { color-scheme: light; --tr-blue: ${BRAND}; --tr-blue-dark: #006fbd; --tr-blue-deep: #063a5a; --tr-blue-soft: #e6f5ff; --tr-blue-pale: #f4fbff; --tr-line: #b9e5ff; --tr-line-soft: #d9efff; --tr-text: #17324a; --tr-muted: #64748b; --tr-surface: rgba(255,255,255,.98); --tr-shadow: 0 16px 44px rgba(8,58,89,.09); --app-header-height: 84px; --body-box-min-height: 86px; font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+:root { color-scheme: light; --tr-blue: ${BRAND}; --tr-blue-dark: #006fbd; --tr-blue-deep: #063a5a; --tr-blue-soft: #e6f5ff; --tr-blue-pale: #f4fbff; --tr-line: #b9e5ff; --tr-line-soft: #d9efff; --tr-text: #17324a; --tr-muted: #64748b; --tr-surface: rgba(255,255,255,.98); --tr-surface-2: #fbfdff; --tr-surface-3: #f4fbff; --tr-input: #ffffff; --tr-shadow: 0 16px 44px rgba(8,58,89,.09); --app-header-height: 84px; --body-box-min-height: 86px; font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 .appRoot { position: relative; min-height: 100vh; background:
   linear-gradient(180deg, #f8fcff 0%, #eef7fd 52%, #eaf3f9 100%);
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
-.appRoot.darkMode { --tr-blue: #4ea9ff; --tr-blue-dark: #8ed0ff; --tr-blue-deep: #d7efff; --tr-blue-soft: #123a55; --tr-blue-pale: #0f2839; --tr-line: #2b5c76; --tr-line-soft: #23495f; --tr-text: #eef8ff; --tr-muted: #a9c1d1; --tr-surface: rgba(10,27,39,.98); --tr-shadow: 0 16px 44px rgba(0,0,0,.34); background: linear-gradient(180deg, #061721 0%, #071e2c 48%, #06131d 100%); }
+.appRoot.darkMode { color-scheme: dark; --tr-blue: #58a6ff; --tr-blue-dark: #9ccfff; --tr-blue-deep: #d9efff; --tr-blue-soft: #17344a; --tr-blue-pale: #112839; --tr-line: #315d75; --tr-line-soft: #25485d; --tr-text: #edf7ff; --tr-muted: #a9bdc9; --tr-surface: #0e2230; --tr-surface-2: #132b3b; --tr-surface-3: #183548; --tr-input: #0a1b26; --tr-shadow: 0 18px 52px rgba(0,0,0,.42); background: radial-gradient(circle at 16% 0%, rgba(88,166,255,.12), transparent 34%), linear-gradient(180deg, #071923 0%, #0a1d29 46%, #07141d 100%); }
 .appRoot::before, .appRoot::after { display: none; }
 .appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.84); box-shadow: 0 8px 24px rgba(8,58,89,.08); padding: 14px 26px 14px 224px; display: flex; justify-content: flex-end; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
@@ -3548,7 +3569,7 @@ body { margin: 0; }
 .infoMenuKnop, .settingsKnop { width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 0; border: 1px solid #c7eaff; background: white; color: var(--tr-blue); font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px rgba(8,58,89,.08); }
 .infoMenuKnop:hover, .settingsKnop:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .infoMenuKnop:focus-visible, .settingsKnop:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 8px 20px rgba(0,144,242,.16); }
-.infoMenuKnop svg, .settingsKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.infoMenuKnop svg, .settingsKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 160; min-width: 184px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.16); padding: 6px; }
 .infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 10px 11px; text-align: left; font-family: inherit; font-weight: 700; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
@@ -3596,18 +3617,25 @@ body { margin: 0; }
 .helpKnopIcoon.bow { border-color: transparent; background: transparent; color: var(--tr-blue-dark); }
 .helpKnopIcoon.bow .bowAuditIcon { width: 18px; height: 24px; }
 .settingsOverlay { position: fixed; inset: 0; z-index: 32; background: rgba(6,43,68,.28); display: flex; justify-content: flex-end; }
-.settingsDrawer { width: min(390px, 100%); height: 100%; background: var(--tr-surface); border-left: 1px solid var(--tr-line); box-shadow: -24px 0 70px rgba(0,47,80,.22); color: var(--tr-text); display: flex; flex-direction: column; }
-.settingsHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 22px; border-bottom: 1px solid var(--tr-line); background: var(--tr-blue-pale); }
+.settingsDrawer { width: min(430px, 100%); height: 100%; background: var(--tr-surface); border-left: 1px solid var(--tr-line); box-shadow: -24px 0 70px rgba(0,47,80,.22); color: var(--tr-text); display: flex; flex-direction: column; }
+.settingsHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 22px; border-bottom: 1px solid var(--tr-line); background: var(--tr-surface-3); }
 .settingsHeader p { margin: 0 0 4px; color: var(--tr-blue-dark); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .settingsHeader h2 { margin: 0; font-size: 24px; line-height: 1.1; }
 .settingsHeader button { border: 1px solid var(--tr-blue); background: var(--tr-blue); color: white; padding: 9px 11px; font-family: inherit; font-weight: 750; cursor: pointer; }
-.settingsBody { padding: 18px 22px; display: grid; gap: 14px; }
-.settingsToggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid var(--tr-line); background: white; padding: 14px; cursor: pointer; }
+.settingsBody { padding: 18px 22px; display: grid; gap: 12px; overflow: auto; }
+.settingsGroup { border: 1px solid var(--tr-line-soft); background: var(--tr-surface-2); padding: 12px 13px; }
+.settingsGroup strong { display: block; color: var(--tr-blue-dark); font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.settingsGroup p { margin: 4px 0 0; color: var(--tr-muted); font-size: 12px; line-height: 1.4; }
+.settingsToggle { display: grid; grid-template-columns: 1fr 44px; align-items: center; gap: 16px; border: 1px solid var(--tr-line); background: var(--tr-input); padding: 14px; cursor: pointer; }
 .settingsToggle strong, .settingsToggle small { display: block; }
 .settingsToggle strong { color: var(--tr-blue-dark); font-size: 15px; }
 .settingsToggle small { color: var(--tr-muted); font-size: 12px; line-height: 1.35; margin-top: 3px; }
-.settingsToggle input { width: 20px; height: 20px; accent-color: var(--tr-blue); }
-.settingsNote { border: 1px solid var(--tr-line-soft); background: var(--tr-blue-pale); padding: 13px; }
+.settingsToggle input { appearance: none; width: 42px; height: 24px; border: 1px solid var(--tr-line); background: var(--tr-surface-3); position: relative; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; }
+.settingsToggle input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: var(--tr-muted); transition: transform .15s ease, background-color .15s ease; }
+.settingsToggle input:checked { background: var(--tr-blue); border-color: var(--tr-blue); }
+.settingsToggle input:checked::after { transform: translateX(18px); background: white; }
+.settingsToggle input:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18); }
+.settingsNote { border: 1px solid var(--tr-line-soft); background: var(--tr-surface-3); padding: 13px; }
 .settingsNote strong { color: var(--tr-blue-dark); font-size: 13px; }
 .settingsNote p { margin: 5px 0 0; color: var(--tr-muted); font-size: 12.5px; line-height: 1.45; }
 .layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 224px; display: grid; grid-template-columns: minmax(0, 1fr) 310px; column-gap: 16px; row-gap: 14px; align-items: start; }
@@ -4064,25 +4092,25 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 }
 .appRoot.darkMode .field,
 .appRoot.darkMode .settingsToggle {
-  background: #0f2839;
+  background: var(--tr-input);
 }
 .appRoot.darkMode .studioStappen button:hover,
 .appRoot.darkMode .studioStappen button.active,
 .appRoot.darkMode .workspaceTabs button.active,
 .appRoot.darkMode .weergaveKnoppen button:hover {
-  background: #123a55;
+  background: var(--tr-surface-3);
 }
 .appRoot.darkMode .settingsHeader,
 .appRoot.darkMode .settingsNote,
 .appRoot.darkMode .helpModalHeader {
-  background: #0f2839;
+  background: var(--tr-surface-3);
 }
 .appRoot.darkMode .studioSidebarLogo {
   background: #071721;
 }
 .appRoot.darkMode .appHeader {
-  background: rgba(7,23,33,.98);
-  border-bottom-color: #23495f;
+  background: rgba(7,20,29,.98);
+  border-bottom-color: var(--tr-line-soft);
 }
 .appRoot.darkMode .lessonDoc,
 .appRoot.darkMode .lessonSection,
@@ -4105,9 +4133,60 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .appRoot.darkMode .suggesties,
 .appRoot.darkMode .verbeterMenu,
 .appRoot.darkMode .helpModal {
-  background: #0b1d2a;
+  background: var(--tr-surface);
   color: var(--tr-text);
   border-color: var(--tr-line-soft);
+}
+.appRoot.darkMode .workspaceTabs,
+.appRoot.darkMode .workspaceTabs button,
+.appRoot.darkMode .accordion > button,
+.appRoot.darkMode .profile,
+.appRoot.darkMode .profileChecks,
+.appRoot.darkMode .weergavePaneel,
+.appRoot.darkMode .weergaveKnoppen,
+.appRoot.darkMode .tijdEditorHeader,
+.appRoot.darkMode .savedLessonEmpty,
+.appRoot.darkMode .savedLessonItem,
+.appRoot.darkMode .samenvattingSamenstellen,
+.appRoot.darkMode .samenvattingSamenstellen label,
+.appRoot.darkMode .voorbeeldMenu,
+.appRoot.darkMode .voorbeeldMenu button,
+.appRoot.darkMode .suggesties button,
+.appRoot.darkMode .infoMenu button {
+  background: var(--tr-surface-2);
+}
+.appRoot.darkMode .workspaceTabs button:hover,
+.appRoot.darkMode .accordion > button:hover,
+.appRoot.darkMode .voorbeeldMenu button:hover,
+.appRoot.darkMode .suggesties button:hover,
+.appRoot.darkMode .infoMenu button:hover,
+.appRoot.darkMode .savedLessonItem.active {
+  background: var(--tr-surface-3);
+}
+.appRoot.darkMode .field::placeholder,
+.appRoot.darkMode textarea::placeholder,
+.appRoot.darkMode input::placeholder {
+  color: #7592a4;
+}
+.appRoot.darkMode .panel p,
+.appRoot.darkMode .accordion small,
+.appRoot.darkMode .profile ul,
+.appRoot.darkMode .savedLessonItem span,
+.appRoot.darkMode .savedLessonItem small,
+.appRoot.darkMode .weergavePaneel span,
+.appRoot.darkMode .weergavePaneel small,
+.appRoot.darkMode .stats span,
+.appRoot.darkMode .bowScoreKop small,
+.appRoot.darkMode .bowScoreDeel > button small,
+.appRoot.darkMode .helpKnopOmschrijving {
+  color: var(--tr-muted);
+}
+.appRoot.darkMode .stats strong,
+.appRoot.darkMode .panel h2,
+.appRoot.darkMode .werkruimteKop h2,
+.appRoot.darkMode .accordion > button strong,
+.appRoot.darkMode .savedLessonItem strong {
+  color: var(--tr-text);
 }
 .appRoot.darkMode .cover,
 .appRoot.darkMode .privacyWarning,
@@ -4137,9 +4216,42 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .appRoot.darkMode .veldActies > button,
 .appRoot.darkMode .canvasEditorToolbar button,
 .appRoot.darkMode .downloadActieKnop {
-  background: #102b3d;
+  background: var(--tr-surface-2);
   color: var(--tr-blue-dark);
   border-color: var(--tr-line-soft);
+}
+.appRoot.darkMode .veldActies > button.plusSuggestieKnop,
+.appRoot.darkMode .btn.primary {
+  background: var(--tr-blue);
+  color: #07141d;
+}
+.appRoot.darkMode .helpOverlay,
+.appRoot.darkMode .settingsOverlay {
+  background: rgba(0,0,0,.58);
+}
+.appRoot.compacteWeergave { --body-box-min-height: 72px; }
+.appRoot.compacteWeergave .panel { padding: 14px; }
+.appRoot.compacteWeergave .workspaceColumn { gap: 10px; }
+.appRoot.compacteWeergave .layoutInput { row-gap: 10px; column-gap: 12px; }
+.appRoot.compacteWeergave .werkruimteKop { margin-bottom: 8px; padding-bottom: 7px; }
+.appRoot.compacteWeergave .panel h2 { margin-bottom: 3px; }
+.appRoot.compacteWeergave .panel p { margin-bottom: 6px; line-height: 1.3; }
+.appRoot.compacteWeergave .accordionBody { padding: 14px; }
+.appRoot.compacteWeergave .fieldBlock { margin-bottom: 10px; }
+.appRoot.hoogContrast { --tr-line: #7bc8ff; --tr-line-soft: #9bd8ff; --tr-muted: #465e71; }
+.appRoot.darkMode.hoogContrast { --tr-line: #7bc8ff; --tr-line-soft: #5ea9d6; --tr-muted: #d2e7f4; --tr-text: #ffffff; }
+.appRoot.hoogContrast .panel,
+.appRoot.hoogContrast .field,
+.appRoot.hoogContrast .accordion,
+.appRoot.hoogContrast .stats div {
+  border-color: var(--tr-line);
+}
+.appRoot.minderBeweging *,
+.appRoot.minderBeweging *::before,
+.appRoot.minderBeweging *::after {
+  transition: none !important;
+  animation: none !important;
+  scroll-behavior: auto !important;
 }
 .auditColumn::-webkit-scrollbar,
 .savedLessonList::-webkit-scrollbar,
