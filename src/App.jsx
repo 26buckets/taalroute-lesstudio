@@ -26,6 +26,7 @@ const DOCUMENT_LOGO_URL = "https://media.publit.io/file/taalroute/taalroute-logo
 const FAVICON_URL = "https://media.publit.io/file/taalroute/taalroute-logo/flavicon-taalroute-v24x.png";
 const BRAND = "#0090f2";
 const LESSEN_STORAGE_KEY = "taalroute_lesstudio_opgeslagen_lessen_v1";
+const INSTELLINGEN_STORAGE_KEY = "taalroute_lesstudio_instellingen_v1";
 
 const groepsniveaus = ["", "Alfa A", "Alfa B", "Alfa C", "A0 NT2", "A1 NT2", "A2 NT2", "B1 NT2", "B2 NT2", "C1 NT2", "MBO 1", "MBO 2", "MBO 3", "MBO 4"];
 
@@ -667,6 +668,21 @@ function leesOpgeslagenLessen() {
 function schrijfOpgeslagenLessen(lessen) {
   if (!browserStorageBeschikbaar()) return;
   window.localStorage.setItem(LESSEN_STORAGE_KEY, JSON.stringify(lessen));
+}
+
+function leesInstellingen() {
+  const standaard = { darkMode: false };
+  if (!browserStorageBeschikbaar()) return standaard;
+  try {
+    return { ...standaard, ...(JSON.parse(window.localStorage.getItem(INSTELLINGEN_STORAGE_KEY) || "{}") || {}) };
+  } catch {
+    return standaard;
+  }
+}
+
+function schrijfInstellingen(instellingen) {
+  if (!browserStorageBeschikbaar()) return;
+  window.localStorage.setItem(INSTELLINGEN_STORAGE_KEY, JSON.stringify(instellingen));
 }
 
 function esc(waarde) {
@@ -2185,6 +2201,15 @@ function InfoIcon() {
   );
 }
 
+function SettingsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+      <path d="M19.4 15a8 8 0 0 0 .1-1.2 8 8 0 0 0-.1-1.2l2-1.5-2-3.4-2.4 1a7.7 7.7 0 0 0-2-1.1L14.6 5h-5.2L9 7.6a7.7 7.7 0 0 0-2 1.1l-2.4-1-2 3.4 2 1.5a8 8 0 0 0-.1 1.2 8 8 0 0 0 .1 1.2l-2 1.5 2 3.4 2.4-1a7.7 7.7 0 0 0 2 1.1l.4 2.6h5.2l.4-2.6a7.7 7.7 0 0 0 2-1.1l2.4 1 2-3.4-2-1.5Z" />
+    </svg>
+  );
+}
+
 function BowAuditIcon() {
   return (
     <svg className="bowAuditIcon" viewBox="0 0 548 748" aria-hidden="true">
@@ -2424,7 +2449,7 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
   };
   return (
     <div className="veldActies">
-      {bowAudit ? <span className="bowAuditLabel" title="Onderdeel van BOW audit" aria-label="Onderdeel van BOW audit"><BowAuditIcon /><span>auditlijn</span></span> : null}
+      {bowAudit ? <span className="bowAuditLabel" title="Onderdeel van BOW audit" aria-label="Onderdeel van BOW audit"><BowAuditIcon /></span> : null}
       <button type="button" className="uitlegKnop" onClick={() => toggleMenu("uitleg")} aria-label={`Uitleg over ${veldKey}`} title="Uitleg">?</button>
       <button type="button" className="tipKnop" onClick={() => toggleMenu("tips")} aria-label={`Didactische tip over ${veldKey}`} title="Didactische tip"><LightbulbIcon /></button>
       {verbeterOpties.length ? <button type="button" className="verbeterKnop" onClick={() => toggleMenu("verbeter")} aria-label="Verbeterhulp openen" title="Verbeterhulp">✓</button> : null}
@@ -2521,6 +2546,8 @@ function VeldActies({ profielId, profielIds, didactischModelId, veldKey, waarde,
 
 function parseHelpKnopTekst(tekst) {
   const match = String(tekst || "").match(/^(\S+)\s+([^:]+):\s*(.+)$/);
+  const zonderIcoon = String(tekst || "").match(/^([^:]+):\s*(.+)$/);
+  if (!match && zonderIcoon) return { icoon: "", label: zonderIcoon[1], omschrijving: zonderIcoon[2] };
   if (!match) return { icoon: "", label: "", omschrijving: tekst };
   return { icoon: match[1], label: match[2], omschrijving: match[3] };
 }
@@ -2529,10 +2556,11 @@ function HelpKnopRegel({ tekst }) {
   const { icoon, label, omschrijving } = parseHelpKnopTekst(tekst);
   const knopClass = label.includes("Canvas-editor")
     ? "editor"
+    : label.includes("BOW-icoon") ? "bow"
     : icoon?.includes("💡") ? "tip" : icoon?.includes("✓") ? "check" : icoon?.includes("+") ? "plus" : icoon?.includes("?") ? "vraag" : "editor";
   return (
     <div className="helpKnopRegel">
-      <div className={`helpKnopIcoon ${knopClass}`} aria-hidden="true">{icoon}</div>
+      <div className={`helpKnopIcoon ${knopClass}`} aria-hidden="true">{knopClass === "bow" ? <BowAuditIcon /> : icoon}</div>
       <div className="helpKnopTekst">
         <strong className="helpKnopNaam">{label}</strong>
         <p className="helpKnopOmschrijving">{formatHelpTekst(omschrijving || tekst)}</p>
@@ -2567,6 +2595,9 @@ function HelpModal({ open, onClose }) {
           {helpSecties.map((sectie) => (
             <article className="helpSectie" key={sectie.titel}>
               <h3>{sectie.titel}</h3>
+              {sectie.titel === "Knoppen en editor"
+                ? <HelpKnopRegel tekst="BOW-icoon: markeert een veld dat onderdeel is van de BOW audit. Deze onderdelen tellen mee in de auditlijn." />
+                : null}
               {sectie.tekst.map((alinea) => sectie.titel === "Knoppen en editor"
                 ? <HelpKnopRegel tekst={alinea} key={alinea} />
                 : <p className={alinea.startsWith("Stap ") ? "helpStapRegel" : alinea.includes(":") ? "helpHighlight" : ""} key={alinea}>{formatHelpTekst(alinea)}</p>)}
@@ -2648,7 +2679,47 @@ function PrivacyModal({ open, onClose }) {
   );
 }
 
-function AppHeader({ onHelp, onDisclaimer, onPrivacy }) {
+function InstellingenDrawer({ open, instellingen, onChange, onClose }) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const sluitMetEscape = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", sluitMetEscape);
+    return () => window.removeEventListener("keydown", sluitMetEscape);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="settingsOverlay" onMouseDown={onClose}>
+      <aside className="settingsDrawer" role="dialog" aria-modal="true" aria-labelledby="instellingenTitel" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="settingsHeader">
+          <div>
+            <p>Voorkeuren</p>
+            <h2 id="instellingenTitel">Instellingen</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Instellingen sluiten">Sluiten</button>
+        </div>
+        <div className="settingsBody">
+          <label className="settingsToggle">
+            <span>
+              <strong>Dark mode</strong>
+              <small>Rustiger werken bij weinig licht. Print en downloads blijven licht.</small>
+            </span>
+            <input type="checkbox" checked={instellingen.darkMode} onChange={(event) => onChange({ ...instellingen, darkMode: event.target.checked })} />
+          </label>
+          <div className="settingsNote">
+            <strong>Tip</strong>
+            <p>Gebruik dark mode vooral voor schermwerk. Voor documenten zou ik wit houden, omdat audit, print en PDF daar betrouwbaarder en professioneler blijven.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function AppHeader({ onHelp, onDisclaimer, onPrivacy, onSettings }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const kies = (actie) => {
     setInfoOpen(false);
@@ -2657,6 +2728,7 @@ function AppHeader({ onHelp, onDisclaimer, onPrivacy }) {
   return (
     <header className="appHeader">
       <div className="headerActies">
+        <button type="button" className="settingsKnop" onClick={onSettings} aria-label="Instellingen openen" title="Instellingen"><SettingsIcon /></button>
         <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info en hulp"><InfoIcon /></button>
         {infoOpen ? (
           <div className="infoMenu">
@@ -3254,6 +3326,8 @@ function draaiZelftests() {
     { naam: "BOW auditlijn bevat verplichte invulvelden", geslaagd: ["lesdoel", "functioneleTaak", "checkOpBegrip", "huiswerk"].every((key) => veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").some((groep) => groep.velden.some(([veldKey]) => veldKey === key))) },
     { naam: "BOW auditlijnvelden worden zichtbaar gemarkeerd", geslaagd: isBowVeld("lesdoel") && isBowVeld("checkOpBegrip") && !isBowVeld("branche") },
     { naam: "BOW auditlabel staat naast veldacties", geslaagd: appCss.includes(".bowAuditLabel") && BowAuditIcon().props.viewBox === "0 0 548 748" },
+    { naam: "BOW auditlabel toont alleen het icoon", geslaagd: appCss.includes(".helpKnopIcoon.bow") && parseHelpKnopTekst("BOW-icoon: uitleg").label === "BOW-icoon" && !appCss.includes("auditlijn</span>") },
+    { naam: "Instellingen drawer en dark mode bestaan", geslaagd: appCss.includes(".settingsDrawer") && appCss.includes(".appRoot.darkMode") && INSTELLINGEN_STORAGE_KEY.includes("instellingen") },
     { naam: "BOW must-haves onder 16/16 zijn rood", geslaagd: maakBowKwaliteitsscore(legeLes).status === "Niet audit-klaar" && maakBowKwaliteitsscore(legeLes).statusType === "concept" && maakBowKwaliteitsscore(legeLes).percentage === 0 },
     { naam: "BOW volledige check bevat drie lagen", geslaagd: maakBowKwaliteitsscore(legeLes).secties.length === 3 && maakBowKwaliteitsscore(legeLes).secties[1].titel.includes("BOW kwaliteitsverdieping") },
     { naam: "BOW must-haves 16/16 zijn oranje audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore({ ...legeLes, ...Object.fromEntries(bowMustHaves.map((item) => [item.key, "ingevuld"])) }); return score.mustHaveAanwezig === 16 && score.mustHaveTotaal === 16 && score.status === "Audit-klaar" && score.statusType === "bijna"; })() },
@@ -3305,12 +3379,18 @@ export default function Lesstudio() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [instellingen, setInstellingen] = useState(() => leesInstellingen());
   const zelftests = useMemo(() => draaiZelftests(), []);
   const zelftestsGeslaagd = zelftests.every((test) => test.geslaagd);
 
   useEffect(() => {
     schrijfOpgeslagenLessen(opgeslagenLessen);
   }, [opgeslagenLessen]);
+
+  useEffect(() => {
+    schrijfInstellingen(instellingen);
+  }, [instellingen]);
 
   const bewaarLessen = (updater) => {
     setOpgeslagenLessen((vorig) => (typeof updater === "function" ? updater(vorig) : updater));
@@ -3414,14 +3494,15 @@ export default function Lesstudio() {
   };
 
   return (
-    <main className="appRoot">
+    <main className={`appRoot ${instellingen.darkMode ? "darkMode" : ""}`}>
       <style>{appCss}</style>
       {!zelftestsGeslaagd ? <div className="testMelding">Interne datacheck vraagt aandacht.</div> : null}
-      <AppHeader onHelp={() => setHelpOpen(true)} onPrivacy={() => setPrivacyOpen(true)} onDisclaimer={() => setDisclaimerOpen(true)} />
+      <AppHeader onHelp={() => setHelpOpen(true)} onPrivacy={() => setPrivacyOpen(true)} onDisclaimer={() => setDisclaimerOpen(true)} onSettings={() => setSettingsOpen(true)} />
       <StudioSidebar stap={stap} setStap={nav} />
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
+      <InstellingenDrawer open={settingsOpen} instellingen={instellingen} onChange={setInstellingen} onClose={() => setSettingsOpen(false)} />
       {stap === 1 ? <Invullen form={form} setForm={setForm} naarResultaat={() => maakResultaat(2)} onPrivacy={() => setPrivacyOpen(true)} lessen={opgeslagenLessen} actieveLesId={actieveLesId} onLesOpslaan={slaLesOp} onLesLaden={laadLes} onLesDupliceren={dupliceerLes} onLesVerwijderen={verwijderLes} onNieuweLes={nieuweLes} /> : null}
       {stap === 2 ? <Resultaat titel={editorTitel} setTitel={setEditorTitel} secties={editorSecties} setSecties={setEditorSecties} naarInvullen={() => setStap(1)} naarDownload={() => setStap(3)} /> : null}
       {stap === 3 ? <Downloaden titel={editorTitel} secties={editorSecties} naarResultaat={() => setStap(2)} /> : null}
@@ -3436,6 +3517,7 @@ body { margin: 0; }
 .appRoot { position: relative; min-height: 100vh; background:
   linear-gradient(180deg, #f8fcff 0%, #eef7fd 52%, #eaf3f9 100%);
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
+.appRoot.darkMode { --tr-blue-dark: #69bfff; --tr-blue-deep: #d7efff; --tr-blue-soft: #123a55; --tr-blue-pale: #0f2839; --tr-line: #25536d; --tr-line-soft: #1e4056; --tr-text: #e9f6ff; --tr-muted: #a7bed0; --tr-surface: rgba(11,29,42,.98); --tr-shadow: 0 16px 44px rgba(0,0,0,.26); background: linear-gradient(180deg, #071b29 0%, #0b2536 56%, #0a1b27 100%); }
 .appRoot::before, .appRoot::after { display: none; }
 .appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.84); box-shadow: 0 8px 24px rgba(8,58,89,.08); padding: 14px 26px 14px 224px; display: flex; justify-content: flex-end; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
@@ -3447,11 +3529,11 @@ body { margin: 0; }
 .appHeader nav button.active { background: var(--tr-blue); color: white; border-color: var(--tr-blue); box-shadow: none; }
 .appHeader nav span { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 8px; background: white; color: var(--tr-blue-dark); border: 1px solid var(--tr-line-soft); }
 .appHeader nav .active span { background: white; color: var(--tr-blue); }
-.headerActies { position: relative; justify-self: end; display: flex; align-items: center; }
-.infoMenuKnop { width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 0; border: 1px solid #c7eaff; background: white; color: var(--tr-blue); font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px rgba(8,58,89,.08); }
-.infoMenuKnop:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
-.infoMenuKnop:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 8px 20px rgba(0,144,242,.16); }
-.infoMenuKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.headerActies { position: relative; justify-self: end; display: flex; align-items: center; gap: 8px; }
+.infoMenuKnop, .settingsKnop { width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 0; border: 1px solid #c7eaff; background: white; color: var(--tr-blue); font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px rgba(8,58,89,.08); }
+.infoMenuKnop:hover, .settingsKnop:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
+.infoMenuKnop:focus-visible, .settingsKnop:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 8px 20px rgba(0,144,242,.16); }
+.infoMenuKnop svg, .settingsKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 160; min-width: 184px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.16); padding: 6px; }
 .infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 10px 11px; text-align: left; font-family: inherit; font-weight: 700; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
@@ -3496,6 +3578,23 @@ body { margin: 0; }
 .helpKnopIcoon.tip { background: #fff7ed; border-color: #f59e0b; color: #f59e0b; }
 .helpKnopIcoon.check { background: #ecfdf5; border-color: #86efac; color: #16a34a; }
 .helpKnopIcoon.editor { background: #f4fbff; color: var(--tr-blue-dark); }
+.helpKnopIcoon.bow { border-color: transparent; background: transparent; color: var(--tr-blue-dark); }
+.helpKnopIcoon.bow .bowAuditIcon { width: 18px; height: 24px; }
+.settingsOverlay { position: fixed; inset: 0; z-index: 32; background: rgba(6,43,68,.28); display: flex; justify-content: flex-end; }
+.settingsDrawer { width: min(390px, 100%); height: 100%; background: var(--tr-surface); border-left: 1px solid var(--tr-line); box-shadow: -24px 0 70px rgba(0,47,80,.22); color: var(--tr-text); display: flex; flex-direction: column; }
+.settingsHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 22px; border-bottom: 1px solid var(--tr-line); background: var(--tr-blue-pale); }
+.settingsHeader p { margin: 0 0 4px; color: var(--tr-blue-dark); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.settingsHeader h2 { margin: 0; font-size: 24px; line-height: 1.1; }
+.settingsHeader button { border: 1px solid var(--tr-blue); background: var(--tr-blue); color: white; padding: 9px 11px; font-family: inherit; font-weight: 750; cursor: pointer; }
+.settingsBody { padding: 18px 22px; display: grid; gap: 14px; }
+.settingsToggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid var(--tr-line); background: white; padding: 14px; cursor: pointer; }
+.settingsToggle strong, .settingsToggle small { display: block; }
+.settingsToggle strong { color: var(--tr-blue-dark); font-size: 15px; }
+.settingsToggle small { color: var(--tr-muted); font-size: 12px; line-height: 1.35; margin-top: 3px; }
+.settingsToggle input { width: 20px; height: 20px; accent-color: var(--tr-blue); }
+.settingsNote { border: 1px solid var(--tr-line-soft); background: var(--tr-blue-pale); padding: 13px; }
+.settingsNote strong { color: var(--tr-blue-dark); font-size: 13px; }
+.settingsNote p { margin: 5px 0 0; color: var(--tr-muted); font-size: 12.5px; line-height: 1.45; }
 .layoutInput { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 0 28px 72px 224px; display: grid; grid-template-columns: minmax(0, 1fr) 310px; column-gap: 16px; row-gap: 14px; align-items: start; }
 .workspaceColumn { grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
 .workspaceTabs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; border: 1px solid var(--tr-line-soft); background: rgba(255,255,255,.92); box-shadow: none; }
@@ -3692,7 +3791,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .accordion em { flex: 0 0 auto; min-width: 48px; text-align: center; font-style: normal; color: var(--tr-blue-dark); background: white; border: 1px solid #b9e5ff; padding: 6px 9px; font-size: 12px; font-weight: 700; line-height: 1; }
 .accordionBody { padding: 18px; }
 .veldActies { position: relative; z-index: 60; display: flex; align-items: center; gap: 6px; height: 30px; }
-.bowAuditLabel { display: inline-flex; align-items: center; gap: 4px; height: 30px; color: var(--tr-blue-dark); font-size: 10px; font-weight: 650; letter-spacing: .02em; line-height: 1; white-space: nowrap; }
+.bowAuditLabel { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 30px; color: var(--tr-blue-dark); line-height: 1; }
 .bowAuditLabel .bowAuditIcon { width: 13px; height: 18px; }
 .veldActies > button { width: 30px; height: 30px; border: 1px solid transparent; background: #f8fbfe; color: var(--tr-blue-dark); font-weight: 800; cursor: pointer; }
 .veldActies > button.plusSuggestieKnop { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
@@ -3891,6 +3990,10 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .appRoot .btn,
 .appRoot .infoMenu,
 .appRoot .infoMenuKnop,
+.appRoot .settingsKnop,
+.appRoot .settingsDrawer,
+.appRoot .settingsToggle,
+.appRoot .settingsNote,
 .appRoot .downloadPaneel,
 .appRoot .downloadKeuze,
 .appRoot .downloadActieKnop,
@@ -3915,6 +4018,48 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .appRoot .helpModal,
 .appRoot .helpSectie {
   border-radius: 0;
+}
+.appRoot.darkMode .appHeader,
+.appRoot.darkMode .studioSidebar,
+.appRoot.darkMode .studioSidebarLogo,
+.appRoot.darkMode .panel,
+.appRoot.darkMode .field,
+.appRoot.darkMode .infoMenu,
+.appRoot.darkMode .infoMenu button,
+.appRoot.darkMode .infoMenuKnop,
+.appRoot.darkMode .settingsKnop,
+.appRoot.darkMode .workspaceTabs,
+.appRoot.darkMode .accordion,
+.appRoot.darkMode .accordion > button,
+.appRoot.darkMode .bowScoreKaart,
+.appRoot.darkMode .bowScoreDeel,
+.appRoot.darkMode .stats div,
+.appRoot.darkMode .weergavePaneel,
+.appRoot.darkMode .weergaveKnoppen,
+.appRoot.darkMode .profile,
+.appRoot.darkMode .profileChecks,
+.appRoot.darkMode .savedLessonItem,
+.appRoot.darkMode .savedLessonEmpty,
+.appRoot.darkMode .settingsToggle,
+.appRoot.darkMode .helpSectie {
+  background: var(--tr-surface);
+  color: var(--tr-text);
+  border-color: var(--tr-line-soft);
+}
+.appRoot.darkMode .field,
+.appRoot.darkMode .settingsToggle {
+  background: #0f2839;
+}
+.appRoot.darkMode .studioStappen button:hover,
+.appRoot.darkMode .studioStappen button.active,
+.appRoot.darkMode .workspaceTabs button.active,
+.appRoot.darkMode .weergaveKnoppen button:hover {
+  background: #123a55;
+}
+.appRoot.darkMode .settingsHeader,
+.appRoot.darkMode .settingsNote,
+.appRoot.darkMode .helpModalHeader {
+  background: #0f2839;
 }
 .auditColumn::-webkit-scrollbar,
 .savedLessonList::-webkit-scrollbar,
