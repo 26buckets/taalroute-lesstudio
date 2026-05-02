@@ -3342,6 +3342,7 @@ function draaiZelftests() {
     { naam: "Instellingen drawer en dark mode bestaan", geslaagd: appCss.includes(".settingsDrawer") && appCss.includes(".appRoot.darkMode") && INSTELLINGEN_STORAGE_KEY.includes("instellingen") },
     { naam: "Dark mode gebruikt wit app-logo", geslaagd: APP_LOGO_DARK_URL.includes("taalroute-lesstudio-logo-wit4x") },
     { naam: "Canvas kop heeft geen grote tekstvlakhoogte", geslaagd: appCss.includes(".canvasTextarea.sectionTitle { min-height: 26px;") },
+    { naam: "Canvas header verbergt tekstvlak en houdt triangle binnen header", geslaagd: appCss.includes(".cover { background:") && appCss.includes("overflow: hidden;") && appCss.includes(".cover .canvasTitle { width: calc(100% - 180px);") && appCss.includes("background: transparent;") },
     { naam: "BOW must-haves onder 16/16 zijn rood", geslaagd: maakBowKwaliteitsscore(legeLes).status === "Niet audit-klaar" && maakBowKwaliteitsscore(legeLes).statusType === "concept" && maakBowKwaliteitsscore(legeLes).percentage === 0 },
     { naam: "BOW volledige check bevat drie lagen", geslaagd: maakBowKwaliteitsscore(legeLes).secties.length === 3 && maakBowKwaliteitsscore(legeLes).secties[1].titel.includes("BOW kwaliteitsverdieping") },
     { naam: "BOW must-haves 16/16 zijn oranje audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore({ ...legeLes, ...Object.fromEntries(bowMustHaves.map((item) => [item.key, "ingevuld"])) }); return score.mustHaveAanwezig === 16 && score.mustHaveTotaal === 16 && score.status === "Audit-klaar" && score.statusType === "bijna"; })() },
@@ -3851,10 +3852,10 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasHint strong { color: var(--tr-blue); font-size: 13px; font-weight: 1000; text-transform: uppercase; letter-spacing: .04em; }
 .canvasHint span { color: #526b7d; font-size: 12px; font-weight: 650; line-height: 1.4; }
 .lessonDoc { position: relative; width: 100%; margin: 0; background: white; border: 1px solid var(--tr-line); border-radius: 6px; box-shadow: 0 28px 90px rgba(8,58,89,.18); overflow: visible; }
-.cover { background: linear-gradient(135deg, #0090f2 0%, #0077ca 70%, #005c9d 100%); color: white; padding: 42px 50px; position: relative; overflow: visible; }
+.cover { background: linear-gradient(135deg, #0090f2 0%, #0077ca 70%, #005c9d 100%); color: white; padding: 42px 50px; position: relative; overflow: hidden; }
 .cover img { width: 150px; background: white; padding: 8px 10px; margin-bottom: 18px; position: relative; z-index: 1; }
-.headerTriangle { position: absolute; right: 0; top: 0; width: 0; height: 0; border-top: 126px solid transparent; border-bottom: 126px solid transparent; border-left: 188px solid rgba(255,255,255,.13); transform: translate(22px, -16px); pointer-events: none; }
-.cover .canvasTitle { width: 100%; border: 0; outline: 0; background: rgba(255,255,255,.08); color: white; font-size: 42px; font-weight: 1000; line-height: 1.12; position: relative; z-index: 1; padding: 8px 0; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.headerTriangle { position: absolute; right: 0; top: 50%; width: 0; height: 0; border-top: 112px solid transparent; border-bottom: 112px solid transparent; border-left: 164px solid rgba(255,255,255,.13); transform: translateY(-50%); pointer-events: none; }
+.cover .canvasTitle { width: calc(100% - 180px); max-width: 860px; border: 0; outline: 0; background: transparent; color: white; font-size: 42px; font-weight: 1000; line-height: 1.12; position: relative; z-index: 1; padding: 4px 0; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: none; }
 .lessonSection { position: relative; margin: 18px 34px; padding: 16px 24px 16px 76px; border: 1px solid #d7efff; background: linear-gradient(180deg, white 0%, #f7fcff 100%); }
 .canvasSectionRail { position: absolute; left: 24px; top: 24px; display: grid; gap: 6px; justify-items: start; }
 .canvasSectionRail > span { width: 36px; height: 36px; background: var(--tr-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 1000; }
@@ -3964,7 +3965,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .lessonDoc { max-width: none; }
   .cover { padding: 28px 22px; }
   .cover img { width: 118px; margin-bottom: 14px; }
-  .cover .canvasTitle { font-size: 28px; }
+  .cover .canvasTitle { width: calc(100% - 72px); font-size: 28px; }
   .lessonSection { margin: 14px 10px; padding: 18px 16px 18px 58px; }
   .canvasSectionRail { left: 14px; top: 18px; }
   .canvasSectionRail > span { width: 30px; height: 30px; font-size: 11px; }
