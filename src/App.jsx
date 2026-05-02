@@ -2204,9 +2204,8 @@ function InfoIcon() {
 
 function SettingsIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M9.7 3.3 9.1 5.6a7.2 7.2 0 0 0-1.3.8L5.5 5.8 3.8 8.7l1.7 1.7a7.3 7.3 0 0 0 0 1.6l-1.7 1.7 1.7 2.9 2.3-.6c.4.3.8.6 1.3.8l.6 2.3h3.4l.6-2.3c.5-.2.9-.5 1.3-.8l2.3.6 1.7-2.9-1.7-1.7a7.3 7.3 0 0 0 0-1.6L19 8.7l-1.7-2.9-2.3.6c-.4-.3-.8-.6-1.3-.8l-.6-2.3H9.7Z" />
-      <circle cx="12" cy="12" r="3.1" />
+    <svg className="settingsIconSvg" viewBox="0 0 24 24" aria-hidden="true">
+      <path fillRule="evenodd" clipRule="evenodd" d="M10.15 2.25h3.7c.43 0 .8.3.88.72l.42 2.18c.52.2 1.02.49 1.47.85l2.1-.72c.4-.14.85.03 1.06.4l1.85 3.2c.22.38.14.86-.18 1.14l-1.7 1.45c.04.28.06.56.06.84s-.02.56-.06.84l1.7 1.45c.32.28.4.76.18 1.14l-1.85 3.2a.9.9 0 0 1-1.06.4l-2.1-.72c-.45.36-.95.65-1.47.85l-.42 2.18a.9.9 0 0 1-.88.72h-3.7a.9.9 0 0 1-.88-.72l-.42-2.18a7.6 7.6 0 0 1-1.47-.85l-2.1.72a.9.9 0 0 1-1.06-.4l-1.85-3.2a.9.9 0 0 1 .18-1.14l1.7-1.45a6.03 6.03 0 0 1 0-1.68l-1.7-1.45a.9.9 0 0 1-.18-1.14l1.85-3.2a.9.9 0 0 1 1.06-.4l2.1.72c.45-.36.95-.65 1.47-.85l.42-2.18a.9.9 0 0 1 .88-.72Zm1.85 6.35a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8Z" />
     </svg>
   );
 }
@@ -3360,7 +3359,7 @@ function draaiZelftests() {
     { naam: "BOW auditlabel toont alleen het icoon", geslaagd: appCss.includes(".helpKnopIcoon.bow") && parseHelpKnopTekst("BOW-icoon: uitleg").label === "BOW-icoon" && !appCss.includes("auditlijn</span>") },
     { naam: "Instellingen drawer en dark mode bestaan", geslaagd: appCss.includes(".settingsDrawer") && appCss.includes(".appRoot.darkMode") && INSTELLINGEN_STORAGE_KEY.includes("instellingen") },
     { naam: "Instellingen bevatten compacte weergave, hoog contrast en minder beweging", geslaagd: appCss.includes(".appRoot.compacteWeergave") && appCss.includes(".appRoot.hoogContrast") && appCss.includes(".appRoot.minderBeweging") && leesInstellingen().hasOwnProperty("compacteWeergave") },
-    { naam: "Settings icoon is een herkenbaar tandwiel", geslaagd: SettingsIcon().props.children.length === 2 && SettingsIcon().props.children[0].props.d.includes("9.7 3.3") },
+    { naam: "Settings icoon is een herkenbaar tandwiel", geslaagd: SettingsIcon().props.className === "settingsIconSvg" && SettingsIcon().props.children.props.d.includes("10.15 2.25") && appCss.includes(".settingsKnop .settingsIconSvg") },
     { naam: "Dark mode gebruikt wit app-logo", geslaagd: APP_LOGO_DARK_URL.includes("taalroute-lesstudio-logo-wit4x") },
     { naam: "Canvas kop heeft geen grote tekstvlakhoogte", geslaagd: appCss.includes(".canvasTextarea.sectionTitle { min-height: 26px;") },
     { naam: "Canvas header verbergt tekstvlak en houdt triangle binnen header", geslaagd: appCss.includes(".cover { background:") && appCss.includes("overflow: hidden;") && appCss.includes(".cover .canvasTitle { width: calc(100% - 180px);") && appCss.includes("background: transparent;") },
@@ -3570,6 +3569,7 @@ body { margin: 0; }
 .infoMenuKnop:hover, .settingsKnop:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .infoMenuKnop:focus-visible, .settingsKnop:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 8px 20px rgba(0,144,242,.16); }
 .infoMenuKnop svg, .settingsKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.settingsKnop .settingsIconSvg { width: 21px; height: 21px; fill: currentColor; stroke: none; }
 .infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 160; min-width: 184px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.16); padding: 6px; }
 .infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 10px 11px; text-align: left; font-family: inherit; font-weight: 700; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
