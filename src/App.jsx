@@ -735,6 +735,22 @@ function profielLabels(ids) {
   return extraIds.length ? extraIds.map((id) => profielInfo[id]?.label).filter(Boolean).join(" + ") : "Geen extra profiel";
 }
 
+function maakLesrouteBeschrijving(form) {
+  const ids = actieveProfielen(form);
+  const routeIds = ids.filter((id) => id !== "bow");
+  const model = didactischeModellen[form.didactischModel] || didactischeModellen.vut;
+  const routeTitel = routeIds.length ? routeIds.map((id) => profielInfo[id]?.label).filter(Boolean).join(" + ") : "alleen BOW auditlijn";
+  const routeRegels = routeIds.length
+    ? routeIds.map((id) => `${profielInfo[id]?.label}: ${profielInfo[id]?.uitleg}`).filter(Boolean)
+    : ["Geen extra lesroute gekozen: de les gebruikt alleen de vaste BOW auditlijn."];
+  return {
+    titel: `BOW auditlijn + ${routeTitel}`,
+    intro: "BOW blijft altijd de vaste kwaliteitscontrole. De lesroute bepaalt de extra velden, suggesties en inhoudelijke accenten.",
+    model: `${model.label}: ${model.uitleg}`,
+    routeRegels
+  };
+}
+
 function veldGroepenVoorProfielen(form) {
   const ids = actieveProfielen(form);
   const groepIds = [...new Set(ids.flatMap((id) => profielVeldGroepen[id] || []).filter(Boolean))];
@@ -2641,7 +2657,7 @@ function AppHeader({ onHelp, onDisclaimer, onPrivacy }) {
   return (
     <header className="appHeader">
       <div className="headerActies">
-        <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info"><InfoIcon /><span>Info</span></button>
+        <button type="button" className="infoMenuKnop" onClick={() => setInfoOpen((open) => !open)} aria-label="Open informatie menu" aria-expanded={infoOpen} title="Info en hulp"><InfoIcon /></button>
         {infoOpen ? (
           <div className="infoMenu">
             <button type="button" onClick={() => kies(onHelp)}>Help</button>
@@ -2674,10 +2690,6 @@ function StudioSidebar({ stap, setStap }) {
           </button>
         ))}
       </nav>
-      <div className="studioSidebarVoet">
-        <strong>BOW auditlijn</strong>
-        <span>Altijd zichtbaar als kwaliteitscontrole.</span>
-      </div>
     </aside>
   );
 }
@@ -2754,12 +2766,12 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
   const [werkTab, setWerkTab] = useState("start");
   const [voorbeeldOpen, setVoorbeeldOpen] = useState(false);
   const [openScoreDelen, setOpenScoreDelen] = useState({});
-  const profiel = profielInfo[form.standaard] || profielInfo.bow;
   const profielIds = actieveProfielen(form);
   const zichtbareGroepen = veldGroepenVoorWeergave(form, weergave);
   const zichtbareVelden = zichtbareGroepen.reduce((totaal, groep) => totaal + groep.velden.length, 0);
   const ingevuldeVelden = Object.entries(form).filter(([key, value]) => !["standaard", "extraProfielen", "didactischModel", "lesduur"].includes(key) && String(value || "").trim()).length;
   const bowScore = maakBowKwaliteitsscore(form);
+  const lesrouteBeschrijving = maakLesrouteBeschrijving(form);
 
   const update = (key, value) => setForm((vorig) => ({ ...vorig, [key]: value }));
   const updateLesroute = (standaard) => setForm((vorig) => ({
@@ -2890,16 +2902,21 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
           </div>
           <div className="fieldBlock"><Label verplicht>Didactisch model</Label><select className="field" value={form.didactischModel} onChange={(event) => updateDidactischModel(event.target.value)}>{Object.entries(didactischeModellen).map(([id, item]) => <option key={id} value={id}>{item.label}</option>)}</select></div>
           <div className="fieldBlock"><Label>Lesduur: {form.lesduur} minuten</Label><input type="range" min="15" max="180" step="15" value={form.lesduur} onChange={(event) => updateLesduur(Number(event.target.value))} /></div>
-          <div className="profile"><strong>BOW auditlijn + {lesrouteLabel(form.standaard)}</strong><p>BOW is altijd de vaste kwaliteitscontrole. De gekozen lesroute bepaalt alleen de extra velden, suggesties en accenten.</p><p>{form.standaard === "bow" ? "Er is geen extra lesroute gekozen. Je werkt alleen met de auditlijn." : profielInfo[form.standaard]?.uitleg || profiel.uitleg}</p></div>
+          <div className="profile">
+            <strong>{lesrouteBeschrijving.titel}</strong>
+            <p>{lesrouteBeschrijving.intro}</p>
+            <p>{lesrouteBeschrijving.model}</p>
+            <ul>{lesrouteBeschrijving.routeRegels.map((regel) => <li key={regel}>{regel}</li>)}</ul>
+          </div>
           <div className="btnRow"><Knop onClick={naarResultaat}>Bekijk resultaat</Knop></div>
         </section> : null}
       </div>
 
       <aside className="auditColumn" aria-label="BOW auditkolom">
         <div className="stats">
-          <div><strong>{ingevuldeVelden}</strong><span>velden ingevuld</span></div>
-          <div><strong>{bowScore.percentage}%</strong><span>BOW volledige check</span></div>
-          <div><strong>{form.lesduur}</strong><span>minuten</span></div>
+          <div><span>Velden</span><strong>{ingevuldeVelden}</strong></div>
+          <div><span>BOW check</span><strong>{bowScore.percentage}%</strong></div>
+          <div><span>Duur</span><strong>{form.lesduur}m</strong></div>
         </div>
         <section className={`bowScoreKaart ${bowScore.statusType}`}>
           <div className="bowScoreKop">
@@ -2931,6 +2948,14 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
             ))}
           </div>
         </section>
+      </aside>
+
+      {werkTab === "velden" ? <section className="panel lessonFieldsPanel">
+        <div className="werkruimteKop">
+          <span>Werkruimte</span>
+          <h2>Lesonderdelen</h2>
+          <p>Vul de onderdelen in die bij je gekozen veldmodus horen. De BOW auditlijn blijft op de achtergrond meekijken.</p>
+        </div>
         <div className="weergavePaneel">
           <div>
             <strong>{weergaveModi[weergave].titel}</strong>
@@ -2944,14 +2969,6 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
               </button>
             ))}
           </div>
-        </div>
-      </aside>
-
-      {werkTab === "velden" ? <section className="panel lessonFieldsPanel">
-        <div className="werkruimteKop">
-          <span>Werkruimte</span>
-          <h2>Lesonderdelen</h2>
-          <p>Vul de onderdelen in die bij je gekozen veldmodus horen. De BOW auditlijn blijft op de achtergrond meekijken.</p>
         </div>
         {zichtbareGroepen.map((groep) => (
           <section className="accordion" key={groep.id}>
@@ -3232,6 +3249,7 @@ function draaiZelftests() {
     { naam: "Samenvatting gebruikt geen printbare labeltekst", geslaagd: !samenvattingHtml.includes("Printbare 2 pagina") },
     { naam: "BOW staat altijd in de lesgegevens", geslaagd: maakSecties({ ...legeLes, standaard: "mbo" })[0].inhoud.includes("BOW auditlijn: altijd actief") },
     { naam: "BOW auditlijn toont minder velden dan BOW plus lesroute", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").reduce((totaal, groep) => totaal + groep.velden.length, 0) < veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "profiel").reduce((totaal, groep) => totaal + groep.velden.length, 0) },
+    { naam: "Lesroutebeschrijving combineert route en didactisch model", geslaagd: (() => { const tekst = Object.values(maakLesrouteBeschrijving({ ...legeLes, standaard: "staatsexamen", extraProfielen: ["erk"], didactischModel: "edi" })).flat().join(" "); return tekst.includes("NT2-examenprofiel") && tekst.includes("ERK Niveauprofiel") && tekst.includes("EDI-model"); })() },
     { naam: "Alle velden toont alle veldgroepen", geslaagd: veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "alles").length === veldGroepen.length },
     { naam: "BOW auditlijn bevat verplichte invulvelden", geslaagd: ["lesdoel", "functioneleTaak", "checkOpBegrip", "huiswerk"].every((key) => veldGroepenVoorWeergave({ ...legeLes, standaard: "taalroute" }, "bow").some((groep) => groep.velden.some(([veldKey]) => veldKey === key))) },
     { naam: "BOW auditlijnvelden worden zichtbaar gemarkeerd", geslaagd: isBowVeld("lesdoel") && isBowVeld("checkOpBegrip") && !isBowVeld("branche") },
@@ -3430,12 +3448,12 @@ body { margin: 0; }
 .appHeader nav span { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 8px; background: white; color: var(--tr-blue-dark); border: 1px solid var(--tr-line-soft); }
 .appHeader nav .active span { background: white; color: var(--tr-blue); }
 .headerActies { position: relative; justify-self: end; display: flex; align-items: center; }
-.infoMenuKnop { width: 82px; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--tr-blue); background: var(--tr-blue); color: white; font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: none; }
-.infoMenuKnop:hover { background: var(--tr-blue-dark); border-color: var(--tr-blue-dark); }
+.infoMenuKnop { width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 0; border: 1px solid #c7eaff; background: white; color: var(--tr-blue); font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px rgba(8,58,89,.08); }
+.infoMenuKnop:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .infoMenuKnop:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 8px 20px rgba(0,144,242,.16); }
-.infoMenuKnop svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 12; min-width: 180px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 8px; }
-.infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 11px 12px; text-align: left; font-family: inherit; font-weight: 850; cursor: pointer; }
+.infoMenuKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.infoMenu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 160; min-width: 184px; background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.16); padding: 6px; }
+.infoMenu button { width: 100%; border: 0; background: white; color: var(--tr-text); padding: 10px 11px; text-align: left; font-family: inherit; font-weight: 700; cursor: pointer; }
 .infoMenu button:hover { background: var(--tr-blue-pale); color: var(--tr-blue-dark); }
 .studioSidebar { position: fixed; left: 20px; top: 16px; bottom: 20px; z-index: 11; width: 184px; display: flex; flex-direction: column; gap: 12px; padding: 0 12px 12px; background: rgba(255,255,255,.96); color: var(--tr-text); box-shadow: 0 16px 42px rgba(8,58,89,.12); border: 1px solid rgba(185,229,255,.9); }
 .studioSidebarLogo { display: flex; align-items: center; justify-content: center; min-height: 72px; margin: 0 -12px 0; padding: 12px 14px; background: white; border-bottom: 1px solid var(--tr-line-soft); text-decoration: none; }
@@ -3492,19 +3510,20 @@ body { margin: 0; }
 .workspaceColumn > .savedLessonsPanel { grid-column: 2; }
 .workspaceColumn > .lesdetailsPanel { grid-column: 1 / -1; }
 .lessonFieldsPanel { grid-column: 1; }
-.auditColumn { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--app-header-height) + 22px); display: grid; gap: 10px; align-self: start; max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 0; }
+.auditColumn { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--app-header-height) + 22px); display: grid; gap: 10px; align-self: start; max-height: calc(100vh - var(--app-header-height) - 34px); overflow: auto; padding-right: 2px; scrollbar-width: thin; scrollbar-color: #9bcdf2 #eef8ff; }
 .panel { background: var(--tr-surface); border: 1px solid rgba(185,229,255,.86); padding: 18px; min-height: var(--body-box-min-height); box-shadow: var(--tr-shadow); }
 .pastePanel { position: relative; padding-top: 38px; }
 .pastePanel, .savedLessonsPanel { height: 100%; }
 .panel.wide { grid-column: 2; grid-row: 1; }
-.panel h2 { margin: 0 0 8px; color: var(--tr-text); font-size: 20px; font-weight: 750; letter-spacing: 0; }
-.panel p { margin: 0 0 12px; color: var(--tr-muted); line-height: 1.45; font-size: 14px; }
+.panel h2 { margin: 0 0 5px; color: var(--tr-text); font-size: 20px; font-weight: 750; letter-spacing: 0; }
+.panel p { margin: 0 0 9px; color: var(--tr-muted); line-height: 1.38; font-size: 14px; }
 .werkruimteKop { margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid #e2f3ff; }
 .werkruimteKop span { display: block; color: var(--tr-blue); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
 .werkruimteKop h2 { margin-bottom: 4px; }
 .werkruimteKop p { margin-bottom: 0; font-size: 13px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.fieldBlock { margin-bottom: 16px; }
+.fieldBlock { position: relative; margin-bottom: 14px; }
+.fieldBlock:focus-within { z-index: 90; }
 .fieldBlock.bowField { position: relative; border-left: 0; padding-left: 0; }
 .fieldLabelRow { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 30px; margin: 0 0 8px; }
 .fieldLabelRow .label { margin: 0; line-height: 30px; }
@@ -3586,8 +3605,11 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .privacyWarning { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; border: 1px solid var(--tr-blue); background: var(--tr-blue); color: white; font-family: inherit; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; cursor: pointer; box-shadow: 0 6px 16px rgba(0,144,242,.14); }
 .privacyWarning:hover { background: var(--tr-blue-dark); border-color: var(--tr-blue-dark); }
 .privacyWarning:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 6px 16px rgba(0,144,242,.14); }
-.profile { background: linear-gradient(180deg, #f4fbff 0%, #eaf7ff 100%); border: 1px solid var(--tr-line); border-radius: 6px; padding: 16px; margin: 16px 0; }
-.profile strong { display: block; color: var(--tr-blue-dark); margin-bottom: 4px; }
+.profile { background: #f7fbfe; border: 1px solid var(--tr-line); border-radius: 6px; padding: 13px 14px; margin: 14px 0; }
+.profile strong { display: block; color: var(--tr-blue-dark); margin-bottom: 5px; font-size: 15px; }
+.profile p { margin-bottom: 7px; font-size: 13px; line-height: 1.4; }
+.profile ul { margin: 8px 0 0; padding-left: 18px; color: #526b7d; font-size: 12.5px; line-height: 1.4; }
+.profile li { margin: 3px 0; }
 .profileChecks { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--tr-line); border-radius: 5px; background: var(--tr-blue-pale); }
 .profileChecks span { display: block; color: var(--tr-blue-dark); font-size: 13px; font-weight: 900; }
 .profileChecks label { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 700; color: var(--tr-text); }
@@ -3599,7 +3621,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonsHeader .btn { min-height: 40px; padding: 10px 12px; white-space: nowrap; }
 .savedLessonFilters { display: grid; grid-template-columns: 1fr 132px 132px; gap: 7px; margin-bottom: 10px; }
 .savedLessonFilters .field { min-width: 0; padding: 9px 10px; font-size: 12.5px; }
-.savedLessonList { display: grid; gap: 7px; max-height: 238px; overflow: auto; padding-right: 2px; }
+.savedLessonList { display: grid; gap: 7px; max-height: 238px; overflow: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: #9bcdf2 #eef8ff; }
 .savedLessonItem { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border: 1px solid #d7efff; border-radius: 5px; background: #fbfdff; padding: 10px; }
 .savedLessonItem.active { border-color: var(--tr-blue); background: #f4fbff; box-shadow: inset 3px 0 0 var(--tr-blue); }
 .savedLessonItem strong { display: block; color: var(--tr-text); font-size: 13px; line-height: 1.25; margin-bottom: 3px; }
@@ -3614,10 +3636,10 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonEmpty strong, .savedLessonEmpty span { display: block; }
 .savedLessonEmpty strong { color: var(--tr-blue-dark); font-size: 13px; }
 .savedLessonEmpty span { color: #526b7d; font-size: 12px; margin-top: 3px; }
-.stats { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 0; }
-.stats div { min-height: 48px; display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 8px; background: white; border: 1px solid #d7efff; border-radius: 0; padding: 8px 10px; box-shadow: none; }
-.stats strong { display: block; font-size: 18px; line-height: 1; color: var(--tr-blue); font-weight: 750; }
-.stats span { display: block; color: #61798a; font-weight: 650; font-size: 11px; line-height: 1.2; margin-top: 0; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 0; }
+.stats div { min-height: 54px; display: grid; align-content: center; gap: 4px; background: white; border: 1px solid #d7efff; border-radius: 0; padding: 8px 7px; box-shadow: none; text-align: center; }
+.stats strong { display: block; font-size: 20px; line-height: 1; color: var(--tr-blue); font-weight: 760; order: 1; }
+.stats span { display: block; color: #61798a; font-weight: 650; font-size: 9.5px; line-height: 1.15; margin-top: 0; order: 2; text-transform: uppercase; letter-spacing: .03em; }
 .bowScoreKaart { margin: 0 0 12px; padding: 12px; border: 1px solid var(--tr-line); border-radius: 0; background: white; box-shadow: none; }
 .bowScoreKaart.concept { border-left: 4px solid #dc2626; }
 .bowScoreKaart.bijna { border-left: 4px solid #f59e0b; }
@@ -3647,18 +3669,19 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .bowChecklist span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 7px; border: 1px solid #e2f3ff; background: #f8fcff; color: #526b7d; font-size: 11px; font-weight: 750; line-height: 1; }
 .bowChecklist span.ok { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
 .bowChecklist span.mist { color: #9a3412; background: #fff7ed; border-color: #fed7aa; }
-.weergavePaneel { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: center; margin: 0 0 12px; padding: 12px; border: 1px solid var(--tr-line-soft); border-radius: 0; background: white; box-shadow: none; }
+.weergavePaneel { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(360px, auto); gap: 14px; align-items: center; margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--tr-line-soft); border-radius: 0; background: white; box-shadow: none; }
 .weergavePaneel strong { display: block; color: var(--tr-blue-dark); font-size: 15px; font-weight: 750; margin-bottom: 2px; }
 .weergavePaneel span { display: block; color: #526b7d; font-size: 12px; line-height: 1.4; font-weight: 600; }
 .weergavePaneel small { display: block; margin-top: 3px; color: #7b92a1; font-size: 11px; line-height: 1.3; font-weight: 600; }
-.weergaveKnoppen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-self: stretch; background: #f8fcff; border: 1px solid var(--tr-line-soft); border-radius: 0; overflow: hidden; }
+.weergaveKnoppen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-self: stretch; background: #f8fcff; border: 1px solid var(--tr-line-soft); border-radius: 0; overflow: hidden; min-width: 360px; }
 .weergaveKnoppen button { min-width: 0; min-height: 36px; border: 0; border-right: 1px solid var(--tr-line-soft); background: transparent; color: var(--tr-blue-dark); padding: 8px 8px; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
 .weergaveKnoppen button:last-child { border-right: 0; }
 .weergaveKnoppen button:hover { background: var(--tr-blue-pale); }
 .weergaveKnoppen button.active { background: var(--tr-blue); color: white; }
 .weergaveKnoppen button.active:hover { background: var(--tr-blue-dark); }
 .weergaveKnoppen button:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px rgba(0,111,189,.28); }
-.accordion { border: 1px solid #d7efff; border-radius: 0; margin-bottom: 10px; background: white; overflow: hidden; box-shadow: none; }
+.accordion { position: relative; border: 1px solid #d7efff; border-radius: 0; margin-bottom: 10px; background: white; overflow: visible; box-shadow: none; }
+.accordion:focus-within { z-index: 80; }
 .accordion > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 13px 16px; border: 0; background: #fbfdff; cursor: pointer; color: var(--tr-text); text-align: left; font-family: inherit; }
 .accordion > button:hover { background: #f4fbff; }
 .accordion > button span { min-width: 0; }
@@ -3668,7 +3691,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .accordion small { display: block; color: #526b7d; font-size: 12.5px; font-weight: 500; margin-top: 5px; line-height: 1.4; letter-spacing: 0; }
 .accordion em { flex: 0 0 auto; min-width: 48px; text-align: center; font-style: normal; color: var(--tr-blue-dark); background: white; border: 1px solid #b9e5ff; padding: 6px 9px; font-size: 12px; font-weight: 700; line-height: 1; }
 .accordionBody { padding: 18px; }
-.veldActies { position: relative; display: flex; align-items: center; gap: 6px; height: 30px; }
+.veldActies { position: relative; z-index: 60; display: flex; align-items: center; gap: 6px; height: 30px; }
 .bowAuditLabel { display: inline-flex; align-items: center; gap: 4px; height: 30px; color: var(--tr-blue-dark); font-size: 10px; font-weight: 650; letter-spacing: .02em; line-height: 1; white-space: nowrap; }
 .bowAuditLabel .bowAuditIcon { width: 13px; height: 18px; }
 .veldActies > button { width: 30px; height: 30px; border: 1px solid transparent; background: #f8fbfe; color: var(--tr-blue-dark); font-weight: 800; cursor: pointer; }
@@ -3681,14 +3704,14 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .veldActies > button.verbeterKnop { background: #ecfdf5; color: #16a34a; border-color: #bbf7d0; box-shadow: none; }
 .veldActies > button.verbeterKnop:hover, .veldActies > button.verbeterKnop:focus-visible { background: #16a34a; color: white; border-color: transparent; outline: 0; }
 .lightbulbIcon { width: 18px; height: 18px; display: block; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.uitlegMenu { position: absolute; right: 0; top: 36px; z-index: 6; width: min(360px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
-.tipMenu { position: absolute; right: 0; top: 36px; z-index: 7; width: min(390px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
-.verbeterMenu { position: absolute; right: 0; top: 36px; z-index: 8; width: min(460px, 82vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 10px; }
+.uitlegMenu { position: absolute; right: 0; top: 36px; z-index: 140; width: min(360px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
+.tipMenu { position: absolute; right: 0; top: 36px; z-index: 145; width: min(390px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 12px; }
+.verbeterMenu { position: absolute; right: 0; top: 36px; z-index: 150; width: min(460px, 82vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 10px; }
 .uitlegMenu strong, .tipMenu strong, .suggesties strong, .verbeterMenu strong { display: block; color: var(--tr-blue-dark); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; padding: 4px 6px 10px; border-bottom: 1px solid #eef8ff; margin-bottom: 8px; }
 .uitlegMenu p { margin: 0; color: var(--tr-text); font-size: 13px; line-height: 1.5; }
 .tipMenu p { margin: 0 0 8px; color: var(--tr-text); font-size: 13px; line-height: 1.5; }
 .tipMenu p:last-child { margin-bottom: 0; }
-.suggesties { position: absolute; right: 0; top: 36px; z-index: 5; width: min(440px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 10px; }
+.suggesties { position: absolute; right: 0; top: 36px; z-index: 135; width: min(440px, 78vw); background: white; border: 1px solid var(--tr-line); box-shadow: 0 18px 50px rgba(0,75,122,.20); padding: 10px; }
 .suggesties button { display: block; width: 100%; border: 0; border-bottom: 1px solid #eef8ff; background: white; padding: 10px; text-align: left; cursor: pointer; line-height: 1.45; color: var(--tr-text); }
 .verbeterMenu p { margin: 0 0 8px; padding: 8px 9px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 12px; font-weight: 800; line-height: 1.35; }
 .verbeterContextInfo { margin: 0 0 8px; padding: 8px 9px; border: 1px solid #c7eaff; background: #f4fbff; }
@@ -3731,7 +3754,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasEditorToolbar button:nth-of-type(2) { font-style: italic; }
 .canvasFloatingToolbar { position: absolute; top: 12px; right: 12px; z-index: 5; margin: 0; box-shadow: 0 12px 28px rgba(0,75,122,.16); }
 .canvasSectionToolbar { position: absolute; top: 10px; right: 10px; z-index: 4; margin: 0; box-shadow: 0 10px 24px rgba(0,75,122,.12); }
-.sectionTitle { width: 100%; margin: 0 0 4px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.2; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.sectionTitle { width: 100%; min-height: 0; margin: 0 0 6px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.2; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
 .canvasTextarea { width: 100%; min-height: 92px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.58; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
 .timeline { display: grid; gap: 12px; }
 .timelineCard { position: relative; display: grid; grid-template-columns: 124px 1fr; gap: 14px; align-items: stretch; background: white; border: 1px solid var(--tr-line); padding: 12px; }
@@ -3892,6 +3915,27 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .appRoot .helpModal,
 .appRoot .helpSectie {
   border-radius: 0;
+}
+.auditColumn::-webkit-scrollbar,
+.savedLessonList::-webkit-scrollbar,
+.helpModalBody::-webkit-scrollbar {
+  width: 8px;
+}
+.auditColumn::-webkit-scrollbar-track,
+.savedLessonList::-webkit-scrollbar-track,
+.helpModalBody::-webkit-scrollbar-track {
+  background: #eef8ff;
+}
+.auditColumn::-webkit-scrollbar-thumb,
+.savedLessonList::-webkit-scrollbar-thumb,
+.helpModalBody::-webkit-scrollbar-thumb {
+  background: #9bcdf2;
+  border: 2px solid #eef8ff;
+}
+.auditColumn::-webkit-scrollbar-thumb:hover,
+.savedLessonList::-webkit-scrollbar-thumb:hover,
+.helpModalBody::-webkit-scrollbar-thumb:hover {
+  background: var(--tr-blue);
 }
 @media print { .appHeader, .toolbar, .downloadPaneel { display: none !important; } .appRoot, .result, .download { padding: 0 !important; background: white !important; } .download iframe { display: none; } .lessonDoc { box-shadow: none; border: 0; max-width: none; } }
 `;
