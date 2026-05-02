@@ -2988,7 +2988,7 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         <div className="stats">
           <div><span>Velden</span><strong>{ingevuldeVelden}</strong></div>
           <div><span>BOW check</span><strong>{bowScore.percentage}%</strong></div>
-          <div><span>Duur</span><strong>{form.lesduur}m</strong></div>
+          <div><span>minuten</span><strong>{form.lesduur}</strong></div>
         </div>
         <section className={`bowScoreKaart ${bowScore.statusType}`}>
           <div className="bowScoreKop">
