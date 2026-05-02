@@ -22,6 +22,7 @@ import {
 
 const NL = "\n";
 const APP_LOGO_URL = "https://media.publit.io/file/taalroute/taalroute-logo/taalroute-lesstudio-logo4x.png";
+const APP_LOGO_DARK_URL = "https://media.publit.io/file/taalroute/taalroute-logo/taalroute-lesstudio-logo-wit4x.png";
 const DOCUMENT_LOGO_URL = "https://media.publit.io/file/taalroute/taalroute-logo/logo-taalroute4x.png";
 const FAVICON_URL = "https://media.publit.io/file/taalroute/taalroute-logo/flavicon-taalroute-v24x.png";
 const BRAND = "#0090f2";
@@ -2749,7 +2750,7 @@ function AppHeader({ onHelp, onDisclaimer, onPrivacy, onSettings }) {
   );
 }
 
-function StudioSidebar({ stap, setStap }) {
+function StudioSidebar({ stap, setStap, darkMode = false }) {
   const stappen = [
     ["1", "Invullen", "Lesdata en velden"],
     ["2", "Aanpassen", "Canvas bewerken"],
@@ -2758,7 +2759,7 @@ function StudioSidebar({ stap, setStap }) {
   return (
     <aside className="studioSidebar" aria-label="Studio navigatie">
       <a className="studioSidebarLogo" href="https://www.taalroute.nl" target="_blank" rel="noreferrer" aria-label="Ga naar taalroute.nl">
-        <img src={APP_LOGO_URL} alt="Taalroute" />
+        <img src={darkMode ? APP_LOGO_DARK_URL : APP_LOGO_URL} alt="Taalroute" />
       </a>
       <nav className="studioStappen">
         {stappen.map(([nummer, label, tekst]) => (
@@ -2964,7 +2965,11 @@ function Invullen({ form, setForm, naarResultaat, onPrivacy, lessen, actieveLesI
         /> : null}
 
         {werkTab === "gegevens" ? <section className="panel lesdetailsPanel">
-          <h2>Lesdetails</h2>
+          <div className="werkruimteKop">
+            <span>Werkruimte</span>
+            <h2>Lesdetails</h2>
+            <p>Kies niveau, lesroute, didactisch model en lestijd.</p>
+          </div>
           <div className="fieldBlock"><Label verplicht>Lesonderwerp</Label><input className="field" value={form.lesonderwerp} onChange={(event) => update("lesonderwerp", event.target.value)} /></div>
           <div className="grid2">
             <div className="fieldBlock"><Label verplicht>Groepsniveau</Label><select className="field" value={form.groepsniveau} onChange={(event) => update("groepsniveau", event.target.value)}>{groepsniveaus.map((niveau) => <option key={niveau || "empty"} value={niveau}>{niveau || "Selecteer"}</option>)}</select></div>
@@ -3335,6 +3340,8 @@ function draaiZelftests() {
     { naam: "BOW auditlabel staat naast veldacties", geslaagd: appCss.includes(".bowAuditLabel") && BowAuditIcon().props.viewBox === "0 0 548 748" },
     { naam: "BOW auditlabel toont alleen het icoon", geslaagd: appCss.includes(".helpKnopIcoon.bow") && parseHelpKnopTekst("BOW-icoon: uitleg").label === "BOW-icoon" && !appCss.includes("auditlijn</span>") },
     { naam: "Instellingen drawer en dark mode bestaan", geslaagd: appCss.includes(".settingsDrawer") && appCss.includes(".appRoot.darkMode") && INSTELLINGEN_STORAGE_KEY.includes("instellingen") },
+    { naam: "Dark mode gebruikt wit app-logo", geslaagd: APP_LOGO_DARK_URL.includes("taalroute-lesstudio-logo-wit4x") },
+    { naam: "Canvas kop heeft geen grote tekstvlakhoogte", geslaagd: appCss.includes(".canvasTextarea.sectionTitle { min-height: 26px;") },
     { naam: "BOW must-haves onder 16/16 zijn rood", geslaagd: maakBowKwaliteitsscore(legeLes).status === "Niet audit-klaar" && maakBowKwaliteitsscore(legeLes).statusType === "concept" && maakBowKwaliteitsscore(legeLes).percentage === 0 },
     { naam: "BOW volledige check bevat drie lagen", geslaagd: maakBowKwaliteitsscore(legeLes).secties.length === 3 && maakBowKwaliteitsscore(legeLes).secties[1].titel.includes("BOW kwaliteitsverdieping") },
     { naam: "BOW must-haves 16/16 zijn oranje audit-klaar", geslaagd: (() => { const score = maakBowKwaliteitsscore({ ...legeLes, ...Object.fromEntries(bowMustHaves.map((item) => [item.key, "ingevuld"])) }); return score.mustHaveAanwezig === 16 && score.mustHaveTotaal === 16 && score.status === "Audit-klaar" && score.statusType === "bijna"; })() },
@@ -3505,7 +3512,7 @@ export default function Lesstudio() {
       <style>{appCss}</style>
       {!zelftestsGeslaagd ? <div className="testMelding">Interne datacheck vraagt aandacht.</div> : null}
       <AppHeader onHelp={() => setHelpOpen(true)} onPrivacy={() => setPrivacyOpen(true)} onDisclaimer={() => setDisclaimerOpen(true)} onSettings={() => setSettingsOpen(true)} />
-      <StudioSidebar stap={stap} setStap={nav} />
+      <StudioSidebar stap={stap} setStap={nav} darkMode={instellingen.darkMode} />
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
@@ -3524,7 +3531,7 @@ body { margin: 0; }
 .appRoot { position: relative; min-height: 100vh; background:
   linear-gradient(180deg, #f8fcff 0%, #eef7fd 52%, #eaf3f9 100%);
   color: var(--tr-text); padding-top: calc(var(--app-header-height) + 22px); font-family: inherit; font-feature-settings: "kern"; text-rendering: geometricPrecision; }
-.appRoot.darkMode { --tr-blue-dark: #69bfff; --tr-blue-deep: #d7efff; --tr-blue-soft: #123a55; --tr-blue-pale: #0f2839; --tr-line: #25536d; --tr-line-soft: #1e4056; --tr-text: #e9f6ff; --tr-muted: #a7bed0; --tr-surface: rgba(11,29,42,.98); --tr-shadow: 0 16px 44px rgba(0,0,0,.26); background: linear-gradient(180deg, #071b29 0%, #0b2536 56%, #0a1b27 100%); }
+.appRoot.darkMode { --tr-blue: #4ea9ff; --tr-blue-dark: #8ed0ff; --tr-blue-deep: #d7efff; --tr-blue-soft: #123a55; --tr-blue-pale: #0f2839; --tr-line: #2b5c76; --tr-line-soft: #23495f; --tr-text: #eef8ff; --tr-muted: #a9c1d1; --tr-surface: rgba(10,27,39,.98); --tr-shadow: 0 16px 44px rgba(0,0,0,.34); background: linear-gradient(180deg, #061721 0%, #071e2c 48%, #06131d 100%); }
 .appRoot::before, .appRoot::after { display: none; }
 .appHeader { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--app-header-height); background: rgba(255,255,255,.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(185,229,255,.84); box-shadow: 0 8px 24px rgba(8,58,89,.08); padding: 14px 26px 14px 224px; display: flex; justify-content: flex-end; align-items: center; }
 .brand { display: flex; align-items: center; justify-content: flex-start; width: fit-content; text-decoration: none; }
@@ -3623,10 +3630,10 @@ body { margin: 0; }
 .panel.wide { grid-column: 2; grid-row: 1; }
 .panel h2 { margin: 0 0 5px; color: var(--tr-text); font-size: 20px; font-weight: 750; letter-spacing: 0; }
 .panel p { margin: 0 0 9px; color: var(--tr-muted); line-height: 1.38; font-size: 14px; }
-.werkruimteKop { margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid #e2f3ff; }
+.werkruimteKop { margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid #e2f3ff; }
 .werkruimteKop span { display: block; color: var(--tr-blue); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
-.werkruimteKop h2 { margin-bottom: 4px; }
-.werkruimteKop p { margin-bottom: 0; font-size: 13px; }
+.werkruimteKop h2 { margin: 0 0 3px; font-size: 20px; line-height: 1.15; }
+.werkruimteKop p { margin-bottom: 0; font-size: 13px; line-height: 1.35; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .fieldBlock { position: relative; margin-bottom: 14px; }
 .fieldBlock:focus-within { z-index: 90; }
@@ -3742,8 +3749,8 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonEmpty strong, .savedLessonEmpty span { display: block; }
 .savedLessonEmpty strong { color: var(--tr-blue-dark); font-size: 13px; }
 .savedLessonEmpty span { color: #526b7d; font-size: 12px; margin-top: 3px; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 0; }
-.stats div { min-height: 54px; display: grid; align-content: center; gap: 4px; background: white; border: 1px solid #d7efff; border-radius: 0; padding: 8px 7px; box-shadow: none; text-align: center; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 0; }
+.stats div { height: 62px; min-width: 0; display: grid; align-content: center; justify-items: center; gap: 4px; background: white; border: 1px solid #d7efff; border-radius: 0; padding: 8px 7px; box-shadow: none; text-align: center; }
 .stats strong { display: block; font-size: 20px; line-height: 1; color: var(--tr-blue); font-weight: 760; order: 1; }
 .stats span { display: block; color: #61798a; font-weight: 650; font-size: 9.5px; line-height: 1.15; margin-top: 0; order: 2; text-transform: uppercase; letter-spacing: .03em; }
 .bowScoreKaart { margin: 0 0 12px; padding: 12px; border: 1px solid var(--tr-line); border-radius: 0; background: white; box-shadow: none; }
@@ -3848,7 +3855,7 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .cover img { width: 150px; background: white; padding: 8px 10px; margin-bottom: 18px; position: relative; z-index: 1; }
 .headerTriangle { position: absolute; right: 0; top: 0; width: 0; height: 0; border-top: 126px solid transparent; border-bottom: 126px solid transparent; border-left: 188px solid rgba(255,255,255,.13); transform: translate(22px, -16px); pointer-events: none; }
 .cover .canvasTitle { width: 100%; border: 0; outline: 0; background: rgba(255,255,255,.08); color: white; font-size: 42px; font-weight: 1000; line-height: 1.12; position: relative; z-index: 1; padding: 8px 0; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
-.lessonSection { position: relative; margin: 22px 34px; padding: 20px 24px 18px 76px; border: 1px solid #d7efff; background: linear-gradient(180deg, white 0%, #f7fcff 100%); }
+.lessonSection { position: relative; margin: 18px 34px; padding: 16px 24px 16px 76px; border: 1px solid #d7efff; background: linear-gradient(180deg, white 0%, #f7fcff 100%); }
 .canvasSectionRail { position: absolute; left: 24px; top: 24px; display: grid; gap: 6px; justify-items: start; }
 .canvasSectionRail > span { width: 36px; height: 36px; background: var(--tr-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 1000; }
 .canvasEditorToolbar { display: inline-flex; align-items: center; gap: 3px; width: fit-content; margin: 0 0 8px; padding: 3px; border: 1px solid #d7efff; background: #f8fcff; color: var(--tr-blue-dark); position: relative; z-index: 2; }
@@ -3860,8 +3867,9 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .canvasEditorToolbar button:nth-of-type(2) { font-style: italic; }
 .canvasFloatingToolbar { position: absolute; top: 12px; right: 12px; z-index: 5; margin: 0; box-shadow: 0 12px 28px rgba(0,75,122,.16); }
 .canvasSectionToolbar { position: absolute; top: 10px; right: 10px; z-index: 4; margin: 0; box-shadow: 0 10px 24px rgba(0,75,122,.12); }
-.sectionTitle { width: 100%; min-height: 0; margin: 0 0 6px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.2; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.sectionTitle { width: 100%; min-height: 0; margin: 0 0 3px; border: 0; background: transparent; color: var(--tr-blue-dark); font-size: 21px; font-weight: 900; outline: none; font-family: inherit; line-height: 1.15; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
 .canvasTextarea { width: 100%; min-height: 92px; resize: none; border: 0; padding: 0; background: transparent; color: var(--tr-text); font-size: 15px; line-height: 1.58; outline: none; font-family: inherit; white-space: pre-wrap; overflow: hidden; overflow-wrap: anywhere; }
+.canvasTextarea.sectionTitle { min-height: 26px; }
 .timeline { display: grid; gap: 12px; }
 .timelineCard { position: relative; display: grid; grid-template-columns: 124px 1fr; gap: 14px; align-items: stretch; background: white; border: 1px solid var(--tr-line); padding: 12px; }
 .timelineRail { display: grid; align-content: start; justify-items: start; gap: 6px; }
@@ -4067,6 +4075,70 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .appRoot.darkMode .settingsNote,
 .appRoot.darkMode .helpModalHeader {
   background: #0f2839;
+}
+.appRoot.darkMode .studioSidebarLogo {
+  background: #071721;
+}
+.appRoot.darkMode .appHeader {
+  background: rgba(7,23,33,.98);
+  border-bottom-color: #23495f;
+}
+.appRoot.darkMode .lessonDoc,
+.appRoot.darkMode .lessonSection,
+.appRoot.darkMode .timelineCard,
+.appRoot.darkMode .tijdEditor,
+.appRoot.darkMode .tijdEditorVelden input,
+.appRoot.darkMode .canvasHint,
+.appRoot.darkMode .toolbar,
+.appRoot.darkMode .downloadPaneel,
+.appRoot.darkMode .downloadKeuze,
+.appRoot.darkMode .downloadActieKnop,
+.appRoot.darkMode .samenvattingSamenstellen,
+.appRoot.darkMode .samenvattingDropdown > button,
+.appRoot.darkMode .message,
+.appRoot.darkMode .tijdEditorHeader,
+.appRoot.darkMode .tijdEditorVelden small,
+.appRoot.darkMode .canvasEditorToolbar,
+.appRoot.darkMode .uitlegMenu,
+.appRoot.darkMode .tipMenu,
+.appRoot.darkMode .suggesties,
+.appRoot.darkMode .verbeterMenu,
+.appRoot.darkMode .helpModal {
+  background: #0b1d2a;
+  color: var(--tr-text);
+  border-color: var(--tr-line-soft);
+}
+.appRoot.darkMode .cover,
+.appRoot.darkMode .privacyWarning,
+.appRoot.darkMode .btn.primary,
+.appRoot.darkMode .iconActieKnop,
+.appRoot.darkMode .downloadActieIcon,
+.appRoot.darkMode .tijdHerstelKnop,
+.appRoot.darkMode .tijdEditorNummer,
+.appRoot.darkMode .canvasSectionRail > span,
+.appRoot.darkMode .timelineIndex {
+  background: #1d74bd;
+}
+.appRoot.darkMode .canvasTextarea,
+.appRoot.darkMode .sectionTitle,
+.appRoot.darkMode .timeline small,
+.appRoot.darkMode .profile li,
+.appRoot.darkMode .panel p,
+.appRoot.darkMode .helpSectie p {
+  color: var(--tr-text);
+}
+.appRoot.darkMode .canvasTextarea.timelineText,
+.appRoot.darkMode .timeline .canvasTextarea {
+  background: #0f2839;
+}
+.appRoot.darkMode .btn.secondary,
+.appRoot.darkMode .savedLessonActions button,
+.appRoot.darkMode .veldActies > button,
+.appRoot.darkMode .canvasEditorToolbar button,
+.appRoot.darkMode .downloadActieKnop {
+  background: #102b3d;
+  color: var(--tr-blue-dark);
+  border-color: var(--tr-line-soft);
 }
 .auditColumn::-webkit-scrollbar,
 .savedLessonList::-webkit-scrollbar,
