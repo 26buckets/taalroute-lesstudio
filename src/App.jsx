@@ -2202,6 +2202,15 @@ function InfoIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12" />
+      <path d="M18 6L6 18" />
+    </svg>
+  );
+}
+
 function SettingsIcon() {
   return (
     <svg className="settingsIconSvg" viewBox="0 0 24 24" aria-hidden="true">
@@ -2589,7 +2598,7 @@ function HelpModal({ open, onClose }) {
             <p id="helpBeschrijving">Uitleg voor docenten</p>
             <h2 id="helpTitel">Hulp bij Taalroute Lesstudio</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Sluiten">Sluiten</button>
+          <button type="button" className="modalCloseButton" onClick={onClose} aria-label="Sluiten" title="Sluiten"><CloseIcon /></button>
         </div>
         <div className="helpModalBody">
           {helpSecties.map((sectie) => (
@@ -2629,7 +2638,7 @@ function DisclaimerModal({ open, onClose }) {
             <p id="disclaimerBeschrijving">Voor gebruik van deze website</p>
             <h2 id="disclaimerTitel">Disclaimer</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Sluiten">Sluiten</button>
+          <button type="button" className="modalCloseButton" onClick={onClose} aria-label="Sluiten" title="Sluiten"><CloseIcon /></button>
         </div>
         <div className="helpModalBody disclaimerBody">
           {disclaimerSecties.map((sectie) => (
@@ -2664,7 +2673,7 @@ function PrivacyModal({ open, onClose }) {
             <p id="privacyBeschrijving">Veilig omgaan met lesinformatie</p>
             <h2 id="privacyTitel">Privacy</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Sluiten">Sluiten</button>
+          <button type="button" className="modalCloseButton" onClick={onClose} aria-label="Sluiten" title="Sluiten"><CloseIcon /></button>
         </div>
         <div className="helpModalBody disclaimerBody">
           {privacySecties.map((sectie) => (
@@ -2700,7 +2709,7 @@ function InstellingenDrawer({ open, instellingen, onChange, onClose }) {
             <p>Voorkeuren</p>
             <h2 id="instellingenTitel">Instellingen</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Instellingen sluiten">Sluiten</button>
+          <button type="button" className="modalCloseButton" onClick={onClose} aria-label="Instellingen sluiten" title="Sluiten"><CloseIcon /></button>
         </div>
         <div className="settingsBody">
           <div className="settingsGroup">
@@ -3249,23 +3258,23 @@ function Downloaden({ titel, secties, naarResultaat }) {
         </div>
         <div className="downloadKeuze" aria-label="Kies document">
           <button type="button" className={voorbeeld === "volledig" ? "active" : ""} onClick={() => setVoorbeeld("volledig")}>
-            <strong>Volledig plan</strong>
-            <span>Alles voor de lesvoorbereiding</span>
+            <strong>Lesplan</strong>
+            <span>volledige voorbereiding</span>
           </button>
           <button type="button" className={isSamenvatting ? "active" : ""} onClick={() => setVoorbeeld("samenvatting")}>
-            <strong>Samenvatting</strong>
-            <span>Compacte leskaart</span>
+            <strong>Leskaart</strong>
+            <span>compacte printversie</span>
           </button>
         </div>
-        <div className="downloadActies" aria-label="Downloadacties">
-          <DownloadActieKnop label="Print" sublabel={isSamenvatting ? "samenvatting" : "volledig plan"} onClick={() => printHtml(actiefHtml)}><PrintIcon /></DownloadActieKnop>
+        <div className={`downloadActies ${isSamenvatting ? "downloadActies--three" : "downloadActies--two"}`} aria-label="Downloadacties">
+          <DownloadActieKnop label="Print" sublabel={isSamenvatting ? "leskaart" : "lesplan"} onClick={() => printHtml(actiefHtml)}><PrintIcon /></DownloadActieKnop>
           {isSamenvatting ? (
             <>
-              <DownloadActieKnop label={pdfBezig ? "PDF..." : "PDF"} sublabel="samenvatting" onClick={downloadSamenvattingPdf} disabled={pdfBezig}><PdfIcon /></DownloadActieKnop>
-              <DownloadActieKnop label="HTML" sublabel="samenvatting" onClick={() => downloadBestand(samenvattingHtml, maakBestandsnaam(`${basisNaam}_samenvatting`), "text/html;charset=utf-8")}><SummaryIcon /></DownloadActieKnop>
+              <DownloadActieKnop label={pdfBezig ? "PDF..." : "PDF"} sublabel="leskaart" onClick={downloadSamenvattingPdf} disabled={pdfBezig}><PdfIcon /></DownloadActieKnop>
+              <DownloadActieKnop label="HTML" sublabel="leskaart" onClick={() => downloadBestand(samenvattingHtml, maakBestandsnaam(`${basisNaam}_samenvatting`), "text/html;charset=utf-8")}><SummaryIcon /></DownloadActieKnop>
             </>
           ) : (
-            <DownloadActieKnop label="HTML" sublabel="volledig plan" onClick={() => downloadBestand(html, maakBestandsnaam(basisNaam), "text/html;charset=utf-8")}><DownloadIcon /></DownloadActieKnop>
+            <DownloadActieKnop label="HTML" sublabel="lesplan" onClick={() => downloadBestand(html, maakBestandsnaam(basisNaam), "text/html;charset=utf-8")}><DownloadIcon /></DownloadActieKnop>
           )}
         </div>
         {isSamenvatting ? (
@@ -3547,7 +3556,7 @@ export default function Lesstudio() {
 }
 
 const appCss = `
-:root { color-scheme: light; --tr-blue: ${BRAND}; --tr-blue-dark: #006fbd; --tr-blue-deep: #063a5a; --tr-blue-soft: #e6f5ff; --tr-blue-pale: #f4fbff; --tr-line: #b9e5ff; --tr-line-soft: #d9efff; --tr-text: #17324a; --tr-muted: #64748b; --tr-surface: rgba(255,255,255,.98); --tr-surface-2: #fbfdff; --tr-surface-3: #f4fbff; --tr-input: #ffffff; --tr-shadow: 0 16px 44px rgba(8,58,89,.09); --app-header-height: 84px; --body-box-min-height: 86px; font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+:root { color-scheme: light; --tr-blue: ${BRAND}; --tr-blue-dark: #006fbd; --tr-blue-deep: #063a5a; --tr-blue-soft: #e6f5ff; --tr-blue-pale: #f4fbff; --tr-line: #b9e5ff; --tr-line-soft: #d9efff; --tr-text: #17324a; --tr-muted: #64748b; --tr-surface: rgba(255,255,255,.98); --tr-surface-2: #fbfdff; --tr-surface-3: #f4fbff; --tr-input: #ffffff; --tr-shadow: 0 16px 44px rgba(8,58,89,.09); --app-header-height: 84px; --body-box-min-height: 86px; font-family: Aptos, "Segoe UI Variable", "Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 .appRoot { position: relative; min-height: 100vh; background:
@@ -3566,7 +3575,7 @@ body { margin: 0; }
 .appHeader nav span { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 8px; background: white; color: var(--tr-blue-dark); border: 1px solid var(--tr-line-soft); }
 .appHeader nav .active span { background: white; color: var(--tr-blue); }
 .headerActies { position: relative; justify-self: end; display: flex; align-items: center; gap: 8px; }
-.infoMenuKnop, .settingsKnop { width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 0; border: 1px solid #c7eaff; background: white; color: var(--tr-blue); font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px rgba(8,58,89,.08); }
+.infoMenuKnop, .settingsKnop { width: 46px; min-width: 46px; height: 46px; min-height: 46px; aspect-ratio: 1 / 1; display: inline-flex; align-items: center; justify-content: center; gap: 0; border: 1px solid #c7eaff; background: white; color: var(--tr-blue); font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px rgba(8,58,89,.08); }
 .infoMenuKnop:hover, .settingsKnop:hover { background: var(--tr-blue); border-color: var(--tr-blue); color: white; }
 .infoMenuKnop:focus-visible, .settingsKnop:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(0,144,242,.18), 0 8px 20px rgba(0,144,242,.16); }
 .infoMenuKnop svg, .settingsKnop svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
@@ -3579,12 +3588,12 @@ body { margin: 0; }
 .studioSidebarLogo:focus-visible { outline: 0; box-shadow: inset 0 0 0 4px rgba(0,144,242,.16); }
 .studioSidebarLogo img { width: 136px; height: auto; display: block; }
 .studioStappen { display: grid; gap: 8px; }
-.studioStappen button { width: 100%; display: grid; grid-template-columns: 30px 1fr; column-gap: 9px; row-gap: 1px; align-items: center; padding: 9px 8px; border: 1px solid transparent; background: transparent; color: var(--tr-muted); font-family: inherit; text-align: left; cursor: pointer; }
+.studioStappen button { width: 100%; display: grid; grid-template-columns: 30px 1fr; column-gap: 9px; row-gap: 0; align-items: center; padding: 9px 8px; border: 1px solid transparent; background: transparent; color: var(--tr-muted); font-family: inherit; text-align: left; cursor: pointer; }
 .studioStappen button:hover { background: #f4fbff; color: var(--tr-blue-dark); }
 .studioStappen button.active { background: #eef8ff; color: var(--tr-blue-dark); border-color: var(--tr-line-soft); box-shadow: inset 3px 0 0 var(--tr-blue); }
 .studioStappen span { grid-row: 1 / span 2; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; background: #eef8ff; color: var(--tr-blue-dark); font-weight: 800; }
 .studioStappen button.active span { background: var(--tr-blue); color: white; }
-.studioStappen b { font-size: 12.5px; font-weight: 750; line-height: 1.1; }
+.studioStappen b { align-self: center; font-size: 12.5px; font-weight: 750; line-height: 28px; }
 .studioStappen small { font-size: 10px; line-height: 1.25; font-weight: 600; opacity: .86; }
 .studioSidebarVoet { margin-top: auto; padding: 10px 2px 2px; border-top: 1px solid var(--tr-line-soft); background: transparent; color: var(--tr-muted); }
 .studioSidebarVoet strong, .studioSidebarVoet span { display: block; }
@@ -3596,6 +3605,8 @@ body { margin: 0; }
 .helpModalHeader p { margin: 0 0 4px; color: var(--tr-blue); font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
 .helpModalHeader h2 { margin: 0; color: var(--tr-text); font-size: 28px; line-height: 1.15; }
 .helpModalHeader button { border: 1px solid var(--tr-blue); background: var(--tr-blue); color: white; padding: 10px 14px; font-family: inherit; font-weight: 900; cursor: pointer; }
+.helpModalHeader .modalCloseButton, .settingsHeader .modalCloseButton { width: 40px; height: 40px; min-width: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.modalCloseButton svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .helpModalHeader button:hover { background: var(--tr-blue-dark); border-color: var(--tr-blue-dark); }
 .helpModalBody { overflow: auto; padding: 20px 24px 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .disclaimerBody { grid-template-columns: 1fr; }
@@ -3913,21 +3924,23 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .timeline small { color: #61798a; font-size: 12px; line-height: 1.45; }
 .download iframe { width: 100%; min-height: 1200px; border: 1px solid var(--tr-line); border-radius: 6px; background: white; box-shadow: 0 24px 80px rgba(0,75,122,.14); }
 @media (max-width: 1050px) {
-  :root { --app-header-height: 136px; }
-  .appRoot { padding-top: calc(var(--app-header-height) + 10px); }
+  :root { --app-header-height: 72px; --studio-mobile-nav-height: 62px; }
+  .appRoot { padding-top: calc(var(--app-header-height) + var(--studio-mobile-nav-height) + 12px); }
   .appRoot::before, .appRoot::after { display: none; }
-  .studioSidebar { left: 16px; right: 16px; top: 72px; bottom: auto; width: auto; min-height: 52px; padding: 6px; display: block; }
+  .studioSidebar { left: 0; right: 0; top: var(--app-header-height); bottom: auto; width: auto; min-height: var(--studio-mobile-nav-height); padding: 8px 16px; display: block; border-left: 0; border-right: 0; border-top: 0; box-shadow: 0 10px 24px rgba(8,58,89,.08); }
   .studioSidebarLogo, .studioSidebarKop, .studioSidebarVoet { display: none; }
-  .studioStappen { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-  .studioStappen button { grid-template-columns: 26px 1fr; padding: 7px 8px; }
+  .studioStappen { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--tr-line-soft); background: var(--tr-surface); }
+  .studioStappen button { grid-template-columns: 26px 1fr; min-height: 46px; padding: 8px 10px; border: 0; border-right: 1px solid var(--tr-line-soft); }
+  .studioStappen button:last-child { border-right: 0; }
+  .studioStappen button.active { border-color: transparent; box-shadow: inset 0 -3px 0 var(--tr-blue); }
   .studioStappen span { width: 26px; height: 26px; }
-  .studioStappen b { font-size: 12px; }
+  .studioStappen b { font-size: 12px; line-height: 26px; }
   .studioStappen small { display: none; }
   .appHeader { padding: 12px 16px; }
   .brand { justify-self: center; }
   .brand img { width: 128px; }
   .headerActies { grid-column: 2; grid-row: 1; }
-  .infoMenuKnop { width: 78px; height: 42px; font-size: 13px; }
+  .infoMenuKnop, .settingsKnop { width: 46px; min-width: 46px; height: 46px; min-height: 46px; }
   .helpModalBody { grid-template-columns: 1fr; }
   .layoutInput { grid-template-columns: 1fr; padding-inline: 16px; }
   .workspaceColumn { grid-template-columns: 1fr; }
@@ -3941,11 +3954,15 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
   .samenvattingSamenstellen { grid-column: 1; }
 }
 @media (max-width: 650px) {
-  :root { --app-header-height: 112px; --body-box-min-height: 0; }
-  .appRoot { padding-top: calc(var(--app-header-height) + 8px); }
+  :root { --app-header-height: 60px; --studio-mobile-nav-height: 58px; --body-box-min-height: 0; }
+  .appRoot { padding-top: calc(var(--app-header-height) + var(--studio-mobile-nav-height) + 10px); }
   .appHeader { padding: 10px 12px; }
   .brand img { width: 112px; }
-  .infoMenuKnop { width: 68px; height: 36px; font-size: 12px; }
+  .studioSidebar { top: var(--app-header-height); padding: 8px 10px; }
+  .studioStappen button { grid-template-columns: 24px 1fr; min-height: 42px; padding: 7px 8px; }
+  .studioStappen span { width: 24px; height: 24px; }
+  .studioStappen b { font-size: 11.5px; line-height: 24px; }
+  .infoMenuKnop, .settingsKnop { width: 40px; min-width: 40px; height: 40px; min-height: 40px; font-size: 12px; }
   .infoMenuKnop svg { width: 16px; height: 16px; }
   .infoMenu { min-width: 155px; }
   .layoutInput, .result, .download { padding-inline: 10px; padding-bottom: 36px; }
@@ -4274,6 +4291,140 @@ input[type="range"] { width: 100%; accent-color: var(--tr-blue); }
 .savedLessonList::-webkit-scrollbar-thumb:hover,
 .helpModalBody::-webkit-scrollbar-thumb:hover {
   background: var(--tr-blue);
+}
+.toolbar,
+.downloadPaneel {
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 60px;
+  margin-bottom: 14px;
+  padding: 7px;
+}
+.resultaatToolbar .btn,
+.downloadPaneel .btn,
+.downloadKeuze button,
+.downloadActieKnop {
+  height: 44px;
+  min-height: 44px;
+}
+.downloadPaneel {
+  align-items: stretch;
+  grid-template-columns: 132px minmax(260px, 1fr) minmax(320px, 0.9fr);
+}
+.resultaatToolbar .btn,
+.downloadTerug .btn {
+  flex: 0 0 132px;
+  width: 132px;
+}
+.downloadPaneel .btn,
+.downloadActieKnop {
+  padding: 8px 10px;
+}
+.downloadTerug,
+.downloadKeuze,
+.downloadActies {
+  align-self: stretch;
+  min-height: 44px;
+}
+.downloadTerug .btn {
+  height: 100%;
+}
+.downloadActies {
+  gap: 4px;
+  grid-auto-rows: 44px;
+}
+.downloadActies--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.downloadActies--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.downloadKeuze {
+  padding: 0;
+}
+.downloadKeuze button,
+.downloadActieKnop {
+  align-items: center;
+  min-width: 0;
+}
+.downloadKeuze button {
+  align-content: center;
+  display: grid;
+  justify-content: center;
+  place-items: center;
+  row-gap: 1px;
+  text-align: center;
+}
+.downloadActieKnop {
+  gap: 7px;
+  justify-content: center;
+}
+.downloadKeuze strong,
+.downloadKeuze span {
+  text-align: center;
+  width: 100%;
+}
+.downloadKeuze strong {
+  font-size: 12px;
+  line-height: 1.1;
+}
+.downloadKeuze span,
+.downloadActieKnop small {
+  font-weight: 500;
+}
+.downloadKeuze button.active strong,
+.downloadKeuze button.active span {
+  color: white;
+}
+.downloadActieKnop strong {
+  font-size: 12px;
+  line-height: 1.1;
+}
+.downloadActieIcon {
+  flex-basis: 28px;
+  height: 28px;
+  width: 28px;
+}
+.downloadActieIcon svg {
+  height: 16px;
+  width: 16px;
+}
+.weergavePaneel {
+  grid-template-columns: minmax(0, 1fr);
+}
+.weergavePaneel > div,
+.weergaveKnoppen {
+  min-width: 0;
+  width: 100%;
+}
+.weergaveKnoppen {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.weergavePaneel span,
+.weergavePaneel small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1050px) {
+  .downloadPaneel {
+    grid-template-columns: 1fr;
+  }
+  .downloadActies {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .downloadActies--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 650px) {
+  .downloadTerug .btn {
+    flex: 1 1 145px;
+    width: auto;
+  }
+  .downloadKeuze,
+  .downloadActies {
+    grid-template-columns: 1fr;
+  }
 }
 @media print { .appHeader, .toolbar, .downloadPaneel { display: none !important; } .appRoot, .result, .download { padding: 0 !important; background: white !important; } .download iframe { display: none; } .lessonDoc { box-shadow: none; border: 0; max-width: none; } }
 `;
